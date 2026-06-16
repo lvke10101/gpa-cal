@@ -5,7 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
 <title>GradeVault — FUTO GPA Calculator</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<!-- Supabase JS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
+/* -------- (keep all your existing CSS exactly as before) -------- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
@@ -29,468 +32,124 @@
   --radius: 14px;
 }
 
-html, body {
-  height: 100%;
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 15px;
-  -webkit-font-smoothing: antialiased;
-}
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; -webkit-font-smoothing: antialiased; }
 
-/* ── AUTH SCREEN ─────────────────────────────────────────── */
-#auth-screen {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  background: radial-gradient(ellipse at 30% 20%, #1a1230 0%, #0e0f14 60%);
-}
-.auth-box {
-  width: 100%;
-  max-width: 400px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 22px;
-  padding: 40px 28px 32px;
-  box-shadow: 0 0 60px rgba(212,168,67,0.07), var(--shadow);
-}
-.auth-logo {
-  font-family: 'Playfair Display', serif;
-  font-size: 26px;
-  color: var(--gold);
-  margin-bottom: 4px;
-}
-.auth-tagline {
-  color: var(--text3);
-  font-size: 12px;
-  margin-bottom: 32px;
-}
-.auth-tabs {
-  display: flex;
-  background: var(--card);
-  border-radius: 10px;
-  padding: 4px;
-  margin-bottom: 24px;
-  gap: 4px;
-}
-.auth-tab {
-  flex: 1;
-  padding: 9px;
-  text-align: center;
-  font-size: 13px;
-  font-weight: 500;
-  border-radius: 7px;
-  cursor: pointer;
-  color: var(--text3);
-  transition: all 0.2s;
-  border: none;
-  background: none;
-  font-family: inherit;
-}
-.auth-tab.active {
-  background: var(--gold);
-  color: #0e0f14;
-}
-.auth-field {
-  margin-bottom: 14px;
-}
-.auth-field label {
-  display: block;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text3);
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  margin-bottom: 6px;
-}
-.auth-field input {
-  width: 100%;
-  background: var(--card);
-  border: 1px solid var(--border);
-  color: var(--text);
-  border-radius: 10px;
-  padding: 13px 14px;
-  font-family: inherit;
-  font-size: 15px;
-  outline: none;
-  transition: border-color 0.2s;
-  -webkit-appearance: none;
-}
-.auth-field input:focus { border-color: var(--gold); }
-.auth-error {
-  font-size: 13px;
-  color: var(--red2);
-  background: rgba(192,57,43,0.1);
-  border: 1px solid rgba(192,57,43,0.2);
-  border-radius: 8px;
-  padding: 10px 12px;
-  margin-bottom: 14px;
-  display: none;
-}
-.btn-full {
-  width: 100%;
-  background: var(--gold);
-  color: #0e0f14;
-  border: none;
-  padding: 14px;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 15px;
-  cursor: pointer;
-  font-family: inherit;
-  transition: background 0.2s;
-  margin-top: 6px;
-}
+/* Auth screen */
+#auth-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: radial-gradient(ellipse at 30% 20%, #1a1230 0%, #0e0f14 60%); }
+.auth-box { width: 100%; max-width: 400px; background: var(--surface); border: 1px solid var(--border); border-radius: 22px; padding: 40px 28px 32px; box-shadow: 0 0 60px rgba(212,168,67,0.07), var(--shadow); }
+.auth-logo { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--gold); margin-bottom: 4px; }
+.auth-tagline { color: var(--text3); font-size: 12px; margin-bottom: 32px; }
+.auth-tabs { display: flex; background: var(--card); border-radius: 10px; padding: 4px; margin-bottom: 24px; gap: 4px; }
+.auth-tab { flex: 1; padding: 9px; text-align: center; font-size: 13px; font-weight: 500; border-radius: 7px; cursor: pointer; color: var(--text3); transition: all 0.2s; border: none; background: none; font-family: inherit; }
+.auth-tab.active { background: var(--gold); color: #0e0f14; }
+.auth-field { margin-bottom: 14px; }
+.auth-field label { display: block; font-size: 12px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+.auth-field input, .auth-field select { width: 100%; background: var(--card); border: 1px solid var(--border); color: var(--text); border-radius: 10px; padding: 13px 14px; font-family: inherit; font-size: 15px; outline: none; transition: border-color 0.2s; -webkit-appearance: none; }
+.auth-field input:focus, .auth-field select:focus { border-color: var(--gold); }
+.auth-field select option { background: var(--card); color: var(--text); }
+.auth-error { font-size: 13px; color: var(--red2); background: rgba(192,57,43,0.1); border: 1px solid rgba(192,57,43,0.2); border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; display: none; }
+.btn-full { width: 100%; background: var(--gold); color: #0e0f14; border: none; padding: 14px; border-radius: 10px; font-weight: 600; font-size: 15px; cursor: pointer; font-family: inherit; transition: background 0.2s; margin-top: 6px; }
 .btn-full:hover { background: var(--gold2); }
 .btn-full:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* ── MAIN APP ─────────────────────────────────────────────── */
+/* Main app */
 #app { display: none; min-height: 100vh; flex-direction: column; }
-
-/* Header */
-header {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 0 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  height: 54px;
-  flex-shrink: 0;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-.header-logo {
-  font-family: 'Playfair Display', serif;
-  font-size: 18px;
-  color: var(--gold);
-}
+header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 16px; display: flex; align-items: center; gap: 12px; height: 54px; flex-shrink: 0; position: sticky; top: 0; z-index: 100; }
+.header-logo { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--gold); }
 header .spacer { flex: 1; }
-.header-user {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  padding: 5px 12px 5px 6px;
-  cursor: pointer;
-  transition: border-color 0.2s;
-  flex-shrink: 0;
-}
+.header-user { display: flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 5px 12px 5px 6px; cursor: pointer; transition: border-color 0.2s; flex-shrink: 0; }
 .header-user:hover { border-color: var(--gold); }
-.header-avatar {
-  width: 26px; height: 26px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--gold), #a07820);
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 600; font-size: 11px; color: #0e0f14;
-}
+.header-avatar { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), #a07820); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 11px; color: #0e0f14; }
 .header-username { font-size: 13px; font-weight: 500; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .logout-icon { color: var(--text3); font-size: 11px; }
 
-/* Stats bar */
-.stats-bar {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 12px 16px;
-  display: flex;
-  gap: 0;
-  align-items: center;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
+.stats-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; gap: 0; align-items: center; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
 .stats-bar::-webkit-scrollbar { display: none; }
-
-.stat-chip {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  flex-shrink: 0;
-  padding-right: 16px;
-}
-.stat-label {
-  font-size: 10px;
-  color: var(--text3);
-  text-transform: uppercase;
-  letter-spacing: 0.7px;
-  white-space: nowrap;
-}
-.stat-value {
-  font-family: 'DM Mono', monospace;
-  font-size: 18px;
-  font-weight: 500;
-  color: var(--gold);
-}
+.stat-chip { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; padding-right: 16px; }
+.stat-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.7px; white-space: nowrap; }
+.stat-value { font-family: 'DM Mono', monospace; font-size: 18px; font-weight: 500; color: var(--gold); }
 .stat-value.good { color: var(--green2); }
 .stat-value.bad  { color: var(--red2); }
 .stat-divider { width: 1px; height: 36px; background: var(--border); flex-shrink: 0; margin-right: 16px; }
 .stat-chip.sm .stat-value { font-size: 14px; color: var(--text2); }
 
-.cgpa-badge {
-  flex-shrink: 0;
-  margin-left: auto;
-  padding-left: 16px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 8px 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+.cgpa-badge { flex-shrink: 0; margin-left: auto; padding-left: 16px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 8px 16px; display: flex; flex-direction: column; align-items: center; }
 .cgpa-badge .label { font-size: 10px; color: var(--text3); letter-spacing: 0.7px; text-transform: uppercase; margin-bottom: 1px; }
 .cgpa-badge .val   { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--gold); line-height: 1; }
 .cgpa-badge .cls   { font-size: 10px; color: var(--text2); margin-top: 1px; }
 
-/* Year groups */
-.year-groups {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 0 16px;
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
+.year-groups { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 16px; display: flex; gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
 .year-groups::-webkit-scrollbar { display: none; }
-
-.year-btn {
-  padding: 10px 14px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  color: var(--text3);
-  border-bottom: 2px solid transparent;
-  transition: all 0.2s;
-  white-space: nowrap;
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  font-family: inherit;
-}
+.year-btn { padding: 10px 14px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--text3); border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; background: none; border: none; border-bottom: 2px solid transparent; font-family: inherit; }
 .year-btn:hover { color: var(--text); }
 .year-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
 
-/* Semester tabs row */
-.sem-tabs {
-  background: var(--card);
-  border-bottom: 1px solid var(--border);
-  padding: 0 16px;
-  display: flex;
-  gap: 4px;
-}
-.sem-tab {
-  flex: 1;
-  padding: 10px 4px;
-  text-align: center;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  color: var(--text3);
-  border-bottom: 2px solid transparent;
-  transition: all 0.2s;
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  font-family: inherit;
-  white-space: nowrap;
-}
+.sem-tabs { background: var(--card); border-bottom: 1px solid var(--border); padding: 0 16px; display: flex; gap: 4px; }
+.sem-tab { flex: 1; padding: 10px 4px; text-align: center; font-size: 12px; font-weight: 500; cursor: pointer; color: var(--text3); border-bottom: 2px solid transparent; transition: all 0.2s; background: none; border: none; border-bottom: 2px solid transparent; font-family: inherit; white-space: nowrap; }
 .sem-tab:hover { color: var(--text); }
 .sem-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
-.sem-tab .gpa-tag {
-  display: block;
-  font-family: 'DM Mono', monospace;
-  font-size: 11px;
-  color: var(--text3);
-  margin-top: 1px;
-}
+.sem-tab .gpa-tag { display: block; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); margin-top: 1px; }
 .sem-tab.active .gpa-tag { color: var(--gold); }
 
-/* Content */
 .content { flex: 1; padding: 16px; max-width: 900px; width: 100%; margin: 0 auto; }
-
-.semester-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-.semester-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 18px;
-  color: var(--text);
-}
-.semester-gpa-detail {
-  font-size: 12px;
-  color: var(--text3);
-  font-family: 'DM Mono', monospace;
-  margin-top: 2px;
-}
-.btn-add {
-  background: var(--gold);
-  color: #0e0f14;
-  border: none;
-  padding: 9px 14px;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 13px;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  flex-shrink: 0;
-}
+.semester-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+.semester-title { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--text); }
+.semester-gpa-detail { font-size: 12px; color: var(--text3); font-family: 'DM Mono', monospace; margin-top: 2px; }
+.btn-add { background: var(--gold); color: #0e0f14; border: none; padding: 9px 14px; border-radius: 10px; font-weight: 600; font-size: 13px; cursor: pointer; font-family: inherit; transition: all 0.2s; display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
 .btn-add:hover { background: var(--gold2); }
 .btn-add svg { width: 13px; height: 13px; }
+.btn-upload { background: var(--card); color: var(--text2); border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; font-size: 11px; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+.btn-upload:hover { border-color: var(--gold); color: var(--text); }
 
-/* Table wrapper — scrollable on mobile */
-.course-table-wrap {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
+.course-table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 table { width: 100%; border-collapse: collapse; min-width: 460px; }
-thead th {
-  background: var(--card);
-  padding: 10px 12px;
-  text-align: left;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: var(--text3);
-  font-weight: 600;
-  border-bottom: 1px solid var(--border);
-  white-space: nowrap;
-}
+thead th { background: var(--card); padding: 10px 12px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text3); font-weight: 600; border-bottom: 1px solid var(--border); white-space: nowrap; }
 tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
 tbody tr:last-child { border-bottom: none; }
 tbody tr:hover { background: rgba(255,255,255,0.02); }
 td { padding: 8px 12px; font-size: 14px; }
 
-.cell-input {
-  background: transparent;
-  border: 1px solid transparent;
-  color: var(--text);
-  font-family: inherit;
-  font-size: 14px;
-  padding: 5px 8px;
-  border-radius: 7px;
-  width: 100%;
-  transition: all 0.15s;
-  outline: none;
-  -webkit-appearance: none;
-}
+.cell-input { background: transparent; border: 1px solid transparent; color: var(--text); font-family: inherit; font-size: 14px; padding: 5px 8px; border-radius: 7px; width: 100%; transition: all 0.15s; outline: none; -webkit-appearance: none; }
 .cell-input:hover  { border-color: var(--border2); background: var(--card); }
 .cell-input:focus  { border-color: var(--gold);    background: var(--card); }
 .cell-input.unit-input { width: 56px; text-align: center; font-family: 'DM Mono', monospace; }
 
-.grade-select {
-  appearance: none;
-  -webkit-appearance: none;
-  background: var(--card);
-  border: 1px solid var(--border);
-  color: var(--text);
-  font-family: 'DM Mono', monospace;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 5px 8px;
-  border-radius: 7px;
-  cursor: pointer;
-  outline: none;
-  transition: border-color 0.15s;
-  min-width: 64px;
-  text-align: center;
-}
+.grade-select { appearance: none; -webkit-appearance: none; background: var(--card); border: 1px solid var(--border); color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; padding: 5px 8px; border-radius: 7px; cursor: pointer; outline: none; transition: border-color 0.15s; min-width: 64px; text-align: center; }
 .grade-select:focus { border-color: var(--gold); }
-
 .grade-A { color: var(--A); } .grade-B { color: var(--B); }
 .grade-C { color: var(--C); } .grade-D { color: var(--D); }
 .grade-E { color: var(--E); } .grade-F { color: var(--F); }
-
 .gp-cell { font-family: 'DM Mono', monospace; color: var(--text2); font-size: 12px; }
-.btn-del {
-  background: none; border: none; color: var(--text3);
-  cursor: pointer; font-size: 16px; padding: 4px 8px;
-  border-radius: 6px; transition: all 0.2s;
-}
+.btn-del { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 16px; padding: 4px 8px; border-radius: 6px; transition: all 0.2s; }
 .btn-del:hover { color: var(--red2); background: rgba(192,57,43,0.1); }
 
-.totals-row td {
-  background: var(--card);
-  border-top: 1px solid var(--border2);
-  font-weight: 600;
-  font-size: 12px;
-  color: var(--text2);
-  font-family: 'DM Mono', monospace;
-}
+.totals-row td { background: var(--card); border-top: 1px solid var(--border2); font-weight: 600; font-size: 12px; color: var(--text2); font-family: 'DM Mono', monospace; }
 .totals-row .total-gpa { color: var(--gold); font-size: 14px; }
 
 .empty-state { padding: 48px 16px; text-align: center; }
 .empty-state .icon { font-size: 36px; margin-bottom: 10px; opacity: 0.3; }
 .empty-state p { color: var(--text3); font-size: 13px; }
 
-/* GPA class labels */
 .class-first        { color: var(--green2); }
 .class-second-upper { color: #5dade2; }
 .class-second-lower { color: var(--gold); }
 .class-third        { color: #e59866; }
 .class-pass         { color: var(--text3); }
 
-/* Save indicator */
-.save-indicator {
-  position: fixed;
-  bottom: 16px;
-  right: 16px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 8px 14px;
-  font-size: 12px;
-  color: var(--text3);
-  opacity: 0;
-  transition: opacity 0.3s;
-  pointer-events: none;
-  z-index: 200;
-}
+.save-indicator { position: fixed; bottom: 16px; right: 16px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 8px 14px; font-size: 12px; color: var(--text3); opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 200; }
 .save-indicator.saving { opacity: 1; color: var(--gold); }
 .save-indicator.saved  { opacity: 1; color: var(--green2); }
 
-/* Toast */
-.toast {
-  position: fixed;
-  top: 70px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 10px 18px;
-  font-size: 13px;
-  color: var(--text2);
-  opacity: 0;
-  transition: opacity 0.3s;
-  z-index: 300;
-  white-space: nowrap;
-  pointer-events: none;
-}
+.toast { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 18px; font-size: 13px; color: var(--text2); opacity: 0; transition: opacity 0.3s; z-index: 300; white-space: nowrap; pointer-events: none; }
 .toast.show { opacity: 1; }
 .toast.error { color: var(--red2); border-color: rgba(192,57,43,0.3); }
 
-/* Scrollbar */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* extra spacing for upload button in header */
+.header-actions { display: flex; align-items: center; gap: 10px; }
 </style>
 </head>
 <body>
@@ -516,6 +175,68 @@ td { padding: 8px 12px; font-size: 14px; }
       <label>Password</label>
       <input type="password" id="auth-password" placeholder="Enter password" autocomplete="current-password"/>
     </div>
+    <div class="auth-field" id="dept-field">
+      <label>Department</label>
+      <input type="text" id="auth-dept" list="dept-list" placeholder="Search or select your department" autocomplete="off"/>
+      <datalist id="dept-list">
+        <option value="Agricultural and Bioresources Engineering">
+        <option value="Agricultural Economics">
+        <option value="Agricultural Extension">
+        <option value="Animal Science and Technology">
+        <option value="Architecture">
+        <option value="Biochemistry">
+        <option value="Biology">
+        <option value="Biomedical Engineering">
+        <option value="Biotechnology">
+        <option value="Building Technology">
+        <option value="Chemical Engineering">
+        <option value="Chemistry">
+        <option value="Civil Engineering">
+        <option value="Computer Engineering">
+        <option value="Computer Science">
+        <option value="Crop Science and Technology">
+        <option value="Cyber Security">
+        <option value="Dental Technology">
+        <option value="Electrical and Electronic Engineering">
+        <option value="Electrical Engineering">
+        <option value="Electronics Engineering">
+        <option value="Entrepreneurship and Innovation">
+        <option value="Environmental Health Science">
+        <option value="Environmental Management">
+        <option value="Environmental Management and Evaluation">
+        <option value="Fisheries and Aquaculture Technology">
+        <option value="Food Science and Technology">
+        <option value="Forensic Science">
+        <option value="Forestry and Wildlife Technology">
+        <option value="Geology">
+        <option value="Human Anatomy">
+        <option value="Human Physiology">
+        <option value="Information Technology">
+        <option value="Logistics and Transport Technology">
+        <option value="Maritime Technology and Logistics">
+        <option value="Materials and Metallurgical Engineering">
+        <option value="Mathematics">
+        <option value="Mechanical Engineering">
+        <option value="Mechatronics Engineering">
+        <option value="Microbiology">
+        <option value="Optometry">
+        <option value="Petroleum Engineering">
+        <option value="Physics">
+        <option value="Polymer and Textile Engineering">
+        <option value="Project Management Technology">
+        <option value="Prosthetics and Orthotics">
+        <option value="Public Health Technology">
+        <option value="Quantity Surveying">
+        <option value="Science Laboratory Technology">
+        <option value="Soil Science and Technology">
+        <option value="Software Engineering">
+        <option value="Statistics">
+        <option value="Supply Chain Management">
+        <option value="Surveying and Geoinformatics">
+        <option value="Telecommunications Engineering">
+        <option value="Urban and Regional Planning">
+      </datalist>
+    </div>
 
     <button class="btn-full" id="auth-submit" onclick="submitAuth()">Login</button>
   </div>
@@ -523,25 +244,26 @@ td { padding: 8px 12px; font-size: 14px; }
 
 <!-- ══ MAIN APP ══════════════════════════════════════════════ -->
 <div id="app">
-  <!-- Header -->
   <header>
     <div class="header-logo">GradeVault</div>
     <div class="spacer"></div>
-    <div class="header-user" onclick="doLogout()">
-      <div class="header-avatar" id="header-av"></div>
-      <span class="header-username" id="header-name"></span>
-      <span class="logout-icon">↩</span>
+    <div class="header-actions">
+      <button class="btn-upload" onclick="document.getElementById('file-input').click()">📂 Upload Courses</button>
+      <input type="file" id="file-input" accept=".json" style="display:none" onchange="handleFileUpload(event)"/>
+      <div class="header-user" onclick="doLogout()">
+        <div class="header-avatar" id="header-av"></div>
+        <span class="header-username" id="header-name"></span>
+        <span class="logout-icon">↩</span>
+      </div>
     </div>
   </header>
 
-  <!-- Stats bar -->
   <div class="stats-bar" id="stats-bar">
     <div class="stat-chip">
       <div class="stat-label">Sem GPA</div>
       <div class="stat-value" id="stat-cur-gpa">—</div>
     </div>
     <div class="stat-divider"></div>
-    <!-- Mini GPA chips injected by JS -->
     <div id="mini-chips" style="display:flex;gap:0;"></div>
     <div class="cgpa-badge" style="margin-left:12px;">
       <div class="label">CGPA</div>
@@ -550,13 +272,9 @@ td { padding: 8px 12px; font-size: 14px; }
     </div>
   </div>
 
-  <!-- Year group tabs -->
   <div class="year-groups" id="year-groups"></div>
-
-  <!-- Semester sub-tabs -->
   <div class="sem-tabs" id="sem-tabs"></div>
 
-  <!-- Content -->
   <div class="content">
     <div class="semester-header">
       <div>
@@ -589,16 +307,22 @@ td { padding: 8px 12px; font-size: 14px; }
   </div>
 </div>
 
-<!-- Save indicator -->
 <div class="save-indicator" id="save-ind">Saving…</div>
-
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
+// ── Supabase configuration ──────────────────────────────────
+const SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co';   // <-- replace
+const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';                // <-- replace
+
+// Secret salt for pin generation (keep this same for all files)
+const PIN_SALT = 'my-secret-salt-change-this';
+
+// ── Initialize Supabase client ─────────────────────────────
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 // ── Constants ───────────────────────────────────────────────
 const GRADE_POINTS = { A:5, B:4, C:3, D:2, E:1, F:0 };
-
 const YEARS = [
   { label: 'Year 1', sems: ['y1s1','y1s2'] },
   { label: 'Year 2', sems: ['y2s1','y2s2'] },
@@ -606,9 +330,7 @@ const YEARS = [
   { label: 'Year 4', sems: ['y4s1','y4s2'] },
   { label: 'Year 5', sems: ['y5s1','y5s2'] },
 ];
-
 const SEMS = YEARS.flatMap(y => y.sems);
-
 const SEM_NAMES = {
   y1s1:'Year 1 · Semester 1', y1s2:'Year 1 · Semester 2',
   y2s1:'Year 2 · Semester 1', y2s2:'Year 2 · Semester 2',
@@ -616,41 +338,16 @@ const SEM_NAMES = {
   y4s1:'Year 4 · Semester 1', y4s2:'Year 4 · Semester 2',
   y5s1:'Year 5 · Semester 1', y5s2:'Year 5 · Semester 2',
 };
-
-const SEM_SHORT = {
-  y1s1:'S1', y1s2:'S2', y2s1:'S1', y2s2:'S2',
-  y3s1:'S1', y3s2:'S2', y4s1:'S1', y4s2:'S2',
-  y5s1:'S1', y5s2:'S2',
-};
+const SEM_SHORT = { y1s1:'S1', y1s2:'S2', y2s1:'S1', y2s2:'S2', y3s1:'S1', y3s2:'S2', y4s1:'S1', y4s2:'S2', y5s1:'S1', y5s2:'S2' };
 
 // ── State ───────────────────────────────────────────────────
-let authToken   = localStorage.getItem('gv_token') || null;
-let currentUser = localStorage.getItem('gv_user')  || null;
-let currentYear = 0;   // index into YEARS
-let currentSem  = 'y1s1';
-let userData    = null; // { semesters: { y1s1: [...], ... } }
-let saveTimer   = null;
+let currentUser = null;      // { id, email, user_metadata? }
+let userData = null;         // { department, semesters, courses }
+let currentYear = 0;
+let currentSem = 'y1s1';
+let saveTimer = null;
 
-// ── API helpers ─────────────────────────────────────────────
-const API = {
-  headers() {
-    return { 'Content-Type':'application/json', 'X-Auth-Token': authToken || '' };
-  },
-  async post(path, body) {
-    const r = await fetch(path, { method:'POST', headers: this.headers(), body: JSON.stringify(body) });
-    return r.json().then(d => ({ ok: r.ok, status: r.status, ...d }));
-  },
-  async get(path) {
-    const r = await fetch(path, { headers: this.headers() });
-    return r.json().then(d => ({ ok: r.ok, status: r.status, ...d }));
-  },
-  async put(path, body) {
-    const r = await fetch(path, { method:'PUT', headers: this.headers(), body: JSON.stringify(body) });
-    return r.json().then(d => ({ ok: r.ok, status: r.status, ...d }));
-  },
-};
-
-// ── Toast ───────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────
 function showToast(msg, isError=false) {
   const el = document.getElementById('toast');
   el.textContent = msg;
@@ -659,7 +356,57 @@ function showToast(msg, isError=false) {
   el._t = setTimeout(() => el.className = 'toast', 2800);
 }
 
-// ── Auth screen ─────────────────────────────────────────────
+function fmt(n) { return n === null ? '—' : n.toFixed(2); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+function gpaClass(gpa) {
+  if (gpa === null) return '';
+  return gpa >= 3.5 ? 'good' : gpa < 2.0 ? 'bad' : '';
+}
+
+function classifyGPA(cgpa) {
+  if (cgpa === null) return '';
+  if (cgpa >= 4.5) return 'First Class';
+  if (cgpa >= 3.5) return '2nd Class Upper';
+  if (cgpa >= 2.5) return '2nd Class Lower';
+  if (cgpa >= 1.5) return 'Third Class';
+  return 'Pass';
+}
+
+function classifyBadge(cgpa) {
+  if (cgpa === null) return '';
+  if (cgpa >= 4.5) return 'class-first';
+  if (cgpa >= 3.5) return 'class-second-upper';
+  if (cgpa >= 2.5) return 'class-second-lower';
+  if (cgpa >= 1.5) return 'class-third';
+  return 'class-pass';
+}
+
+function calcSemGPA(courses) {
+  let tgp = 0, tnu = 0;
+  courses.forEach(c => {
+    const units = parseFloat(c.units) || 0;
+    const gp    = GRADE_POINTS[c.grade] ?? null;
+    if (units > 0 && gp !== null && c.grade !== '') {
+      tgp += gp * units;
+      tnu += units;
+    }
+  });
+  if (tnu === 0) return { tgp: 0, tnu: 0, gpa: null };
+  return { tgp, tnu, gpa: tgp / tnu };
+}
+
+function calcCGPA(sems) {
+  let totalTGP = 0, totalTNU = 0;
+  SEMS.forEach(s => {
+    const { tgp, tnu } = calcSemGPA(sems[s] || []);
+    totalTGP += tgp;
+    totalTNU += tnu;
+  });
+  return totalTNU === 0 ? null : totalTGP / totalTNU;
+}
+
+// ── Auth ────────────────────────────────────────────────────
 let authMode = 'login';
 
 function showAuthTab(mode) {
@@ -668,8 +415,9 @@ function showAuthTab(mode) {
   document.getElementById('tab-register').classList.toggle('active', mode === 'register');
   document.getElementById('auth-submit').textContent = mode === 'login' ? 'Login' : 'Create Account';
   document.getElementById('auth-error').style.display = 'none';
-  document.getElementById('auth-password').autocomplete =
-    mode === 'login' ? 'current-password' : 'new-password';
+  document.getElementById('auth-password').autocomplete = mode === 'login' ? 'current-password' : 'new-password';
+  // show department field only on register
+  document.getElementById('dept-field').style.display = mode === 'register' ? 'block' : 'none';
 }
 
 function setAuthError(msg) {
@@ -681,81 +429,172 @@ function setAuthError(msg) {
 async function submitAuth() {
   const username = document.getElementById('auth-username').value.trim();
   const password = document.getElementById('auth-password').value;
+  const department = document.getElementById('auth-dept').value.trim();
   const btn = document.getElementById('auth-submit');
 
   if (!username || !password) { setAuthError('Please fill in all fields.'); return; }
+  if (authMode === 'register' && !department) { setAuthError('Please select your department.'); return; }
 
   btn.disabled = true;
   btn.textContent = authMode === 'login' ? 'Logging in…' : 'Creating account…';
   document.getElementById('auth-error').style.display = 'none';
 
-  const endpoint = authMode === 'login' ? '/api/login' : '/api/register';
-  const res = await API.post(endpoint, { username, password }).catch(() => ({ ok:false, error:'Network error' }));
+  try {
+    let result;
+    if (authMode === 'login') {
+      result = await supabase.auth.signInWithPassword({ email: username + '@temp.local', password });
+    } else {
+      result = await supabase.auth.signUp({ email: username + '@temp.local', password });
+      if (result.error) throw result.error;
+      // After signup, create profile with department
+      if (result.data.user) {
+        await supabase.from('gpa_data').upsert({
+          id: result.data.user.id,
+          department: department,
+          semesters: {},
+          courses: {}
+        });
+      }
+    }
+    if (result.error) throw result.error;
 
-  btn.disabled = false;
-  showAuthTab(authMode);
-
-  if (!res.ok) {
-    setAuthError(res.error || 'Something went wrong.');
-    return;
+    // Login success
+    const user = result.data.user;
+    currentUser = { id: user.id, email: user.email };
+    // Fetch user data
+    await loadUserData();
+    launchApp();
+  } catch (err) {
+    setAuthError(err.message || 'Authentication failed');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = authMode === 'login' ? 'Login' : 'Create Account';
   }
-
-  // Success
-  authToken   = res.token;
-  currentUser = res.username;
-  localStorage.setItem('gv_token', authToken);
-  localStorage.setItem('gv_user',  currentUser);
-  await launchApp();
 }
 
-// ── App launch ───────────────────────────────────────────────
-async function launchApp() {
-  if (!authToken) { showAuthScreen(); return; }
-
-  const res = await API.get('/api/data').catch(() => ({ ok:false }));
-  if (!res.ok) {
-    // Token expired or invalid
-    authToken = null; currentUser = null;
-    localStorage.removeItem('gv_token');
-    localStorage.removeItem('gv_user');
-    showAuthScreen();
-    return;
+async function loadUserData() {
+  if (!currentUser) return;
+  const { data, error } = await supabase
+    .from('gpa_data')
+    .select('*')
+    .eq('id', currentUser.id)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) {
+    // create default
+    const { data: newData, error: insErr } = await supabase
+      .from('gpa_data')
+      .insert({ id: currentUser.id, department: '', semesters: {}, courses: {} })
+      .select()
+      .single();
+    if (insErr) throw insErr;
+    userData = newData;
+  } else {
+    userData = data;
   }
+  // Ensure semesters object has all keys
+  const sems = userData.semesters || {};
+  SEMS.forEach(s => { if (!(s in sems)) sems[s] = []; });
+  userData.semesters = sems;
+  if (!userData.courses) userData.courses = {};
+}
 
-  currentUser = res.username;
-  userData = { semesters: ensureAllSems(res.semesters) };
-
+function launchApp() {
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('app').style.display = 'flex';
-  document.getElementById('header-name').textContent = currentUser;
-  document.getElementById('header-av').textContent   = currentUser.charAt(0).toUpperCase();
+  document.getElementById('header-name').textContent = currentUser.email.split('@')[0];
+  document.getElementById('header-av').textContent = currentUser.email.charAt(0).toUpperCase();
 
   buildYearTabs();
   buildMiniChips();
   switchYear(0, true);
 }
 
-function showAuthScreen() {
+async function doLogout() {
+  await supabase.auth.signOut();
+  currentUser = null; userData = null;
   document.getElementById('app').style.display = 'none';
   document.getElementById('auth-screen').style.display = 'flex';
 }
 
-function ensureAllSems(sems) {
-  const out = {};
-  SEMS.forEach(s => { out[s] = Array.isArray(sems[s]) ? sems[s] : []; });
-  return out;
+// ── Course upload (with pin) ────────────────────────────────
+function generatePin(userId) {
+  // Simple SHA256 hash of userId + secret salt
+  const encoder = new TextEncoder();
+  const data = encoder.encode(userId + PIN_SALT);
+  return crypto.subtle.digest('SHA-256', data).then(buf => {
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  });
 }
 
-// ── Logout ───────────────────────────────────────────────────
-async function doLogout() {
-  await API.post('/api/logout', {}).catch(() => {});
-  authToken = null; currentUser = null; userData = null;
-  localStorage.removeItem('gv_token');
-  localStorage.removeItem('gv_user');
-  showAuthScreen();
+async function handleFileUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    const json = JSON.parse(text);
+    // Expected format: { pin: '...', courses: { y1s1: [...], ... } }
+    if (!json.pin || typeof json.courses !== 'object') {
+      showToast('Invalid file format', true);
+      return;
+    }
+    // Verify pin
+    const expectedPin = await generatePin(currentUser.id);
+    if (json.pin !== expectedPin) {
+      showToast('This file is not authorized for your account', true);
+      return;
+    }
+    // Store courses
+    userData.courses = json.courses || {};
+    // Ensure only valid semesters
+    const validCourses = {};
+    SEMS.forEach(s => { validCourses[s] = Array.isArray(json.courses[s]) ? json.courses[s] : []; });
+    userData.courses = validCourses;
+    await saveToSupabase();
+    showToast('Courses uploaded successfully!');
+    // Re-render current semester (to show new dropdown suggestions)
+    renderTable();
+  } catch (err) {
+    showToast('Error reading file: ' + err.message, true);
+  }
+  event.target.value = ''; // reset
 }
 
-// ── Year / Sem tab builders ──────────────────────────────────
+// ── Supabase save ────────────────────────────────────────────
+async function saveToSupabase() {
+  if (!currentUser) return;
+  const { error } = await supabase
+    .from('gpa_data')
+    .upsert({
+      id: currentUser.id,
+      department: userData.department || '',
+      semesters: userData.semesters,
+      courses: userData.courses
+    });
+  if (error) throw error;
+}
+
+function scheduleSave() {
+  const ind = document.getElementById('save-ind');
+  ind.textContent = 'Saving…';
+  ind.className = 'save-indicator saving';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    try {
+      await saveToSupabase();
+      ind.textContent = 'Saved ✓';
+      ind.className = 'save-indicator saved';
+      setTimeout(() => { ind.className = 'save-indicator'; }, 1800);
+    } catch (err) {
+      ind.textContent = 'Save failed';
+      ind.className = 'save-indicator saving';
+      setTimeout(() => { ind.className = 'save-indicator'; }, 2500);
+      showToast('Save error: ' + err.message, true);
+    }
+  }, 900);
+}
+
+// ── UI Builders ─────────────────────────────────────────────
 function buildYearTabs() {
   const container = document.getElementById('year-groups');
   container.innerHTML = YEARS.map((y, i) =>
@@ -780,7 +619,6 @@ function switchYear(idx, firstLoad=false) {
   document.querySelectorAll('.year-btn').forEach((b,i) =>
     b.classList.toggle('active', i === idx)
   );
-
   const year = YEARS[idx];
   const semTabs = document.getElementById('sem-tabs');
   semTabs.innerHTML = year.sems.map(s =>
@@ -789,24 +627,17 @@ function switchYear(idx, firstLoad=false) {
       <span class="gpa-tag" id="stab-gpa-${s}">—</span>
     </button>`
   ).join('');
-
-  // pick first sem of this year (or keep currentSem if still in year)
-  const target = firstLoad
-    ? 'y1s1'
-    : (year.sems.includes(currentSem) ? currentSem : year.sems[0]);
-
+  const target = firstLoad ? 'y1s1' : (year.sems.includes(currentSem) ? currentSem : year.sems[0]);
   switchSem(target);
 }
 
 function switchSem(sem) {
   currentSem = sem;
-  // Make sure the right year tab is active
   const yearIdx = YEARS.findIndex(y => y.sems.includes(sem));
   if (yearIdx !== -1 && yearIdx !== currentYear) {
     switchYear(yearIdx, false);
-    return; // switchYear → switchSem again
+    return;
   }
-
   document.querySelectorAll('.sem-tab').forEach(t =>
     t.classList.toggle('active', t.id === 'stab-' + sem)
   );
@@ -815,7 +646,7 @@ function switchSem(sem) {
   updateStats();
 }
 
-// ── Table ────────────────────────────────────────────────────
+// ── Table rendering ──────────────────────────────────────────
 function renderTable() {
   const courses = userData.semesters[currentSem] || [];
   const tbody   = document.getElementById('course-tbody');
@@ -882,11 +713,18 @@ function renderTotals(courses) {
     gpa !== null ? `TGP ${tgp} ÷ TNU ${tnu} = ${fmt(gpa)}` : '';
 }
 
+// ── Course actions ──────────────────────────────────────────
 function addCourse() {
-  userData.semesters[currentSem].push({ code:'', title:'', units:'', grade:'' });
+  const courses = userData.semesters[currentSem];
+  // If we have a course catalog for this semester, show a dropdown to select.
+  // We'll create a new row with empty fields, but we can also provide a quick pick.
+  // Let's just add an empty course; user can fill via dropdown? We'll implement a simple dropdown in each row later.
+  // For now, we add blank and user fills manually.
+  courses.push({ code:'', title:'', units:'', grade:'' });
   renderTable();
   updateStats();
   scheduleSave();
+  // Focus on code input of new row
   setTimeout(() => {
     const inputs = document.querySelectorAll('#course-tbody tr:last-child input:first-child');
     if (inputs.length) inputs[0].focus();
@@ -902,7 +740,6 @@ function deleteCourse(i) {
 
 function updateField(i, field, val) {
   userData.semesters[currentSem][i][field] = val;
-  // Partial re-render (keep focus)
   updateTotalsOnly(userData.semesters[currentSem]);
   updateStats();
   scheduleSave();
@@ -926,11 +763,9 @@ function updateTotalsOnly(courses) {
   renderTotals(courses);
 }
 
-// ── Stats ────────────────────────────────────────────────────
+// ── Stats update ─────────────────────────────────────────────
 function updateStats() {
   const sems = userData.semesters;
-
-  // Mini chips + sem sub-tab badges
   SEMS.forEach(s => {
     const { gpa } = calcSemGPA(sems[s] || []);
     const mini = document.getElementById('mini-' + s);
@@ -941,14 +776,11 @@ function updateStats() {
     const stabGpa = document.getElementById('stab-gpa-' + s);
     if (stabGpa) stabGpa.textContent = fmt(gpa);
   });
-
-  // Current sem GPA in header bar
   const { gpa: curGpa } = calcSemGPA(sems[currentSem] || []);
   const curEl = document.getElementById('stat-cur-gpa');
   curEl.textContent = fmt(curGpa);
   curEl.className   = 'stat-value ' + gpaClass(curGpa);
 
-  // CGPA
   const cgpa = calcCGPA(sems);
   document.getElementById('cgpa-big').textContent = fmt(cgpa);
   const clsEl = document.getElementById('cgpa-class');
@@ -956,80 +788,26 @@ function updateStats() {
   clsEl.className   = 'cls ' + classifyBadge(cgpa);
 }
 
-// ── Save to server ───────────────────────────────────────────
-function scheduleSave() {
-  const ind = document.getElementById('save-ind');
-  ind.textContent = 'Saving…';
-  ind.className = 'save-indicator saving';
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(async () => {
-    const res = await API.put('/api/data', { semesters: userData.semesters }).catch(() => ({ ok:false }));
-    if (res.ok) {
-      ind.textContent = 'Saved ✓';
-      ind.className = 'save-indicator saved';
-      setTimeout(() => { ind.className = 'save-indicator'; }, 1800);
-    } else {
-      ind.textContent = 'Save failed';
-      ind.className = 'save-indicator saving';
-      setTimeout(() => { ind.className = 'save-indicator'; }, 2500);
+// ── Auto-login check ────────────────────────────────────────
+async function checkSession() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    currentUser = { id: session.user.id, email: session.user.email };
+    try {
+      await loadUserData();
+      launchApp();
+    } catch (err) {
+      console.error('Failed to load user data', err);
+      showToast('Error loading data', true);
     }
-  }, 900);
+  } else {
+    // show auth
+    document.getElementById('auth-screen').style.display = 'flex';
+  }
 }
 
-// ── Calculations ─────────────────────────────────────────────
-function calcSemGPA(courses) {
-  let tgp = 0, tnu = 0;
-  courses.forEach(c => {
-    const units = parseFloat(c.units) || 0;
-    const gp    = GRADE_POINTS[c.grade] ?? null;
-    if (units > 0 && gp !== null && c.grade !== '') {
-      tgp += gp * units;
-      tnu += units;
-    }
-  });
-  if (tnu === 0) return { tgp: 0, tnu: 0, gpa: null };
-  return { tgp, tnu, gpa: tgp / tnu };
-}
-
-function calcCGPA(sems) {
-  let totalTGP = 0, totalTNU = 0;
-  SEMS.forEach(s => {
-    const { tgp, tnu } = calcSemGPA(sems[s] || []);
-    totalTGP += tgp;
-    totalTNU += tnu;
-  });
-  return totalTNU === 0 ? null : totalTGP / totalTNU;
-}
-
-function classifyGPA(cgpa) {
-  if (cgpa === null) return '';
-  if (cgpa >= 4.5) return 'First Class';
-  if (cgpa >= 3.5) return '2nd Class Upper';
-  if (cgpa >= 2.5) return '2nd Class Lower';
-  if (cgpa >= 1.5) return 'Third Class';
-  return 'Pass';
-}
-
-function classifyBadge(cgpa) {
-  if (cgpa === null) return '';
-  if (cgpa >= 4.5) return 'class-first';
-  if (cgpa >= 3.5) return 'class-second-upper';
-  if (cgpa >= 2.5) return 'class-second-lower';
-  if (cgpa >= 1.5) return 'class-third';
-  return 'class-pass';
-}
-
-function gpaClass(gpa) {
-  if (gpa === null) return '';
-  return gpa >= 3.5 ? 'good' : gpa < 2.0 ? 'bad' : '';
-}
-
-function fmt(n) { return n === null ? '—' : n.toFixed(2); }
-function esc(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
-}
-
-// ── Keyboard shortcuts ───────────────────────────────────────
+// ── Init ─────────────────────────────────────────────────────
+showAuthTab('login'); // default
 document.getElementById('auth-password').addEventListener('keydown', e => {
   if (e.key === 'Enter') submitAuth();
 });
@@ -1037,10 +815,8 @@ document.getElementById('auth-username').addEventListener('keydown', e => {
   if (e.key === 'Enter') document.getElementById('auth-password').focus();
 });
 
-// ── Boot ─────────────────────────────────────────────────────
-if (authToken) {
-  launchApp();
-}
+// Start
+checkSession();
 </script>
 </body>
 </html>
