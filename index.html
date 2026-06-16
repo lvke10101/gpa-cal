@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>GradeVault — FUTO GPA Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:     #0e0f14;
+  --surface:#16181f;
+  --card:   #1c1f2a;
+  --border: #2a2d3a;
+  --border2:#353848;
+  --gold:   #d4a843;
+  --gold2:  #f0c96a;
+  --green:  #2d7a4f;
+  --green2: #3da86c;
+  --red:    #c0392b;
+  --red2:   #e74c3c;
+  --blue:   #2980b9;
+  --text:   #e8eaf0;
+  --text2:  #9da0b0;
+  --text3:  #6b6f80;
+  --A: #3da86c; --B: #2980b9; --C: #d4a843; --D: #c0784a; --E: #c0392b; --F: #6b2d2d;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  --radius: 14px;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── AUTH SCREEN ─────────────────────────────────────────── */
+#auth-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: radial-gradient(ellipse at 30% 20%, #1a1230 0%, #0e0f14 60%);
+}
+.auth-box {
+  width: 100%;
+  max-width: 400px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  padding: 40px 28px 32px;
+  box-shadow: 0 0 60px rgba(212,168,67,0.07), var(--shadow);
+}
+.auth-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+.auth-tagline {
+  color: var(--text3);
+  font-size: 12px;
+  margin-bottom: 32px;
+}
+.auth-tabs {
+  display: flex;
+  background: var(--card);
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 24px;
+  gap: 4px;
+}
+.auth-tab {
+  flex: 1;
+  padding: 9px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 7px;
+  cursor: pointer;
+  color: var(--text3);
+  transition: all 0.2s;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+.auth-tab.active {
+  background: var(--gold);
+  color: #0e0f14;
+}
+.auth-field {
+  margin-bottom: 14px;
+}
+.auth-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 6px;
+}
+.auth-field input {
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 13px 14px;
+  font-family: inherit;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+.auth-field input:focus { border-color: var(--gold); }
+.auth-error {
+  font-size: 13px;
+  color: var(--red2);
+  background: rgba(192,57,43,0.1);
+  border: 1px solid rgba(192,57,43,0.2);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  display: none;
+}
+.btn-full {
+  width: 100%;
+  background: var(--gold);
+  color: #0e0f14;
+  border: none;
+  padding: 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s;
+  margin-top: 6px;
+}
+.btn-full:hover { background: var(--gold2); }
+.btn-full:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── MAIN APP ─────────────────────────────────────────────── */
+#app { display: none; min-height: 100vh; flex-direction: column; }
+
+/* Header */
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 54px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  color: var(--gold);
+}
+header .spacer { flex: 1; }
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 5px 12px 5px 6px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  flex-shrink: 0;
+}
+.header-user:hover { border-color: var(--gold); }
+.header-avatar {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), #a07820);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 11px; color: #0e0f14;
+}
+.header-username { font-size: 13px; font-weight: 500; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.logout-icon { color: var(--text3); font-size: 11px; }
+
+/* Stats bar */
+.stats-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
+  display: flex;
+  gap: 0;
+  align-items: center;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.stats-bar::-webkit-scrollbar { display: none; }
+
+.stat-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+  padding-right: 16px;
+}
+.stat-label {
+  font-size: 10px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  white-space: nowrap;
+}
+.stat-value {
+  font-family: 'DM Mono', monospace;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--gold);
+}
+.stat-value.good { color: var(--green2); }
+.stat-value.bad  { color: var(--red2); }
+.stat-divider { width: 1px; height: 36px; background: var(--border); flex-shrink: 0; margin-right: 16px; }
+.stat-chip.sm .stat-value { font-size: 14px; color: var(--text2); }
+
+.cgpa-badge {
+  flex-shrink: 0;
+  margin-left: auto;
+  padding-left: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.cgpa-badge .label { font-size: 10px; color: var(--text3); letter-spacing: 0.7px; text-transform: uppercase; margin-bottom: 1px; }
+.cgpa-badge .val   { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--gold); line-height: 1; }
+.cgpa-badge .cls   { font-size: 10px; color: var(--text2); margin-top: 1px; }
+
+/* Year groups */
+.year-groups {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 16px;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.year-groups::-webkit-scrollbar { display: none; }
+
+.year-btn {
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text3);
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-family: inherit;
+}
+.year-btn:hover { color: var(--text); }
+.year-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+/* Semester tabs row */
+.sem-tabs {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 0 16px;
+  display: flex;
+  gap: 4px;
+}
+.sem-tab {
+  flex: 1;
+  padding: 10px 4px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text3);
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.sem-tab:hover { color: var(--text); }
+.sem-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+.sem-tab .gpa-tag {
+  display: block;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 1px;
+}
+.sem-tab.active .gpa-tag { color: var(--gold); }
+
+/* Content */
+.content { flex: 1; padding: 16px; max-width: 900px; width: 100%; margin: 0 auto; }
+
+.semester-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.semester-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  color: var(--text);
+}
+.semester-gpa-detail {
+  font-size: 12px;
+  color: var(--text3);
+  font-family: 'DM Mono', monospace;
+  margin-top: 2px;
+}
+.btn-add {
+  background: var(--gold);
+  color: #0e0f14;
+  border: none;
+  padding: 9px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+.btn-add:hover { background: var(--gold2); }
+.btn-add svg { width: 13px; height: 13px; }
+
+/* Table wrapper — scrollable on mobile */
+.course-table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+table { width: 100%; border-collapse: collapse; min-width: 460px; }
+thead th {
+  background: var(--card);
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text3);
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: rgba(255,255,255,0.02); }
+td { padding: 8px 12px; font-size: 14px; }
+
+.cell-input {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  padding: 5px 8px;
+  border-radius: 7px;
+  width: 100%;
+  transition: all 0.15s;
+  outline: none;
+  -webkit-appearance: none;
+}
+.cell-input:hover  { border-color: var(--border2); background: var(--card); }
+.cell-input:focus  { border-color: var(--gold);    background: var(--card); }
+.cell-input.unit-input { width: 56px; text-align: center; font-family: 'DM Mono', monospace; }
+
+.grade-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 5px 8px;
+  border-radius: 7px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+  min-width: 64px;
+  text-align: center;
+}
+.grade-select:focus { border-color: var(--gold); }
+
+.grade-A { color: var(--A); } .grade-B { color: var(--B); }
+.grade-C { color: var(--C); } .grade-D { color: var(--D); }
+.grade-E { color: var(--E); } .grade-F { color: var(--F); }
+
+.gp-cell { font-family: 'DM Mono', monospace; color: var(--text2); font-size: 12px; }
+.btn-del {
+  background: none; border: none; color: var(--text3);
+  cursor: pointer; font-size: 16px; padding: 4px 8px;
+  border-radius: 6px; transition: all 0.2s;
+}
+.btn-del:hover { color: var(--red2); background: rgba(192,57,43,0.1); }
+
+.totals-row td {
+  background: var(--card);
+  border-top: 1px solid var(--border2);
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--text2);
+  font-family: 'DM Mono', monospace;
+}
+.totals-row .total-gpa { color: var(--gold); font-size: 14px; }
+
+.empty-state { padding: 48px 16px; text-align: center; }
+.empty-state .icon { font-size: 36px; margin-bottom: 10px; opacity: 0.3; }
+.empty-state p { color: var(--text3); font-size: 13px; }
+
+/* GPA class labels */
+.class-first        { color: var(--green2); }
+.class-second-upper { color: #5dade2; }
+.class-second-lower { color: var(--gold); }
+.class-third        { color: #e59866; }
+.class-pass         { color: var(--text3); }
+
+/* Save indicator */
+.save-indicator {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 12px;
+  color: var(--text3);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  z-index: 200;
+}
+.save-indicator.saving { opacity: 1; color: var(--gold); }
+.save-indicator.saved  { opacity: 1; color: var(--green2); }
+
+/* Toast */
+.toast {
+  position: fixed;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-size: 13px;
+  color: var(--text2);
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 300;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; }
+.toast.error { color: var(--red2); border-color: rgba(192,57,43,0.3); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ══ AUTH SCREEN ══════════════════════════════════════════ -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">GradeVault</div>
+    <div class="auth-tagline">FUTO GPA &amp; CGPA Calculator · 5-Point Scale</div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login"    onclick="showAuthTab('login')">Login</button>
+      <button class="auth-tab"        id="tab-register" onclick="showAuthTab('register')">Register</button>
+    </div>
+
+    <div id="auth-error" class="auth-error"></div>
+
+    <div class="auth-field">
+      <label>Username</label>
+      <input type="text" id="auth-username" placeholder="Enter username" autocomplete="username" maxlength="32"/>
+    </div>
+    <div class="auth-field">
+      <label>Password</label>
+      <input type="password" id="auth-password" placeholder="Enter password" autocomplete="current-password"/>
+    </div>
+
+    <button class="btn-full" id="auth-submit" onclick="submitAuth()">Login</button>
+  </div>
+</div>
+
+<!-- ══ MAIN APP ══════════════════════════════════════════════ -->
+<div id="app">
+  <!-- Header -->
+  <header>
+    <div class="header-logo">GradeVault</div>
+    <div class="spacer"></div>
+    <div class="header-user" onclick="doLogout()">
+      <div class="header-avatar" id="header-av"></div>
+      <span class="header-username" id="header-name"></span>
+      <span class="logout-icon">↩</span>
+    </div>
+  </header>
+
+  <!-- Stats bar -->
+  <div class="stats-bar" id="stats-bar">
+    <div class="stat-chip">
+      <div class="stat-label">Sem GPA</div>
+      <div class="stat-value" id="stat-cur-gpa">—</div>
+    </div>
+    <div class="stat-divider"></div>
+    <!-- Mini GPA chips injected by JS -->
+    <div id="mini-chips" style="display:flex;gap:0;"></div>
+    <div class="cgpa-badge" style="margin-left:12px;">
+      <div class="label">CGPA</div>
+      <div class="val" id="cgpa-big">—</div>
+      <div class="cls" id="cgpa-class"></div>
+    </div>
+  </div>
+
+  <!-- Year group tabs -->
+  <div class="year-groups" id="year-groups"></div>
+
+  <!-- Semester sub-tabs -->
+  <div class="sem-tabs" id="sem-tabs"></div>
+
+  <!-- Content -->
+  <div class="content">
+    <div class="semester-header">
+      <div>
+        <div class="semester-title" id="sem-title">—</div>
+        <div class="semester-gpa-detail" id="sem-gpa-detail"></div>
+      </div>
+      <button class="btn-add" onclick="addCourse()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Add Course
+      </button>
+    </div>
+    <div class="course-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:110px">Code</th>
+            <th>Course Title</th>
+            <th style="width:72px;text-align:center">Units</th>
+            <th style="width:76px;text-align:center">Grade</th>
+            <th style="width:68px;text-align:center">GP×CU</th>
+            <th style="width:38px"></th>
+          </tr>
+        </thead>
+        <tbody id="course-tbody"></tbody>
+        <tfoot id="totals-foot"></tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Save indicator -->
+<div class="save-indicator" id="save-ind">Saving…</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Constants ───────────────────────────────────────────────
+const GRADE_POINTS = { A:5, B:4, C:3, D:2, E:1, F:0 };
+
+const YEARS = [
+  { label: 'Year 1', sems: ['y1s1','y1s2'] },
+  { label: 'Year 2', sems: ['y2s1','y2s2'] },
+  { label: 'Year 3', sems: ['y3s1','y3s2'] },
+  { label: 'Year 4', sems: ['y4s1','y4s2'] },
+  { label: 'Year 5', sems: ['y5s1','y5s2'] },
+];
+
+const SEMS = YEARS.flatMap(y => y.sems);
+
+const SEM_NAMES = {
+  y1s1:'Year 1 · Semester 1', y1s2:'Year 1 · Semester 2',
+  y2s1:'Year 2 · Semester 1', y2s2:'Year 2 · Semester 2',
+  y3s1:'Year 3 · Semester 1', y3s2:'Year 3 · Semester 2',
+  y4s1:'Year 4 · Semester 1', y4s2:'Year 4 · Semester 2',
+  y5s1:'Year 5 · Semester 1', y5s2:'Year 5 · Semester 2',
+};
+
+const SEM_SHORT = {
+  y1s1:'S1', y1s2:'S2', y2s1:'S1', y2s2:'S2',
+  y3s1:'S1', y3s2:'S2', y4s1:'S1', y4s2:'S2',
+  y5s1:'S1', y5s2:'S2',
+};
+
+// ── State ───────────────────────────────────────────────────
+let authToken   = localStorage.getItem('gv_token') || null;
+let currentUser = localStorage.getItem('gv_user')  || null;
+let currentYear = 0;   // index into YEARS
+let currentSem  = 'y1s1';
+let userData    = null; // { semesters: { y1s1: [...], ... } }
+let saveTimer   = null;
+
+// ── API helpers ─────────────────────────────────────────────
+const API = {
+  headers() {
+    return { 'Content-Type':'application/json', 'X-Auth-Token': authToken || '' };
+  },
+  async post(path, body) {
+    const r = await fetch(path, { method:'POST', headers: this.headers(), body: JSON.stringify(body) });
+    return r.json().then(d => ({ ok: r.ok, status: r.status, ...d }));
+  },
+  async get(path) {
+    const r = await fetch(path, { headers: this.headers() });
+    return r.json().then(d => ({ ok: r.ok, status: r.status, ...d }));
+  },
+  async put(path, body) {
+    const r = await fetch(path, { method:'PUT', headers: this.headers(), body: JSON.stringify(body) });
+    return r.json().then(d => ({ ok: r.ok, status: r.status, ...d }));
+  },
+};
+
+// ── Toast ───────────────────────────────────────────────────
+function showToast(msg, isError=false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (isError ? ' error' : '');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.className = 'toast', 2800);
+}
+
+// ── Auth screen ─────────────────────────────────────────────
+let authMode = 'login';
+
+function showAuthTab(mode) {
+  authMode = mode;
+  document.getElementById('tab-login').classList.toggle('active', mode === 'login');
+  document.getElementById('tab-register').classList.toggle('active', mode === 'register');
+  document.getElementById('auth-submit').textContent = mode === 'login' ? 'Login' : 'Create Account';
+  document.getElementById('auth-error').style.display = 'none';
+  document.getElementById('auth-password').autocomplete =
+    mode === 'login' ? 'current-password' : 'new-password';
+}
+
+function setAuthError(msg) {
+  const el = document.getElementById('auth-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+async function submitAuth() {
+  const username = document.getElementById('auth-username').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const btn = document.getElementById('auth-submit');
+
+  if (!username || !password) { setAuthError('Please fill in all fields.'); return; }
+
+  btn.disabled = true;
+  btn.textContent = authMode === 'login' ? 'Logging in…' : 'Creating account…';
+  document.getElementById('auth-error').style.display = 'none';
+
+  const endpoint = authMode === 'login' ? '/api/login' : '/api/register';
+  const res = await API.post(endpoint, { username, password }).catch(() => ({ ok:false, error:'Network error' }));
+
+  btn.disabled = false;
+  showAuthTab(authMode);
+
+  if (!res.ok) {
+    setAuthError(res.error || 'Something went wrong.');
+    return;
+  }
+
+  // Success
+  authToken   = res.token;
+  currentUser = res.username;
+  localStorage.setItem('gv_token', authToken);
+  localStorage.setItem('gv_user',  currentUser);
+  await launchApp();
+}
+
+// ── App launch ───────────────────────────────────────────────
+async function launchApp() {
+  if (!authToken) { showAuthScreen(); return; }
+
+  const res = await API.get('/api/data').catch(() => ({ ok:false }));
+  if (!res.ok) {
+    // Token expired or invalid
+    authToken = null; currentUser = null;
+    localStorage.removeItem('gv_token');
+    localStorage.removeItem('gv_user');
+    showAuthScreen();
+    return;
+  }
+
+  currentUser = res.username;
+  userData = { semesters: ensureAllSems(res.semesters) };
+
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('header-name').textContent = currentUser;
+  document.getElementById('header-av').textContent   = currentUser.charAt(0).toUpperCase();
+
+  buildYearTabs();
+  buildMiniChips();
+  switchYear(0, true);
+}
+
+function showAuthScreen() {
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+}
+
+function ensureAllSems(sems) {
+  const out = {};
+  SEMS.forEach(s => { out[s] = Array.isArray(sems[s]) ? sems[s] : []; });
+  return out;
+}
+
+// ── Logout ───────────────────────────────────────────────────
+async function doLogout() {
+  await API.post('/api/logout', {}).catch(() => {});
+  authToken = null; currentUser = null; userData = null;
+  localStorage.removeItem('gv_token');
+  localStorage.removeItem('gv_user');
+  showAuthScreen();
+}
+
+// ── Year / Sem tab builders ──────────────────────────────────
+function buildYearTabs() {
+  const container = document.getElementById('year-groups');
+  container.innerHTML = YEARS.map((y, i) =>
+    `<button class="year-btn" id="ybtn-${i}" onclick="switchYear(${i})">${y.label}</button>`
+  ).join('');
+}
+
+function buildMiniChips() {
+  const container = document.getElementById('mini-chips');
+  container.innerHTML = YEARS.map(y =>
+    y.sems.map(s =>
+      `<div class="stat-chip sm" style="padding-right:12px;">
+        <div class="stat-label">${s.toUpperCase()}</div>
+        <div class="stat-value" id="mini-${s}">—</div>
+      </div>`
+    ).join('')
+  ).join('');
+}
+
+function switchYear(idx, firstLoad=false) {
+  currentYear = idx;
+  document.querySelectorAll('.year-btn').forEach((b,i) =>
+    b.classList.toggle('active', i === idx)
+  );
+
+  const year = YEARS[idx];
+  const semTabs = document.getElementById('sem-tabs');
+  semTabs.innerHTML = year.sems.map(s =>
+    `<button class="sem-tab" id="stab-${s}" onclick="switchSem('${s}')">
+      ${SEM_SHORT[s]}
+      <span class="gpa-tag" id="stab-gpa-${s}">—</span>
+    </button>`
+  ).join('');
+
+  // pick first sem of this year (or keep currentSem if still in year)
+  const target = firstLoad
+    ? 'y1s1'
+    : (year.sems.includes(currentSem) ? currentSem : year.sems[0]);
+
+  switchSem(target);
+}
+
+function switchSem(sem) {
+  currentSem = sem;
+  // Make sure the right year tab is active
+  const yearIdx = YEARS.findIndex(y => y.sems.includes(sem));
+  if (yearIdx !== -1 && yearIdx !== currentYear) {
+    switchYear(yearIdx, false);
+    return; // switchYear → switchSem again
+  }
+
+  document.querySelectorAll('.sem-tab').forEach(t =>
+    t.classList.toggle('active', t.id === 'stab-' + sem)
+  );
+  document.getElementById('sem-title').textContent = SEM_NAMES[sem];
+  renderTable();
+  updateStats();
+}
+
+// ── Table ────────────────────────────────────────────────────
+function renderTable() {
+  const courses = userData.semesters[currentSem] || [];
+  const tbody   = document.getElementById('course-tbody');
+  const tfoot   = document.getElementById('totals-foot');
+
+  if (courses.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">
+      <div class="icon">📚</div>
+      <p>No courses yet. Tap <strong>Add Course</strong> to get started.</p>
+    </div></td></tr>`;
+    tfoot.innerHTML = '';
+    document.getElementById('sem-gpa-detail').textContent = '';
+    return;
+  }
+
+  tbody.innerHTML = courses.map((c, i) => {
+    const gp    = GRADE_POINTS[c.grade] ?? null;
+    const units = parseFloat(c.units) || 0;
+    const contrib = (gp !== null && units > 0 && c.grade !== '') ? (gp * units) : '—';
+    const gradeClass = c.grade ? `grade-${c.grade}` : '';
+    return `<tr>
+      <td><input class="cell-input" value="${esc(c.code)}" placeholder="e.g. FRS 301"
+            oninput="updateField(${i},'code',this.value)"/></td>
+      <td><input class="cell-input" value="${esc(c.title)}" placeholder="Course title…"
+            oninput="updateField(${i},'title',this.value)"/></td>
+      <td style="text-align:center">
+        <input class="cell-input unit-input" type="number" min="1" max="6"
+          value="${c.units||''}" placeholder="2"
+          oninput="updateField(${i},'units',this.value)"/>
+      </td>
+      <td style="text-align:center">
+        <select class="grade-select ${gradeClass}" onchange="updateField(${i},'grade',this.value)">
+          <option value="">—</option>
+          ${['A','B','C','D','E','F'].map(g =>
+            `<option value="${g}" ${c.grade===g?'selected':''} class="grade-${g}">${g}</option>`
+          ).join('')}
+        </select>
+      </td>
+      <td class="gp-cell" style="text-align:center">${contrib === '—' ? '—' : contrib}</td>
+      <td><button class="btn-del" onclick="deleteCourse(${i})">✕</button></td>
+    </tr>`;
+  }).join('');
+
+  renderTotals(courses);
+}
+
+function renderTotals(courses) {
+  const { tgp, tnu, gpa } = calcSemGPA(courses);
+  const tfoot = document.getElementById('totals-foot');
+  tfoot.innerHTML = `
+    <tr class="totals-row">
+      <td colspan="2" style="text-align:right">Totals</td>
+      <td style="text-align:center">${tnu || '—'}</td>
+      <td></td>
+      <td style="text-align:center">${tgp || '—'}</td>
+      <td></td>
+    </tr>
+    <tr class="totals-row">
+      <td colspan="4" style="text-align:right;color:var(--text3)">Semester GPA</td>
+      <td class="total-gpa" style="text-align:center">${fmt(gpa)}</td>
+      <td></td>
+    </tr>`;
+  document.getElementById('sem-gpa-detail').textContent =
+    gpa !== null ? `TGP ${tgp} ÷ TNU ${tnu} = ${fmt(gpa)}` : '';
+}
+
+function addCourse() {
+  userData.semesters[currentSem].push({ code:'', title:'', units:'', grade:'' });
+  renderTable();
+  updateStats();
+  scheduleSave();
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('#course-tbody tr:last-child input:first-child');
+    if (inputs.length) inputs[0].focus();
+  }, 50);
+}
+
+function deleteCourse(i) {
+  userData.semesters[currentSem].splice(i, 1);
+  renderTable();
+  updateStats();
+  scheduleSave();
+}
+
+function updateField(i, field, val) {
+  userData.semesters[currentSem][i][field] = val;
+  // Partial re-render (keep focus)
+  updateTotalsOnly(userData.semesters[currentSem]);
+  updateStats();
+  scheduleSave();
+}
+
+function updateTotalsOnly(courses) {
+  if (!courses.length) { document.getElementById('totals-foot').innerHTML = ''; return; }
+  const tbody = document.getElementById('course-tbody');
+  const rows  = tbody.querySelectorAll('tr');
+  rows.forEach((row, i) => {
+    if (!courses[i]) return;
+    const c = courses[i];
+    const gp    = GRADE_POINTS[c.grade] ?? null;
+    const units = parseFloat(c.units) || 0;
+    const contrib = (gp !== null && units > 0 && c.grade !== '') ? (gp * units) : '—';
+    const gpCell = row.querySelectorAll('td')[4];
+    if (gpCell) gpCell.textContent = contrib === '—' ? '—' : contrib;
+    const sel = row.querySelector('.grade-select');
+    if (sel) sel.className = 'grade-select' + (c.grade ? ' grade-'+c.grade : '');
+  });
+  renderTotals(courses);
+}
+
+// ── Stats ────────────────────────────────────────────────────
+function updateStats() {
+  const sems = userData.semesters;
+
+  // Mini chips + sem sub-tab badges
+  SEMS.forEach(s => {
+    const { gpa } = calcSemGPA(sems[s] || []);
+    const mini = document.getElementById('mini-' + s);
+    if (mini) {
+      mini.textContent = fmt(gpa);
+      mini.className = 'stat-value ' + gpaClass(gpa);
+    }
+    const stabGpa = document.getElementById('stab-gpa-' + s);
+    if (stabGpa) stabGpa.textContent = fmt(gpa);
+  });
+
+  // Current sem GPA in header bar
+  const { gpa: curGpa } = calcSemGPA(sems[currentSem] || []);
+  const curEl = document.getElementById('stat-cur-gpa');
+  curEl.textContent = fmt(curGpa);
+  curEl.className   = 'stat-value ' + gpaClass(curGpa);
+
+  // CGPA
+  const cgpa = calcCGPA(sems);
+  document.getElementById('cgpa-big').textContent = fmt(cgpa);
+  const clsEl = document.getElementById('cgpa-class');
+  clsEl.textContent = classifyGPA(cgpa);
+  clsEl.className   = 'cls ' + classifyBadge(cgpa);
+}
+
+// ── Save to server ───────────────────────────────────────────
+function scheduleSave() {
+  const ind = document.getElementById('save-ind');
+  ind.textContent = 'Saving…';
+  ind.className = 'save-indicator saving';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    const res = await API.put('/api/data', { semesters: userData.semesters }).catch(() => ({ ok:false }));
+    if (res.ok) {
+      ind.textContent = 'Saved ✓';
+      ind.className = 'save-indicator saved';
+      setTimeout(() => { ind.className = 'save-indicator'; }, 1800);
+    } else {
+      ind.textContent = 'Save failed';
+      ind.className = 'save-indicator saving';
+      setTimeout(() => { ind.className = 'save-indicator'; }, 2500);
+    }
+  }, 900);
+}
+
+// ── Calculations ─────────────────────────────────────────────
+function calcSemGPA(courses) {
+  let tgp = 0, tnu = 0;
+  courses.forEach(c => {
+    const units = parseFloat(c.units) || 0;
+    const gp    = GRADE_POINTS[c.grade] ?? null;
+    if (units > 0 && gp !== null && c.grade !== '') {
+      tgp += gp * units;
+      tnu += units;
+    }
+  });
+  if (tnu === 0) return { tgp: 0, tnu: 0, gpa: null };
+  return { tgp, tnu, gpa: tgp / tnu };
+}
+
+function calcCGPA(sems) {
+  let totalTGP = 0, totalTNU = 0;
+  SEMS.forEach(s => {
+    const { tgp, tnu } = calcSemGPA(sems[s] || []);
+    totalTGP += tgp;
+    totalTNU += tnu;
+  });
+  return totalTNU === 0 ? null : totalTGP / totalTNU;
+}
+
+function classifyGPA(cgpa) {
+  if (cgpa === null) return '';
+  if (cgpa >= 4.5) return 'First Class';
+  if (cgpa >= 3.5) return '2nd Class Upper';
+  if (cgpa >= 2.5) return '2nd Class Lower';
+  if (cgpa >= 1.5) return 'Third Class';
+  return 'Pass';
+}
+
+function classifyBadge(cgpa) {
+  if (cgpa === null) return '';
+  if (cgpa >= 4.5) return 'class-first';
+  if (cgpa >= 3.5) return 'class-second-upper';
+  if (cgpa >= 2.5) return 'class-second-lower';
+  if (cgpa >= 1.5) return 'class-third';
+  return 'class-pass';
+}
+
+function gpaClass(gpa) {
+  if (gpa === null) return '';
+  return gpa >= 3.5 ? 'good' : gpa < 2.0 ? 'bad' : '';
+}
+
+function fmt(n) { return n === null ? '—' : n.toFixed(2); }
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+}
+
+// ── Keyboard shortcuts ───────────────────────────────────────
+document.getElementById('auth-password').addEventListener('keydown', e => {
+  if (e.key === 'Enter') submitAuth();
+});
+document.getElementById('auth-username').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('auth-password').focus();
+});
+
+// ── Boot ─────────────────────────────────────────────────────
+if (authToken) {
+  launchApp();
+}
+</script>
+</body>
+</html>
