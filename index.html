@@ -32,6 +32,9 @@
   .btn-full { width:100%; background:var(--gold); color:#0e0f14; border:none; padding:14px; border-radius:10px; font-weight:600; font-size:15px; cursor:pointer; font-family:inherit; transition:background 0.2s; margin-top:6px; }
   .btn-full:hover { background:var(--gold2); }
   .btn-full:disabled { opacity:0.5; cursor:not-allowed; }
+  .auth-switch { text-align:center; font-size:13px; color:var(--text3); margin-top:18px; }
+  .auth-switch span { color:var(--gold); font-weight:600; cursor:pointer; }
+  .auth-switch span:hover { color:var(--gold2); text-decoration:underline; }
   #app { display:none; min-height:100vh; flex-direction:column; }
   header { background:var(--surface); border-bottom:1px solid var(--border); padding:0 16px; display:flex; align-items:center; gap:12px; height:54px; flex-shrink:0; position:sticky; top:0; z-index:100; }
   .header-logo { font-family:'Playfair Display',serif; font-size:18px; color:var(--gold); }
@@ -196,6 +199,7 @@
     </div>
 
     <button class="btn-full" id="auth-submit">Login</button>
+    <div class="auth-switch" id="auth-switch">Don't have an account? <span id="auth-switch-link">Register</span></div>
   </div>
 </div>
 
@@ -273,7 +277,7 @@ const SUPABASE_URL = 'https://kacsnofbokruxapwhwh.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_Bhf0PoThMTttvf0sJNfglw_Zdrt5NhC';
 const PIN_SALT = 'my-secret-salt-change-this';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ── Constants ───────────────────────────────────────────────
 const GRADE_POINTS = { A:5, B:4, C:3, D:2, E:1, F:0 };
@@ -313,6 +317,8 @@ const deptField   = document.getElementById('dept-field');
 const authSubmit  = document.getElementById('auth-submit');
 const tabLogin    = document.getElementById('tab-login');
 const tabRegister = document.getElementById('tab-register');
+const authSwitch     = document.getElementById('auth-switch');
+const authSwitchLink = document.getElementById('auth-switch-link');
 
 // ── Helpers ──────────────────────────────────────────────────
 function showToast(msg, isError=false) {
@@ -382,6 +388,8 @@ function showAuthTab(mode) {
   authPassword.autocomplete = mode === 'login' ? 'current-password' : 'new-password';
   deptField.style.display = mode === 'register' ? 'block' : 'none';
   authError.style.display = 'none';
+  authSwitch.firstChild.textContent = mode === 'login' ? "Don't have an account? " : 'Already have an account? ';
+  authSwitchLink.textContent = mode === 'login' ? 'Register' : 'Login';
 }
 
 function setAuthError(msg) {
@@ -412,11 +420,11 @@ async function submitAuth() {
     let user;
 
     if (authMode === 'login') {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
       if (error) throw error;
       user = data.user;
     } else {
-      const { data, error } = await supabase.auth.signUp({
+      const { data, error } = await sb.auth.signUp({
         email,
         password,
         options: { data: { department } }
@@ -433,7 +441,7 @@ async function submitAuth() {
       }
 
       // Create the profile row
-      const { error: profileErr } = await supabase.from('gpa_data').upsert({
+      const { error: profileErr } = await sb.from('gpa_data').upsert({
         id: data.user.id,
         department,
         semesters: {},
@@ -458,14 +466,14 @@ async function submitAuth() {
 
 async function loadUserData() {
   if (!currentUser) return;
-  const { data, error } = await supabase
+  const { data, error } = await sb
     .from('gpa_data')
     .select('*')
     .eq('id', currentUser.id)
     .maybeSingle();
   if (error) throw error;
   if (!data) {
-    const { data: newData, error: insErr } = await supabase
+    const { data: newData, error: insErr } = await sb
       .from('gpa_data')
       .insert({ id: currentUser.id, department: '', semesters: {}, courses: {} })
       .select()
@@ -494,7 +502,7 @@ function launchApp() {
 }
 
 async function doLogout() {
-  await supabase.auth.signOut();
+  await sb.auth.signOut();
   currentUser = null; userData = null;
   app.style.display = 'none';
   authScreen.style.display = 'flex';
@@ -540,7 +548,7 @@ async function handleFileUpload(event) {
 // ── Supabase save ────────────────────────────────────────────
 async function saveToSupabase() {
   if (!currentUser) return;
-  const { error } = await supabase
+  const { error } = await sb
     .from('gpa_data')
     .upsert({
       id: currentUser.id,
@@ -762,7 +770,7 @@ function updateStats() {
 
 // ── Auto-login check ────────────────────────────────────────
 async function checkSession() {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await sb.auth.getSession();
   if (session) {
     currentUser = { id: session.user.id, email: session.user.email };
     try {
@@ -780,6 +788,7 @@ async function checkSession() {
 // ── Event Listeners ─────────────────────────────────────────
 tabLogin.addEventListener('click', () => showAuthTab('login'));
 tabRegister.addEventListener('click', () => showAuthTab('register'));
+authSwitchLink.addEventListener('click', () => showAuthTab(authMode === 'login' ? 'register' : 'login'));
 
 authSubmit.addEventListener('click', submitAuth);
 
