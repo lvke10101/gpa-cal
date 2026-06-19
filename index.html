@@ -77,6 +77,9 @@
   .btn-add svg { width:13px; height:13px; }
   .btn-upload { background:var(--card); color:var(--text2); border:1px solid var(--border); padding:6px 12px; border-radius:8px; font-size:11px; cursor:pointer; font-family:inherit; transition:all 0.2s; }
   .btn-upload:hover { border-color:var(--gold); color:var(--text); }
+  .btn-icon-upload { background:var(--card); color:var(--text2); border:1px solid var(--border); width:36px; height:36px; border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; flex-shrink:0; }
+  .btn-icon-upload:hover { border-color:var(--gold); color:var(--gold); }
+  .btn-icon-upload svg { width:16px; height:16px; }
   .course-table-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; overflow-x:auto; -webkit-overflow-scrolling:touch; }
   table { width:100%; border-collapse:collapse; min-width:460px; }
   thead th { background:var(--card); padding:10px 12px; text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:0.8px; color:var(--text3); font-weight:600; border-bottom:1px solid var(--border); white-space:nowrap; }
@@ -222,7 +225,6 @@
     <div class="header-logo">GradeVault</div>
     <div class="spacer"></div>
     <div class="header-actions">
-      <button class="btn-upload" onclick="document.getElementById('file-input').click()">📂 Upload Courses</button>
       <input type="file" id="file-input" accept=".json" style="display:none" onchange="handleFileUpload(event)"/>
       <div class="credit-pill" id="credit-pill">
         <div class="credit-icon">C</div>
@@ -259,12 +261,19 @@
         <div class="semester-title" id="sem-title">—</div>
         <div class="semester-gpa-detail" id="sem-gpa-detail"></div>
       </div>
-      <button class="btn-add" onclick="addCourse()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-        Add Course
-      </button>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <button class="btn-icon-upload" title="Upload courses" onclick="document.getElementById('file-input').click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>
+          </svg>
+        </button>
+        <button class="btn-add" onclick="addCourse()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Add Course
+        </button>
+      </div>
     </div>
     <div class="course-table-wrap">
       <table>
