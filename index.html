@@ -110,6 +110,19 @@
   ::-webkit-scrollbar-track { background:transparent; }
   ::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
   .header-actions { display:flex; align-items:center; gap:10px; }
+  .credit-pill { display:flex; align-items:center; gap:6px; background:var(--card); border:1px solid var(--border); border-radius:24px; padding:6px 12px; flex-shrink:0; }
+  .credit-pill .credit-icon { width:18px; height:18px; border-radius:50%; background:var(--gold); color:#0e0f14; font-weight:700; font-size:11px; display:flex; align-items:center; justify-content:center; font-family:'DM Mono',monospace; }
+  .credit-pill .credit-amt { font-family:'DM Mono',monospace; font-size:13px; font-weight:500; color:var(--gold); }
+  .credit-pill.low .credit-amt { color:var(--red2); }
+  .credit-pill.low .credit-icon { background:var(--red2); }
+  .note-section { margin-top:20px; }
+  .note-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .note-title { font-size:13px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:0.6px; }
+  .note-textarea { width:100%; min-height:100px; background:var(--surface); border:1px solid var(--border); color:var(--text); border-radius:var(--radius); padding:14px; font-family:inherit; font-size:14px; outline:none; resize:vertical; transition:border-color 0.2s; }
+  .note-textarea:focus { border-color:var(--gold); }
+  .btn-save-note { background:var(--card); color:var(--text2); border:1px solid var(--border); padding:8px 16px; border-radius:9px; font-weight:600; font-size:12px; cursor:pointer; font-family:inherit; transition:all 0.2s; }
+  .btn-save-note:hover { border-color:var(--gold); color:var(--gold); }
+  .btn-save-note:disabled { opacity:0.5; cursor:not-allowed; }
 </style>
 </head>
 <body>
@@ -211,6 +224,10 @@
     <div class="header-actions">
       <button class="btn-upload" onclick="document.getElementById('file-input').click()">📂 Upload Courses</button>
       <input type="file" id="file-input" accept=".json" style="display:none" onchange="handleFileUpload(event)"/>
+      <div class="credit-pill" id="credit-pill">
+        <div class="credit-icon">C</div>
+        <span class="credit-amt" id="credit-amt">—</span>
+      </div>
       <div class="header-user" onclick="doLogout()">
         <div class="header-avatar" id="header-av"></div>
         <span class="header-username" id="header-name"></span>
@@ -265,6 +282,14 @@
         <tfoot id="totals-foot"></tfoot>
       </table>
     </div>
+
+    <div class="note-section">
+      <div class="note-header">
+        <div class="note-title">Semester Note</div>
+        <button class="btn-save-note" id="save-note-btn" onclick="saveNote()">Save Note (1C)</button>
+      </div>
+      <textarea class="note-textarea" id="note-textarea" placeholder="Jot down anything about this semester — reminders, reflections, plans…"></textarea>
+    </div>
   </div>
 </div>
 
@@ -281,6 +306,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ── Constants ───────────────────────────────────────────────
 const GRADE_POINTS = { A:5, B:4, C:3, D:2, E:1, F:0 };
+const CREDIT_COSTS = { upload: 10, addCourse: 2, saveNote: 1 };
 const YEARS = [
   { label: 'Year 1', sems: ['y1s1','y1s2'] },
   { label: 'Year 2', sems: ['y2s1','y2s2'] },
@@ -301,6 +327,7 @@ const SEM_SHORT = { y1s1:'S1', y1s2:'S2', y2s1:'S1', y2s2:'S2', y3s1:'S1', y3s2:
 // ── State ───────────────────────────────────────────────────
 let currentUser = null;
 let userData = null;
+let userCredits = 0;
 let currentYear = 0;
 let currentSem = 'y1s1';
 let saveTimer = null;
@@ -487,6 +514,59 @@ async function loadUserData() {
   SEMS.forEach(s => { if (!(s in sems)) sems[s] = []; });
   userData.semesters = sems;
   if (!userData.courses) userData.courses = {};
+  if (!userData.notes) userData.notes = {};
+}
+
+// ── Credits ──────────────────────────────────────────────────
+async function loadCredits() {
+  if (!currentUser) return;
+  const { data, error } = await sb
+    .from('credits')
+    .select('balance')
+    .eq('id', currentUser.id)
+    .maybeSingle();
+  if (error) { console.error('Failed to load credits', error); return; }
+  userCredits = data ? data.balance : 0;
+  renderCredits();
+}
+
+function renderCredits() {
+  const amt = document.getElementById('credit-amt');
+  const pill = document.getElementById('credit-pill');
+  if (!amt || !pill) return;
+  amt.textContent = userCredits;
+  pill.classList.toggle('low', userCredits <= 2);
+}
+
+// Attempts to spend `cost` credits. Returns true if successful, false if insufficient.
+// Uses a conditional update (balance = old - cost only where balance >= cost) to avoid
+// a race where two actions could both pass a stale client-side check.
+async function spendCredits(cost, actionLabel) {
+  if (!currentUser) return false;
+  if (userCredits < cost) {
+    showToast(`Insufficient credits — ${actionLabel} requires ${cost}C, you have ${userCredits}C`, true);
+    return false;
+  }
+  const { data, error } = await sb
+    .from('credits')
+    .update({ balance: userCredits - cost, updated_at: new Date().toISOString() })
+    .eq('id', currentUser.id)
+    .gte('balance', cost)
+    .select('balance')
+    .maybeSingle();
+  if (error) {
+    showToast('Error processing credits: ' + error.message, true);
+    return false;
+  }
+  if (!data) {
+    // Someone/something else spent credits in between our check and this update
+    await loadCredits();
+    showToast(`Insufficient credits — ${actionLabel} requires ${cost}C, you have ${userCredits}C`, true);
+    return false;
+  }
+  userCredits = data.balance;
+  renderCredits();
+  return true;
 }
 
 function launchApp() {
@@ -499,6 +579,7 @@ function launchApp() {
   buildYearTabs();
   buildMiniChips();
   switchYear(0, true);
+  loadCredits();
 }
 
 async function doLogout() {
@@ -532,6 +613,8 @@ async function handleFileUpload(event) {
       showToast('This file is not authorized for your account', true);
       return;
     }
+    const ok = await spendCredits(CREDIT_COSTS.upload, 'Uploading courses');
+    if (!ok) return;
     userData.courses = json.courses || {};
     const validCourses = {};
     SEMS.forEach(s => { validCourses[s] = Array.isArray(json.courses[s]) ? json.courses[s] : []; });
@@ -554,9 +637,35 @@ async function saveToSupabase() {
       id: currentUser.id,
       department: userData.department || '',
       semesters: userData.semesters,
-      courses: userData.courses
+      courses: userData.courses,
+      notes: userData.notes
     });
   if (error) throw error;
+}
+
+function loadNoteForSem() {
+  const ta = document.getElementById('note-textarea');
+  if (!ta) return;
+  ta.value = (userData.notes && userData.notes[currentSem]) || '';
+}
+
+async function saveNote() {
+  const ta = document.getElementById('note-textarea');
+  const btn = document.getElementById('save-note-btn');
+  if (!ta) return;
+  btn.disabled = true;
+  try {
+    const ok = await spendCredits(CREDIT_COSTS.saveNote, 'Saving note');
+    if (!ok) return;
+    if (!userData.notes) userData.notes = {};
+    userData.notes[currentSem] = ta.value;
+    await saveToSupabase();
+    showToast('Note saved');
+  } catch (err) {
+    showToast('Error saving note: ' + err.message, true);
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 function scheduleSave() {
@@ -629,6 +738,7 @@ function switchSem(sem) {
   document.getElementById('sem-title').textContent = SEM_NAMES[sem];
   renderTable();
   updateStats();
+  loadNoteForSem();
 }
 
 // ── Table rendering ──────────────────────────────────────────
@@ -699,7 +809,9 @@ function renderTotals(courses) {
 }
 
 // ── Course actions ──────────────────────────────────────────
-function addCourse() {
+async function addCourse() {
+  const ok = await spendCredits(CREDIT_COSTS.addCourse, 'Adding a course');
+  if (!ok) return;
   const courses = userData.semesters[currentSem];
   courses.push({ code:'', title:'', units:'', grade:'' });
   renderTable();
