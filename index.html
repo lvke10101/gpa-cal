@@ -172,10 +172,14 @@ td { padding: 8px 12px; font-size: 14px; }
       <input type="text" id="auth-username" placeholder="Enter username" autocomplete="username" maxlength="32"/>
     </div>
     <div class="auth-field">
+      <label>Email (optional, for recovery)</label>
+      <input type="email" id="auth-email" placeholder="your@email.com (optional)" autocomplete="email"/>
+    </div>
+    <div class="auth-field">
       <label>Password</label>
       <input type="password" id="auth-password" placeholder="Enter password" autocomplete="current-password"/>
     </div>
-    <div class="auth-field" id="dept-field">
+    <div class="auth-field" id="dept-field" style="display:block;">
       <label>Department</label>
       <input type="text" id="auth-dept" list="dept-list" placeholder="Search or select your department" autocomplete="off"/>
       <datalist id="dept-list">
@@ -312,8 +316,8 @@ td { padding: 8px 12px; font-size: 14px; }
 
 <script>
 // ── Supabase configuration ──────────────────────────────────
-const SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co';   // <-- replace
-const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';                // <-- replace
+const SUPABASE_URL = 'https://kacsnofbokruxapwhwh.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_Bhf0PoThMTttvf0sJNfglw_Zdrt5NhC';
 
 // Secret salt for pin generation (keep this same for all files)
 const PIN_SALT = 'my-secret-salt-change-this';
@@ -416,7 +420,7 @@ function showAuthTab(mode) {
   document.getElementById('auth-submit').textContent = mode === 'login' ? 'Login' : 'Create Account';
   document.getElementById('auth-error').style.display = 'none';
   document.getElementById('auth-password').autocomplete = mode === 'login' ? 'current-password' : 'new-password';
-  // show department field only on register
+  // Show department field only on register
   document.getElementById('dept-field').style.display = mode === 'register' ? 'block' : 'none';
 }
 
@@ -428,12 +432,16 @@ function setAuthError(msg) {
 
 async function submitAuth() {
   const username = document.getElementById('auth-username').value.trim();
+  const email = document.getElementById('auth-email').value.trim();
   const password = document.getElementById('auth-password').value;
   const department = document.getElementById('auth-dept').value.trim();
   const btn = document.getElementById('auth-submit');
 
-  if (!username || !password) { setAuthError('Please fill in all fields.'); return; }
+  if (!username || !password) { setAuthError('Please fill in username and password.'); return; }
   if (authMode === 'register' && !department) { setAuthError('Please select your department.'); return; }
+
+  // Use email if provided, otherwise use username@temp.local
+  const userEmail = email || (username + '@temp.local');
 
   btn.disabled = true;
   btn.textContent = authMode === 'login' ? 'Logging in…' : 'Creating account…';
@@ -442,10 +450,23 @@ async function submitAuth() {
   try {
     let result;
     if (authMode === 'login') {
-      result = await supabase.auth.signInWithPassword({ email: username + '@temp.local', password });
+      result = await supabase.auth.signInWithPassword({ 
+        email: userEmail, 
+        password 
+      });
     } else {
-      result = await supabase.auth.signUp({ email: username + '@temp.local', password });
+      result = await supabase.auth.signUp({ 
+        email: userEmail, 
+        password,
+        options: {
+          data: {
+            username: username,
+            department: department
+          }
+        }
+      });
       if (result.error) throw result.error;
+      
       // After signup, create profile with department
       if (result.data.user) {
         await supabase.from('gpa_data').upsert({
@@ -453,7 +474,7 @@ async function submitAuth() {
           department: department,
           semesters: {},
           courses: {}
-        });
+        }, { onConflict: 'id' });
       }
     }
     if (result.error) throw result.error;
@@ -465,6 +486,7 @@ async function submitAuth() {
     await loadUserData();
     launchApp();
   } catch (err) {
+    console.error('Auth error:', err);
     setAuthError(err.message || 'Authentication failed');
   } finally {
     btn.disabled = false;
@@ -502,8 +524,9 @@ async function loadUserData() {
 function launchApp() {
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('app').style.display = 'flex';
-  document.getElementById('header-name').textContent = currentUser.email.split('@')[0];
-  document.getElementById('header-av').textContent = currentUser.email.charAt(0).toUpperCase();
+  const displayName = currentUser.email.split('@')[0];
+  document.getElementById('header-name').textContent = displayName;
+  document.getElementById('header-av').textContent = displayName.charAt(0).toUpperCase();
 
   buildYearTabs();
   buildMiniChips();
@@ -716,10 +739,6 @@ function renderTotals(courses) {
 // ── Course actions ──────────────────────────────────────────
 function addCourse() {
   const courses = userData.semesters[currentSem];
-  // If we have a course catalog for this semester, show a dropdown to select.
-  // We'll create a new row with empty fields, but we can also provide a quick pick.
-  // Let's just add an empty course; user can fill via dropdown? We'll implement a simple dropdown in each row later.
-  // For now, we add blank and user fills manually.
   courses.push({ code:'', title:'', units:'', grade:'' });
   renderTable();
   updateStats();
@@ -808,10 +827,15 @@ async function checkSession() {
 
 // ── Init ─────────────────────────────────────────────────────
 showAuthTab('login'); // default
+
+// Enter key support
 document.getElementById('auth-password').addEventListener('keydown', e => {
   if (e.key === 'Enter') submitAuth();
 });
 document.getElementById('auth-username').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('auth-password').focus();
+});
+document.getElementById('auth-email').addEventListener('keydown', e => {
   if (e.key === 'Enter') document.getElementById('auth-password').focus();
 });
 
