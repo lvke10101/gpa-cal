@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">GradeVault</string>
+    <string name="title_activity_main">GradeVault</string>
+    <string name="package_name">com.lvke10101.gradevault</string>
+    <string name="custom_url_scheme">com.lvke10101.gradevault</string>
+</resources>

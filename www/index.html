@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>GradeVault — FUTO GPA Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0e0f14; --surface:#16181f; --card:#1c1f2a; --border:#2a2d3a; --border2:#353848;
+    --gold:#d4a843; --gold2:#f0c96a; --green:#2d7a4f; --green2:#3da86c; --red:#c0392b; --red2:#e74c3c;
+    --blue:#2980b9; --text:#e8eaf0; --text2:#9da0b0; --text3:#6b6f80;
+    --A:#3da86c; --B:#2980b9; --C:#d4a843; --D:#c0784a; --E:#c0392b; --F:#6b2d2d;
+    --shadow:0 4px 24px rgba(0,0,0,0.4); --radius:14px;
+  }
+  html, body { height:100%; background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; font-size:15px; -webkit-font-smoothing:antialiased; }
+  #auth-screen { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; background:radial-gradient(ellipse at 30% 20%, #1a1230 0%, #0e0f14 60%); }
+  .auth-box { width:100%; max-width:400px; background:var(--surface); border:1px solid var(--border); border-radius:22px; padding:40px 28px 32px; box-shadow:0 0 60px rgba(212,168,67,0.07), var(--shadow); }
+  .auth-logo { font-family:'Playfair Display',serif; font-size:26px; color:var(--gold); margin-bottom:4px; }
+  .auth-tagline { color:var(--text3); font-size:12px; margin-bottom:32px; }
+  .auth-tabs { display:flex; background:var(--card); border-radius:10px; padding:4px; margin-bottom:24px; gap:4px; }
+  .auth-tab { flex:1; padding:9px; text-align:center; font-size:13px; font-weight:500; border-radius:7px; cursor:pointer; color:var(--text3); transition:all 0.2s; border:none; background:none; font-family:inherit; }
+  .auth-tab.active { background:var(--gold); color:#0e0f14; }
+  .auth-field { margin-bottom:14px; }
+  .auth-field label { display:block; font-size:12px; font-weight:500; color:var(--text3); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px; }
+  .auth-field input, .auth-field select { width:100%; background:var(--card); border:1px solid var(--border); color:var(--text); border-radius:10px; padding:13px 14px; font-family:inherit; font-size:15px; outline:none; transition:border-color 0.2s; -webkit-appearance:none; }
+  .auth-field input:focus, .auth-field select:focus { border-color:var(--gold); }
+  .auth-field select option { background:var(--card); color:var(--text); }
+  .auth-error { font-size:13px; color:var(--red2); background:rgba(192,57,43,0.1); border:1px solid rgba(192,57,43,0.2); border-radius:8px; padding:10px 12px; margin-bottom:14px; display:none; }
+  .btn-full { width:100%; background:var(--gold); color:#0e0f14; border:none; padding:14px; border-radius:10px; font-weight:600; font-size:15px; cursor:pointer; font-family:inherit; transition:background 0.2s; margin-top:6px; }
+  .btn-full:hover { background:var(--gold2); }
+  .btn-full:disabled { opacity:0.5; cursor:not-allowed; }
+  .auth-switch { text-align:center; font-size:13px; color:var(--text3); margin-top:18px; }
+  .auth-switch span { color:var(--gold); font-weight:600; cursor:pointer; }
+  .auth-switch span:hover { color:var(--gold2); text-decoration:underline; }
+  #app { display:none; min-height:100vh; flex-direction:column; }
+  header { background:var(--surface); border-bottom:1px solid var(--border); padding:0 16px; display:flex; align-items:center; gap:12px; height:54px; flex-shrink:0; position:sticky; top:0; z-index:100; }
+  .header-logo { font-family:'Playfair Display',serif; font-size:18px; color:var(--gold); }
+  header .spacer { flex:1; }
+  .header-user { display:flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--border); border-radius:24px; padding:5px 12px 5px 6px; cursor:pointer; transition:border-color 0.2s; flex-shrink:0; }
+  .header-user:hover { border-color:var(--gold); }
+  .header-avatar { width:26px; height:26px; border-radius:50%; background:linear-gradient(135deg, var(--gold), #a07820); display:flex; align-items:center; justify-content:center; font-weight:600; font-size:11px; color:#0e0f14; overflow:hidden; }
+  .header-avatar img { width:100%; height:100%; object-fit:cover; }
+  .header-username { font-size:13px; font-weight:500; max-width:80px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .logout-icon { color:var(--text3); font-size:11px; }
+  .stats-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:12px 16px; display:flex; gap:0; align-items:center; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+  .stats-bar::-webkit-scrollbar { display:none; }
+  .stat-chip { display:flex; flex-direction:column; gap:2px; flex-shrink:0; padding-right:16px; }
+  .stat-label { font-size:10px; color:var(--text3); text-transform:uppercase; letter-spacing:0.7px; white-space:nowrap; }
+  .stat-value { font-family:'DM Mono',monospace; font-size:18px; font-weight:500; color:var(--gold); }
+  .stat-value.good { color:var(--green2); }
+  .stat-value.bad { color:var(--red2); }
+  .stat-divider { width:1px; height:36px; background:var(--border); flex-shrink:0; margin-right:16px; }
+  .stat-chip.sm .stat-value { font-size:14px; color:var(--text2); }
+  .cgpa-badge { flex-shrink:0; margin-left:auto; padding-left:16px; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:8px 16px; display:flex; flex-direction:column; align-items:center; cursor:pointer; user-select:none; -webkit-tap-highlight-color:transparent; transition:opacity 0.15s; }
+  .cgpa-badge:active { opacity:0.6; }
+  .cgpa-badge .label { font-size:10px; color:var(--text3); letter-spacing:0.7px; text-transform:uppercase; margin-bottom:1px; }
+  .cgpa-badge .val { font-family:'Playfair Display',serif; font-size:22px; color:var(--gold); line-height:1; }
+  .cgpa-badge .cls { font-size:10px; color:var(--text2); margin-top:1px; }
+  .year-groups { background:var(--surface); border-bottom:1px solid var(--border); padding:0 16px; display:flex; gap:6px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+  .year-groups::-webkit-scrollbar { display:none; }
+  .year-btn { padding:10px 14px; font-size:12px; font-weight:600; cursor:pointer; color:var(--text3); border-bottom:2px solid transparent; transition:all 0.2s; white-space:nowrap; background:none; border:none; border-bottom:2px solid transparent; font-family:inherit; }
+  .year-btn:hover { color:var(--text); }
+  .year-btn.active { color:var(--gold); border-bottom-color:var(--gold); }
+  .sem-tabs { background:var(--card); border-bottom:1px solid var(--border); padding:0 16px; display:flex; gap:4px; }
+  .sem-tab { flex:1; padding:10px 4px; text-align:center; font-size:12px; font-weight:500; cursor:pointer; color:var(--text3); border-bottom:2px solid transparent; transition:all 0.2s; background:none; border:none; border-bottom:2px solid transparent; font-family:inherit; white-space:nowrap; }
+  .sem-tab:hover { color:var(--text); }
+  .sem-tab.active { color:var(--gold); border-bottom-color:var(--gold); }
+  .sem-tab .gpa-tag { display:block; font-family:'DM Mono',monospace; font-size:11px; color:var(--text3); margin-top:1px; }
+  .sem-tab.active .gpa-tag { color:var(--gold); }
+  .content { flex:1; padding:16px; max-width:900px; width:100%; margin:0 auto; }
+  .semester-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:8px; }
+  .semester-title { font-family:'Playfair Display',serif; font-size:18px; color:var(--text); }
+  .semester-gpa-detail { font-size:12px; color:var(--text3); font-family:'DM Mono',monospace; margin-top:2px; }
+  .btn-add { background:var(--gold); color:#0e0f14; border:none; padding:9px 14px; border-radius:10px; font-weight:600; font-size:13px; cursor:pointer; font-family:inherit; transition:all 0.2s; display:flex; align-items:center; gap:5px; flex-shrink:0; }
+  .btn-add:hover { background:var(--gold2); }
+  .btn-add svg { width:13px; height:13px; }
+  .btn-upload { background:var(--card); color:var(--text2); border:1px solid var(--border); padding:6px 12px; border-radius:8px; font-size:11px; cursor:pointer; font-family:inherit; transition:all 0.2s; }
+  .btn-upload:hover { border-color:var(--gold); color:var(--text); }
+  .btn-icon-upload { background:var(--card); color:var(--text2); border:1px solid var(--border); width:36px; height:36px; border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; flex-shrink:0; }
+  .btn-icon-upload:hover { border-color:var(--gold); color:var(--gold); }
+  .btn-icon-upload svg { width:16px; height:16px; }
+  /* Course lock toggle */
+  .lock-toggle-row { display:flex; align-items:center; gap:12px; margin:2px 0 20px; }
+  .lock-toggle { position:relative; display:inline-flex; cursor:pointer; flex-shrink:0; }
+  .lock-toggle input { position:absolute; opacity:0; width:0; height:0; pointer-events:none; }
+  .lock-toggle-track { --tx:0px; --sc:1; position:relative; width:46px; height:24px; border-radius:999px; background:var(--red2); box-shadow:var(--shadow); transition:background 0.3s; }
+  .lock-toggle input:checked + .lock-toggle-track { background:var(--green2); --tx:22px; }
+  .lock-toggle:hover .lock-toggle-track { --sc:0.95; }
+  .lock-toggle-track::after { content:''; position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%; background:#f3f4f6; transition:transform 0.3s; transform:translateX(var(--tx)) scale(var(--sc)); }
+  .lock-icon { position:absolute; top:2px; width:20px; height:20px; fill:var(--bg); pointer-events:none; }
+  .lock-icon-closed { left:24px; }
+  .lock-icon-open { left:2px; }
+  .lock-status-text { font-size:13px; font-weight:600; color:var(--red2); transition:color 0.3s; }
+  .lock-status-text.unlocked { color:var(--green2); }
+  .course-table-wrap.locked { opacity:0.92; }
+  .course-table-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  table { width:100%; border-collapse:collapse; min-width:500px; }
+  thead th { background:var(--card); padding:10px 12px; text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:0.8px; color:var(--text3); font-weight:600; border-bottom:1px solid var(--border); white-space:nowrap; }
+  tbody tr { border-bottom:1px solid var(--border); transition:background 0.15s; }
+  tbody tr:last-child { border-bottom:none; }
+  tbody tr:hover { background:rgba(255,255,255,0.02); }
+  td { padding:8px 12px; font-size:14px; }
+  .cell-input { background:transparent; border:1px solid transparent; color:var(--text); font-family:inherit; font-size:14px; padding:5px 8px; border-radius:7px; width:100%; transition:all 0.15s; outline:none; -webkit-appearance:none; }
+  .cell-input:hover { border-color:var(--border2); background:var(--card); }
+  .cell-input:focus { border-color:var(--gold); background:var(--card); }
+  .cell-input.unit-input { width:56px; text-align:center; font-family:'DM Mono',monospace; }
+  .grade-select { appearance:none; -webkit-appearance:none; background:var(--card); border:1px solid var(--border); color:var(--text); font-family:'DM Mono',monospace; font-size:13px; font-weight:500; padding:5px 8px; border-radius:7px; cursor:pointer; outline:none; transition:border-color 0.15s; min-width:64px; text-align:center; }
+  .grade-select:focus { border-color:var(--gold); }
+  .grade-A { color:var(--A); } .grade-B { color:var(--B); } .grade-C { color:var(--C); } .grade-D { color:var(--D); } .grade-E { color:var(--E); } .grade-F { color:var(--F); }
+  .gp-cell { font-family:'DM Mono',monospace; color:var(--text2); font-size:12px; }
+  .btn-del { background:none; border:none; color:var(--text3); cursor:pointer; font-size:16px; padding:6px 10px; border-radius:6px; transition:all 0.2s; display:flex; align-items:center; justify-content:center; }
+  .btn-del svg { width:18px; height:18px; }
+  .btn-del:hover { color:var(--red2); background:rgba(192,57,43,0.1); }
+  .cell-input:disabled, .grade-select:disabled { opacity:0.5; cursor:not-allowed; }
+  .cell-input:disabled:hover, .grade-select:disabled:hover { border-color:transparent; background:transparent; }
+  .btn-del:disabled { opacity:0.3; cursor:not-allowed; pointer-events:none; }
+  .btn-add:disabled { opacity:0.4; cursor:not-allowed; }
+  .btn-add:disabled:hover { background:var(--gold); }
+  .totals-row td { background:var(--card); border-top:1px solid var(--border2); font-weight:600; font-size:12px; color:var(--text2); font-family:'DM Mono',monospace; }
+  .totals-row .total-gpa { color:var(--gold); font-size:14px; }
+  .empty-state { padding:48px 16px; text-align:center; }
+  .empty-state .icon { font-size:36px; margin-bottom:10px; opacity:0.3; }
+  .empty-state p { color:var(--text3); font-size:13px; }
+  .class-first { color:var(--green2); } .class-second-upper { color:#5dade2; } .class-second-lower { color:var(--gold); } .class-third { color:#e59866; } .class-pass { color:var(--text3); }
+  .save-indicator { position:fixed; bottom:16px; right:16px; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:8px 14px; font-size:12px; color:var(--text3); opacity:0; transition:opacity 0.3s; pointer-events:none; z-index:200; }
+  .save-indicator.saving { opacity:1; color:var(--gold); }
+  .save-indicator.saved { opacity:1; color:var(--green2); }
+  .toast { position:fixed; top:70px; left:50%; transform:translateX(-50%); background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px 18px; font-size:13px; color:var(--text2); opacity:0; transition:opacity 0.3s; z-index:300; white-space:nowrap; pointer-events:none; }
+  .toast.show { opacity:1; }
+  .toast.error { color:var(--red2); border-color:rgba(192,57,43,0.3); }
+  ::-webkit-scrollbar { width:4px; height:4px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+  .header-actions { display:flex; align-items:center; gap:10px; }
+  .credit-pill { display:flex; align-items:center; gap:6px; background:var(--card); border:1px solid var(--border); border-radius:24px; padding:6px 12px; flex-shrink:0; }
+  .credit-pill .credit-icon { width:18px; height:18px; border-radius:50%; background:var(--gold); color:#0e0f14; font-weight:700; font-size:11px; display:flex; align-items:center; justify-content:center; font-family:'DM Mono',monospace; }
+  .credit-pill .credit-amt { font-family:'DM Mono',monospace; font-size:13px; font-weight:500; color:var(--gold); }
+  .credit-pill.low .credit-amt { color:var(--red2); }
+  .credit-pill.low .credit-icon { background:var(--red2); }
+  .note-section { margin-top:20px; }
+  .note-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .note-title { font-size:13px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:0.6px; }
+  .note-textarea { width:100%; min-height:100px; background:var(--surface); border:1px solid var(--border); color:var(--text); border-radius:var(--radius); padding:14px; font-family:inherit; font-size:14px; outline:none; resize:vertical; transition:border-color 0.2s; }
+  .note-textarea:focus { border-color:var(--gold); }
+  .btn-save-note { background:var(--card); color:var(--text2); border:1px solid var(--border); padding:8px 16px; border-radius:9px; font-weight:600; font-size:12px; cursor:pointer; font-family:inherit; transition:all 0.2s; }
+  .btn-save-note:hover { border-color:var(--gold); color:var(--gold); }
+  .btn-save-note:disabled { opacity:0.5; cursor:not-allowed; }
+
+  /* Profile screen */
+  #profile-screen { display:none; min-height:100vh; flex-direction:column; background:var(--bg); }
+  #profile-screen header { justify-content:flex-start; }
+  .profile-back { background:var(--card); border:1px solid var(--border); color:var(--text); width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:border-color 0.2s; }
+  .profile-back:hover { border-color:var(--gold); }
+  .profile-back svg { width:16px; height:16px; }
+  .profile-content { flex:1; max-width:480px; width:100%; margin:0 auto; padding:20px 16px 40px; }
+  .profile-page-title { font-family:'Playfair Display',serif; font-size:24px; color:var(--text); margin-bottom:18px; }
+  .profile-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:28px 20px 22px; display:flex; flex-direction:column; align-items:center; text-align:center; margin-bottom:20px; }
+  .profile-avatar { width:92px; height:92px; border-radius:50%; background:linear-gradient(135deg, var(--gold), #a07820); display:flex; align-items:center; justify-content:center; font-weight:600; font-size:32px; color:#0e0f14; margin-bottom:14px; overflow:hidden; }
+  .profile-avatar img { width:100%; height:100%; object-fit:cover; }
+  .profile-name { font-size:17px; font-weight:600; color:var(--text); }
+  .profile-email { font-size:13px; color:var(--text3); margin-top:3px; }
+  .profile-meta { font-size:12px; color:var(--text3); margin-top:6px; }
+  .profile-level { font-size:12px; color:var(--text3); margin-top:2px; }
+  .btn-edit-profile { margin-top:18px; background:var(--gold); color:#0e0f14; border:none; padding:11px 24px; border-radius:24px; font-weight:600; font-size:13px; cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:7px; transition:background 0.2s; }
+  .btn-edit-profile:hover { background:var(--gold2); }
+  .btn-edit-profile svg { width:14px; height:14px; }
+  .profile-menu { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:16px; overflow:hidden; }
+  .profile-item { width:100%; display:flex; align-items:center; gap:14px; padding:15px 16px; background:none; border:none; border-bottom:1px solid var(--border); color:var(--text); font-family:inherit; font-size:14px; cursor:pointer; text-align:left; }
+  .profile-item:last-child { border-bottom:none; }
+  .profile-item:hover { background:rgba(255,255,255,0.02); }
+  .profile-item-icon { width:30px; height:30px; border-radius:50%; border:1.5px solid var(--border2); display:flex; align-items:center; justify-content:center; color:var(--text2); flex-shrink:0; }
+  .profile-item-icon svg { width:15px; height:15px; }
+  .profile-item-label { flex:1; }
+  .profile-item-arrow { color:var(--text3); font-size:16px; }
+  .profile-logout { width:100%; background:none; border:1px solid var(--border); color:var(--red2); padding:13px; border-radius:10px; font-weight:600; font-size:13px; cursor:pointer; font-family:inherit; margin-top:6px; transition:all 0.2s; }
+  .profile-logout:hover { border-color:var(--red2); background:rgba(192,57,43,0.08); }
+  .profile-footer-bar { margin-top:28px; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px 16px; display:flex; flex-direction:column; gap:12px; }
+  .profile-footer-top { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .profile-footer-wordmark { font-family:'DM Sans',sans-serif; font-weight:700; font-size:13px; letter-spacing:0.5px; color:var(--text2); flex-shrink:0; }
+  .profile-footer-social { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+  .footer-social-icon { width:30px; height:30px; border-radius:50%; border:1.5px solid var(--border2); display:flex; align-items:center; justify-content:center; color:var(--text2); flex-shrink:0; }
+  .footer-social-icon svg { width:14px; height:14px; }
+  .footer-social-icon.ornamental { cursor:default; opacity:0.85; }
+  .footer-social-icon.live { cursor:pointer; text-decoration:none; transition:border-color 0.2s, color 0.2s; }
+  .footer-social-icon.live:hover { border-color:var(--green2); color:var(--green2); }
+  .profile-footer-copyright { border-top:1px solid var(--border); padding-top:10px; text-align:center; font-size:11px; color:var(--text3); }
+
+  /* Edit profile screen */
+  #edit-profile-screen { display:none; min-height:100vh; flex-direction:column; background:var(--bg); }
+  #edit-profile-screen header { justify-content:flex-start; gap:14px; }
+  .edit-profile-header-title { font-family:'Playfair Display',serif; font-size:16px; color:var(--text); }
+  .edit-avatar-wrap { position:relative; width:104px; height:104px; margin:8px auto 28px; cursor:pointer; }
+  .edit-avatar-wrap .profile-avatar { width:104px; height:104px; font-size:34px; margin:0; }
+  .edit-avatar-pencil { position:absolute; bottom:0; right:0; width:30px; height:30px; border-radius:50%; background:var(--blue); border:3px solid var(--bg); display:flex; align-items:center; justify-content:center; color:#fff; cursor:pointer; }
+  .edit-avatar-pencil svg { width:14px; height:14px; }
+  .edit-field { margin-bottom:16px; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:10px 14px; }
+  .edit-field label { display:block; font-size:10px; font-weight:600; color:var(--text3); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:5px; }
+  .edit-field input { width:100%; background:transparent; border:none; color:var(--text); font-family:inherit; font-size:15px; outline:none; padding:0; }
+  .edit-field input:disabled { color:var(--text2); cursor:not-allowed; }
+  .edit-field select { width:100%; background:transparent; border:none; color:var(--text); font-family:inherit; font-size:15px; outline:none; padding:0; -webkit-appearance:none; }
+  .edit-field select option { background:var(--card); color:var(--text); }
+
+  /* Avatar picker modal */
+  .avatar-picker-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:200; align-items:flex-end; justify-content:center; }
+  .avatar-picker-overlay.open { display:flex; }
+  .avatar-picker-sheet { background:var(--surface); border:1px solid var(--border); border-radius:20px 20px 0 0; width:100%; max-width:480px; max-height:74vh; display:flex; flex-direction:column; padding:18px 18px 24px; }
+  .avatar-picker-head { display:flex; align-items:center; justify-content:space-between; font-weight:600; font-size:15px; color:var(--text); margin-bottom:14px; }
+  .avatar-picker-close { background:var(--card); border:1px solid var(--border); color:var(--text2); width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .avatar-picker-close svg { width:14px; height:14px; }
+  .avatar-picker-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; overflow-y:auto; padding-bottom:4px; }
+  .avatar-picker-loading, .avatar-picker-empty { grid-column:1/-1; text-align:center; color:var(--text3); font-size:13px; padding:24px 0; }
+  .avatar-picker-item { aspect-ratio:1; border-radius:50%; overflow:hidden; cursor:pointer; border:2px solid transparent; transition:border-color 0.2s; }
+  .avatar-picker-item img { width:100%; height:100%; object-fit:cover; display:block; }
+  .avatar-picker-item.selected { border-color:var(--gold); }
+
+  /* Catalog import picker (reuses avatar-picker-overlay/sheet/head/close) */
+  .catalog-picker-meta { font-size:12px; color:var(--text3); margin:-8px 0 14px; }
+  .catalog-picker-info { font-size:13px; color:var(--text2); background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px 14px; margin-bottom:14px; }
+
+  /* FAQ screen */
+  #faq-screen { display:none; min-height:100vh; flex-direction:column; background:var(--bg); }
+  #faq-screen header { justify-content:flex-start; gap:14px; }
+  .faq-header-title { font-family:'Playfair Display',serif; font-size:16px; color:var(--text); flex:1; }
+  .faq-search-icon { color:var(--text3); width:18px; height:18px; flex-shrink:0; }
+  .faq-list { display:flex; flex-direction:column; }
+  .faq-item { border-bottom:1px solid var(--border); }
+  .faq-item:first-child { border-top:3px solid var(--gold); }
+  .faq-q { width:100%; display:flex; align-items:center; gap:14px; padding:16px 2px; background:none; border:none; color:var(--text); font-family:inherit; font-size:14px; font-weight:500; text-align:left; cursor:pointer; }
+  .faq-q-icon { flex-shrink:0; width:20px; height:20px; border-radius:50%; border:1.5px solid var(--gold); color:var(--gold); display:flex; align-items:center; justify-content:center; font-size:14px; line-height:1; transition:transform 0.25s, background 0.25s, color 0.25s; }
+  .faq-item.open .faq-q-icon { background:var(--gold); color:#0e0f14; transform:rotate(180deg); }
+  .faq-q-text { flex:1; }
+  .faq-a-wrap { max-height:0; overflow:hidden; transition:max-height 0.3s ease; }
+  .faq-item.open .faq-a-wrap { max-height:240px; }
+  .faq-a { padding:0 2px 18px 36px; font-size:13px; line-height:1.55; color:var(--text2); border-left:2px solid var(--border2); margin-left:8px; }
+  .faq-footer-note { text-align:center; font-size:12px; color:var(--text3); margin-top:24px; padding:0 8px; line-height:1.5; }
+
+</style>
+</head>
+<body>
+
+<!-- ══ AUTH SCREEN ══════════════════════════════════════════ -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">GradeVault</div>
+    <div class="auth-tagline">FUTO GPA &amp; CGPA Calculator · 5-Point Scale</div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login">Login</button>
+      <button class="auth-tab" id="tab-register">Register</button>
+    </div>
+
+    <div id="auth-error" class="auth-error"></div>
+
+    <div class="auth-field">
+      <label>Email</label>
+      <input type="email" id="auth-email" placeholder="Enter your email" autocomplete="email" maxlength="64"/>
+    </div>
+    <div class="auth-field">
+      <label>Password</label>
+      <input type="password" id="auth-password" placeholder="Enter password (min 6 chars)" autocomplete="current-password"/>
+    </div>
+    <div class="auth-field" id="dept-field" style="display:none;">
+      <label>Department</label>
+      <input type="text" id="auth-dept" list="dept-list" placeholder="Search or select your department" autocomplete="off"/>
+      <datalist id="dept-list">
+        <option value="Agricultural and Bioresources Engineering">
+        <option value="Agricultural Economics">
+        <option value="Agricultural Extension">
+        <option value="Animal Science and Technology">
+        <option value="Architecture">
+        <option value="Biochemistry">
+        <option value="Biology">
+        <option value="Biomedical Engineering">
+        <option value="Biotechnology">
+        <option value="Building Technology">
+        <option value="Chemical Engineering">
+        <option value="Chemistry">
+        <option value="Civil Engineering">
+        <option value="Computer Engineering">
+        <option value="Computer Science">
+        <option value="Crop Science and Technology">
+        <option value="Cyber Security">
+        <option value="Dental Technology">
+        <option value="Electrical and Electronic Engineering">
+        <option value="Electrical Engineering">
+        <option value="Electronics Engineering">
+        <option value="Entrepreneurship and Innovation">
+        <option value="Environmental Health Science">
+        <option value="Environmental Management">
+        <option value="Environmental Management and Evaluation">
+        <option value="Estate Management and Valuation">
+        <option value="Fisheries and Aquaculture Technology">
+        <option value="Food Science and Technology">
+        <option value="Forensic Science">
+        <option value="Forestry and Wildlife Technology">
+        <option value="Geology">
+        <option value="Human Anatomy">
+        <option value="Human Physiology">
+        <option value="Information Technology">
+        <option value="Logistics and Transport Technology">
+        <option value="Maritime Technology and Logistics">
+        <option value="Materials and Metallurgical Engineering">
+        <option value="Mathematics">
+        <option value="Mechanical Engineering">
+        <option value="Mechatronics Engineering">
+        <option value="Microbiology">
+        <option value="Optometry">
+        <option value="Petroleum Engineering">
+        <option value="Physics">
+        <option value="Polymer and Textile Engineering">
+        <option value="Project Management Technology">
+        <option value="Prosthetics and Orthotics">
+        <option value="Public Health Technology">
+        <option value="Quantity Surveying">
+        <option value="Science Laboratory Technology">
+        <option value="Soil Science and Technology">
+        <option value="Software Engineering">
+        <option value="Statistics">
+        <option value="Supply Chain Management">
+        <option value="Surveying and Geoinformatics">
+        <option value="Telecommunications Engineering">
+        <option value="Urban and Regional Planning">
+      </datalist>
+    </div>
+
+    <button class="btn-full" id="auth-submit">Login</button>
+    <div class="auth-switch" id="auth-switch">Don't have an account? <span id="auth-switch-link">Register</span></div>
+  </div>
+</div>
+
+<!-- ══ MAIN APP ══════════════════════════════════════════════ -->
+<div id="app">
+  <header>
+    <div class="header-logo">GradeVault</div>
+    <div class="spacer"></div>
+    <div class="header-actions">
+      <div class="credit-pill" id="credit-pill">
+        <div class="credit-icon">C</div>
+        <span class="credit-amt" id="credit-amt">—</span>
+      </div>
+      <div class="header-user" onclick="showProfile()">
+        <div class="header-avatar" id="header-av"></div>
+        <span class="header-username" id="header-name"></span>
+      </div>
+    </div>
+  </header>
+
+  <div class="stats-bar" id="stats-bar">
+    <div class="stat-chip">
+      <div class="stat-label">Sem GPA</div>
+      <div class="stat-value" id="stat-cur-gpa">—</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div id="mini-chips" style="display:flex;gap:0;"></div>
+    <div class="cgpa-badge" style="margin-left:12px;" onclick="toggleGpaPrivacy()" title="Tap to hide/show GPA">
+      <div class="label">CGPA</div>
+      <div class="val" id="cgpa-big">—</div>
+      <div class="cls" id="cgpa-class"></div>
+    </div>
+  </div>
+
+  <div class="year-groups" id="year-groups"></div>
+  <div class="sem-tabs" id="sem-tabs"></div>
+
+  <div class="content">
+    <div class="semester-header">
+      <div>
+        <div class="semester-title" id="sem-title">—</div>
+        <div class="semester-gpa-detail" id="sem-gpa-detail"></div>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <button class="btn-icon-upload" title="Upload courses" onclick="openCatalogPicker()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 4v12"/><path d="M7 11l5 5 5-5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>
+          </svg>
+        </button>
+        <button class="btn-add" id="btn-add-course" onclick="addCourse()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="4" y="4" width="4.5" height="16"/>
+            <rect x="9.5" y="4" width="4.5" height="16"/>
+            <rect x="15.5" y="5" width="4.5" height="16" transform="rotate(12 17.75 13)"/>
+          </svg>
+          Add
+        </button>
+      </div>
+    </div>
+
+    <div class="lock-toggle-row">
+      <label class="lock-toggle">
+        <input type="checkbox" id="lock-toggle-input" onchange="onLockToggle(this.checked)">
+        <div class="lock-toggle-track">
+          <svg class="lock-icon lock-icon-open" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50,18A19.9,19.9,0,0,0,30,38v8a8,8,0,0,0-8,8V74a8,8,0,0,0,8,8H70a8,8,0,0,0,8-8V54a8,8,0,0,0-8-8H38V38a12,12,0,0,1,23.6-3,4,4,0,1,0,7.8-2A20.1,20.1,0,0,0,50,18Z"/>
+          </svg>
+          <svg class="lock-icon lock-icon-closed" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" d="M30,46V38a20,20,0,0,1,40,0v8a8,8,0,0,1,8,8V74a8,8,0,0,1-8,8H30a8,8,0,0,1-8-8V54A8,8,0,0,1,30,46Zm32-8v8H38V38a12,12,0,0,1,24,0Z"/>
+          </svg>
+        </div>
+      </label>
+      <span class="lock-status-text" id="lock-status-text">Locked</span>
+    </div>
+
+    <div class="course-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:150px">Code</th>
+            <th>Course Title</th>
+            <th style="width:72px;text-align:center">Units</th>
+            <th style="width:76px;text-align:center">Grade</th>
+            <th style="width:68px;text-align:center">GP×CU</th>
+            <th style="width:44px"></th>
+          </tr>
+        </thead>
+        <tbody id="course-tbody"></tbody>
+        <tfoot id="totals-foot"></tfoot>
+      </table>
+    </div>
+
+    <div class="note-section">
+      <div class="note-header">
+        <div class="note-title">Semester Note</div>
+        <button class="btn-save-note" id="save-note-btn" onclick="saveNote()">Save Note (1C)</button>
+      </div>
+      <textarea class="note-textarea" id="note-textarea" placeholder="Jot down anything about this semester — reminders, reflections, plans…"></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PROFILE SCREEN ═══════════════════════════════════════ -->
+<div id="profile-screen">
+  <header>
+    <button class="profile-back" onclick="hideProfile()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    </button>
+  </header>
+  <div class="profile-content">
+    <h1 class="profile-page-title">Profile</h1>
+
+    <div class="profile-card">
+      <div class="profile-avatar" id="profile-avatar"></div>
+      <div class="profile-name" id="profile-name">—</div>
+      <div class="profile-email" id="profile-email">—</div>
+      <div class="profile-meta" id="profile-meta">—</div>
+      <div class="profile-level" id="profile-level"></div>
+      <button class="btn-edit-profile" onclick="showEditProfile()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
+        Edit Profile
+      </button>
+    </div>
+
+    <div class="profile-menu">
+      <button class="profile-item">
+        <span class="profile-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg>
+        </span>
+        <span class="profile-item-label">Language</span>
+        <span class="profile-item-arrow">›</span>
+      </button>
+      <button class="profile-item">
+        <span class="profile-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="9" r="6"/><circle cx="15" cy="15" r="6"/></svg>
+        </span>
+        <span class="profile-item-label">Currencies</span>
+        <span class="profile-item-arrow">›</span>
+      </button>
+      <button class="profile-item">
+        <span class="profile-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="12" r="6"/><circle cx="15" cy="12" r="6"/></svg>
+        </span>
+        <span class="profile-item-label">Appearance</span>
+        <span class="profile-item-arrow">›</span>
+      </button>
+    </div>
+
+    <div class="profile-menu">
+      <button class="profile-item">
+        <span class="profile-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="3" width="9" height="14" rx="2"/><path d="M14 6h3a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9"/></svg>
+        </span>
+        <span class="profile-item-label">Application Security</span>
+        <span class="profile-item-arrow">›</span>
+      </button>
+      <button class="profile-item">
+        <span class="profile-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+        </span>
+        <span class="profile-item-label">Manage Devices</span>
+        <span class="profile-item-arrow">›</span>
+      </button>
+      <button class="profile-item">
+        <span class="profile-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 4.5-3 7.5-8 9-5-1.5-8-4.5-8-9V6z"/></svg>
+        </span>
+        <span class="profile-item-label">Change Password</span>
+        <span class="profile-item-arrow">›</span>
+      </button>
+      <button class="profile-item" onclick="showFAQ()">
+        <span class="profile-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.35-1 .8-1 1.7v.5"/><line x1="12" y1="17" x2="12" y2="17.1"/></svg>
+        </span>
+        <span class="profile-item-label">FAQ</span>
+        <span class="profile-item-arrow">›</span>
+      </button>
+    </div>
+
+    <button class="profile-logout" onclick="doLogout()">Log Out</button>
+
+    <div class="profile-footer-bar">
+      <div class="profile-footer-top">
+        <span class="profile-footer-wordmark">GRADEVAULT</span>
+        <div class="profile-footer-social">
+          <span class="footer-social-icon ornamental" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 9h2V6h-2c-1.66 0-3 1.34-3 3v2H9v3h2v6h3v-6h2.2l.8-3H14V9z"/></svg>
+          </span>
+          <span class="footer-social-icon ornamental" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 5.8c-.77.34-1.6.57-2.46.67a4.3 4.3 0 0 0 1.88-2.37 8.6 8.6 0 0 1-2.72 1.04 4.28 4.28 0 0 0-7.29 3.9A12.13 12.13 0 0 1 3 4.9a4.27 4.27 0 0 0 1.32 5.71 4.25 4.25 0 0 1-1.94-.54 4.28 4.28 0 0 0 3.43 4.25 4.3 4.3 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98A8.6 8.6 0 0 1 2 18.95a12.1 12.1 0 0 0 6.56 1.92c7.87 0 12.18-6.52 12.18-12.18 0-.19 0-.37-.01-.55A8.7 8.7 0 0 0 22 5.8z"/></svg>
+          </span>
+          <a class="footer-social-icon live" href="https://wa.me/2349019252594" target="_blank" rel="noopener" aria-label="Contact us on WhatsApp">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.15-1.7-.85-2-.95-.27-.1-.46-.15-.66.15-.2.3-.75.95-.92 1.15-.17.2-.34.22-.63.07-.3-.15-1.25-.46-2.38-1.46-.88-.78-1.47-1.75-1.64-2.05-.17-.3-.02-.46.13-.61.15-.15.34-.4.5-.6.17-.2.22-.34.34-.56.1-.22.05-.4-.05-.56-.1-.15-.6-1.45-.83-1.98-.2-.5-.42-.43-.58-.44h-.5c-.17 0-.46.07-.7.34-.25.27-.95.93-.95 2.27 0 1.35.98 2.65 1.12 2.84.15.2 1.9 2.9 4.6 3.95 2.7 1.05 2.7.7 3.18.65.5-.05 1.6-.65 1.83-1.28.22-.63.22-1.17.15-1.28-.07-.1-.27-.17-.57-.32z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.85.5 3.6 1.4 5.1L2 22l5.1-1.34A9.93 9.93 0 0 0 12 22c5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18.1c-1.6 0-3.1-.43-4.4-1.2l-.32-.18-3.27.86.87-3.18-.2-.33A8.1 8.1 0 1 1 12 20.1z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="profile-footer-copyright" id="footer-copyright"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ EDIT PROFILE SCREEN ══════════════════════════════════ -->
+<div id="edit-profile-screen">
+  <header>
+    <button class="profile-back" onclick="hideEditProfile()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    </button>
+    <div class="edit-profile-header-title">Edit profile</div>
+  </header>
+  <div class="profile-content">
+    <div class="edit-avatar-wrap" onclick="openAvatarPicker()">
+      <div class="profile-avatar" id="edit-avatar"></div>
+      <span class="edit-avatar-pencil" onclick="openAvatarPicker()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
+      </span>
+    </div>
+
+    <div class="edit-field">
+      <label>User Name</label>
+      <input type="text" id="edit-username" maxlength="32"/>
+    </div>
+    <div class="edit-field">
+      <label>Full Name</label>
+      <input type="text" id="edit-fullname" maxlength="64"/>
+    </div>
+    <div class="edit-field">
+      <label>Current Level</label>
+      <select id="edit-level">
+        <option value="">Select level</option>
+        <option value="1">100 L</option>
+        <option value="2">200 L</option>
+        <option value="3">300 L</option>
+        <option value="4">400 L</option>
+        <option value="5">500 L</option>
+      </select>
+    </div>
+    <div class="edit-field">
+      <label>E-Mail ID</label>
+      <input type="email" id="edit-email" disabled/>
+    </div>
+
+    <button class="btn-full" id="save-profile-btn" onclick="saveProfileEdits()" style="margin-top:8px;">Save Changes</button>
+  </div>
+</div>
+
+<!-- ══ FAQ SCREEN ═══════════════════════════════════════════ -->
+<div id="faq-screen">
+  <header>
+    <button class="profile-back" onclick="hideFAQ()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    </button>
+    <div class="faq-header-title">FAQ's</div>
+    <svg class="faq-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+  </header>
+  <div class="profile-content">
+    <div class="faq-list" id="faq-list"></div>
+    <div class="faq-footer-note">Still have questions? Reach us on WhatsApp at <a href="https://wa.me/2349019252594" style="color:var(--gold); text-decoration:none;">+234 90 192 525 94</a>.</div>
+  </div>
+</div>
+
+<!-- ══ AVATAR PICKER MODAL ══════════════════════════════════ -->
+<div id="avatar-picker-overlay" class="avatar-picker-overlay">
+  <div class="avatar-picker-sheet">
+    <div class="avatar-picker-head">
+      <span>Choose an avatar</span>
+      <button class="avatar-picker-close" onclick="closeAvatarPicker()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="avatar-picker-grid" id="avatar-picker-grid">
+      <div class="avatar-picker-loading">Loading avatars…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CATALOG IMPORT PICKER ════════════════════════════════ -->
+<div id="catalog-picker-overlay" class="avatar-picker-overlay">
+  <div class="avatar-picker-sheet">
+    <div class="avatar-picker-head">
+      <span>Import courses</span>
+      <button class="avatar-picker-close" onclick="closeCatalogPicker()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="catalog-picker-meta" id="catalog-picker-meta">—</div>
+    <div class="catalog-picker-info" id="catalog-picker-info" style="display:none"></div>
+    <div class="auth-field" id="catalog-year-field" style="display:none">
+      <label>Year</label>
+      <select id="catalog-year-select"></select>
+    </div>
+    <div class="auth-field" id="catalog-sem-field" style="display:none">
+      <label>Semester</label>
+      <select id="catalog-sem-select"></select>
+    </div>
+    <button class="btn-full" id="catalog-import-btn" onclick="confirmCatalogImport()" disabled>Import Courses</button>
+  </div>
+</div>
+
+<div class="save-indicator" id="save-ind">Saving…</div>
+<div class="toast" id="toast"></div>
+
+
+<script>
+// ── Supabase configuration ──────────────────────────────────
+const SUPABASE_URL = 'https://kacsnofbokruxapwfhwh.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_Bhf0PoThMTttvf0sJNfglw_Zdrt5NhC';
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ── Constants ───────────────────────────────────────────────
+const GRADE_POINTS = { A:5, B:4, C:3, D:2, E:1, F:0 };
+const CREDIT_COSTS = { upload: 10, addCourse: 2, saveNote: 1, editProfile: 5, autosaveBatch: 10 };
+const AUTOSAVE_BATCH_SIZE = 10; // every Nth autosave while editing courses triggers a charge
+const YEARS = [
+  { label: 'Year 1', sems: ['y1s1','y1s2'] },
+  { label: 'Year 2', sems: ['y2s1','y2s2'] },
+  { label: 'Year 3', sems: ['y3s1','y3s2'] },
+  { label: 'Year 4', sems: ['y4s1','y4s2'] },
+  { label: 'Year 5', sems: ['y5s1','y5s2'] },
+];
+const SEMS = YEARS.flatMap(y => y.sems);
+const SEM_NAMES = {
+  y1s1:'Year 1 · Semester 1', y1s2:'Year 1 · Semester 2',
+  y2s1:'Year 2 · Semester 1', y2s2:'Year 2 · Semester 2',
+  y3s1:'Year 3 · Semester 1', y3s2:'Year 3 · Semester 2',
+  y4s1:'Year 4 · Semester 1', y4s2:'Year 4 · Semester 2',
+  y5s1:'Year 5 · Semester 1', y5s2:'Year 5 · Semester 2',
+};
+const SEM_SHORT = { y1s1:'S1', y1s2:'S2', y2s1:'S1', y2s2:'S2', y3s1:'S1', y3s2:'S2', y4s1:'S1', y4s2:'S2', y5s1:'S1', y5s2:'S2' };
+
+// ── State ───────────────────────────────────────────────────
+let currentUser = null;
+let userData = null;
+let userCredits = 0;
+let currentYear = 0;
+let currentSem = 'y1s1';
+
+// ── GPA privacy (tap the CGPA box to hide/reveal) ───────────
+function loadGpaHiddenPref() {
+  try { return localStorage.getItem('gv_gpa_hidden') === '1'; } catch { return false; }
+}
+function saveGpaHiddenPref(val) {
+  try { localStorage.setItem('gv_gpa_hidden', val ? '1' : '0'); } catch {}
+}
+let gpaHidden = loadGpaHiddenPref();
+
+function toggleGpaPrivacy() {
+  gpaHidden = !gpaHidden;
+  saveGpaHiddenPref(gpaHidden);
+  renderTable();
+  updateStats();
+}
+let saveTimer = null;
+let autosaveCount = 0; // counts successful course autosaves; every 10th charges credits
+let authMode = 'login';
+
+// ── DOM refs ────────────────────────────────────────────────
+const authScreen  = document.getElementById('auth-screen');
+const app         = document.getElementById('app');
+const authError   = document.getElementById('auth-error');
+const authEmail   = document.getElementById('auth-email');
+const authPassword = document.getElementById('auth-password');
+const authDept    = document.getElementById('auth-dept');
+const deptField   = document.getElementById('dept-field');
+const authSubmit  = document.getElementById('auth-submit');
+const tabLogin    = document.getElementById('tab-login');
+const tabRegister = document.getElementById('tab-register');
+const authSwitch     = document.getElementById('auth-switch');
+const authSwitchLink = document.getElementById('auth-switch-link');
+
+// ── Helpers ──────────────────────────────────────────────────
+function showToast(msg, isError=false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (isError ? ' error' : '');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.className = 'toast', 2800);
+}
+
+function fmt(n) { return n === null ? '—' : n.toFixed(2); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+function gpaClass(gpa) {
+  if (gpa === null) return '';
+  return gpa >= 3.5 ? 'good' : gpa < 2.0 ? 'bad' : '';
+}
+
+function classifyGPA(cgpa) {
+  if (cgpa === null) return '';
+  if (cgpa >= 4.5) return 'First Class';
+  if (cgpa >= 3.5) return '2nd Class Upper';
+  if (cgpa >= 2.5) return '2nd Class Lower';
+  if (cgpa >= 1.5) return 'Third Class';
+  return 'Pass';
+}
+
+function classifyBadge(cgpa) {
+  if (cgpa === null) return '';
+  if (cgpa >= 4.5) return 'class-first';
+  if (cgpa >= 3.5) return 'class-second-upper';
+  if (cgpa >= 2.5) return 'class-second-lower';
+  if (cgpa >= 1.5) return 'class-third';
+  return 'class-pass';
+}
+
+function calcSemGPA(courses) {
+  let tgp = 0, tnu = 0;
+  courses.forEach(c => {
+    const units = parseFloat(c.units) || 0;
+    const gp    = GRADE_POINTS[c.grade] ?? null;
+    if (units > 0 && gp !== null && c.grade !== '') {
+      tgp += gp * units;
+      tnu += units;
+    }
+  });
+  if (tnu === 0) return { tgp: 0, tnu: 0, gpa: null };
+  return { tgp, tnu, gpa: tgp / tnu };
+}
+
+function calcCGPA(sems) {
+  let totalTGP = 0, totalTNU = 0;
+  SEMS.forEach(s => {
+    const { tgp, tnu } = calcSemGPA(sems[s] || []);
+    totalTGP += tgp;
+    totalTNU += tnu;
+  });
+  return totalTNU === 0 ? null : totalTGP / totalTNU;
+}
+
+// ── Auth UI ──────────────────────────────────────────────────
+function showAuthTab(mode) {
+  authMode = mode;
+  tabLogin.classList.toggle('active', mode === 'login');
+  tabRegister.classList.toggle('active', mode === 'register');
+  authSubmit.textContent = mode === 'login' ? 'Login' : 'Create Account';
+  authPassword.autocomplete = mode === 'login' ? 'current-password' : 'new-password';
+  deptField.style.display = mode === 'register' ? 'block' : 'none';
+  authError.style.display = 'none';
+  authSwitch.firstChild.textContent = mode === 'login' ? "Don't have an account? " : 'Already have an account? ';
+  authSwitchLink.textContent = mode === 'login' ? 'Register' : 'Login';
+}
+
+function setAuthError(msg) {
+  authError.textContent = msg;
+  authError.style.display = 'block';
+}
+
+// ── Auth submit ─────────────────────────────────────────────
+async function submitAuth() {
+  const email      = authEmail.value.trim();
+  const password   = authPassword.value;
+  const department = authDept.value.trim();
+
+  if (!email || !password) {
+    setAuthError('Please fill in your email and password.');
+    return;
+  }
+  if (authMode === 'register' && !department) {
+    setAuthError('Please select your department.');
+    return;
+  }
+
+  authSubmit.disabled = true;
+  authSubmit.textContent = authMode === 'login' ? 'Logging in…' : 'Creating account…';
+  authError.style.display = 'none';
+
+  try {
+    let user;
+
+    if (authMode === 'login') {
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      user = data.user;
+    } else {
+      const { data, error } = await sb.auth.signUp({
+        email,
+        password,
+        options: { data: { department } }
+      });
+      if (error) throw error;
+
+      // No user returned = email already registered (Supabase hides this for security)
+      if (!data.user) {
+        throw new Error('This email is already registered. Try logging in instead.');
+      }
+      // No session = email confirmation is ON in Supabase — must be disabled
+      if (!data.session) {
+        throw new Error('Account created but email confirmation is required. Disable it in your Supabase dashboard under Authentication → Configuration.');
+      }
+
+      // Create the profile row
+      const { error: profileErr } = await sb.from('gpa_data').upsert({
+        id: data.user.id,
+        department,
+        semesters: {},
+        courses: {}
+      }, { onConflict: 'id' });
+      if (profileErr) throw profileErr;
+
+      user = data.user;
+    }
+
+    currentUser = { id: user.id, email: user.email };
+    await loadUserData();
+    launchApp();
+  } catch (err) {
+    console.error('Auth error:', err);
+    setAuthError(err.message || 'Authentication failed. Please try again.');
+  } finally {
+    authSubmit.disabled = false;
+    authSubmit.textContent = authMode === 'login' ? 'Login' : 'Create Account';
+  }
+}
+
+async function loadUserData() {
+  if (!currentUser) return;
+  const { data, error } = await sb
+    .from('gpa_data')
+    .select('*')
+    .eq('id', currentUser.id)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) {
+    const { data: newData, error: insErr } = await sb
+      .from('gpa_data')
+      .insert({ id: currentUser.id, department: '', semesters: {}, courses: {} })
+      .select()
+      .single();
+    if (insErr) throw insErr;
+    userData = newData;
+  } else {
+    userData = data;
+  }
+  const sems = userData.semesters || {};
+  SEMS.forEach(s => { if (!(s in sems)) sems[s] = []; });
+  userData.semesters = sems;
+  if (!userData.courses) userData.courses = {};
+  if (!userData.notes) userData.notes = {};
+  userData.username = userData.username || '';
+  userData.fullName = userData.full_name || '';
+  userData.level = userData.level || null;
+  userData.avatarId = userData.avatar_id || null;
+  userData.avatarUrl = null;
+  if (userData.avatarId && avatarsCache) {
+    const match = avatarsCache.find(a => a.id === userData.avatarId);
+    if (match) userData.avatarUrl = match.url;
+  } else if (userData.avatarId) {
+    try {
+      const { data } = await sb.from('avatars').select('url').eq('id', userData.avatarId).single();
+      if (data) userData.avatarUrl = data.url;
+    } catch (e) { /* ignore — falls back to initials */ }
+  }
+}
+
+// ── Credits ──────────────────────────────────────────────────
+async function loadCredits() {
+  if (!currentUser) return;
+  const { data, error } = await sb
+    .from('credits')
+    .select('balance')
+    .eq('id', currentUser.id)
+    .maybeSingle();
+  if (error) { console.error('Failed to load credits', error); return; }
+  userCredits = data ? data.balance : 0;
+  renderCredits();
+}
+
+function renderCredits() {
+  const amt = document.getElementById('credit-amt');
+  const pill = document.getElementById('credit-pill');
+  if (!amt || !pill) return;
+  amt.textContent = userCredits;
+  pill.classList.toggle('low', userCredits <= 2);
+}
+
+// Attempts to spend `cost` credits. Returns true if successful, false if insufficient.
+// The actual deduction happens server-side in the spend_credits() Postgres
+// function (SECURITY DEFINER) — the client never computes or sends the new
+// balance, so it can't be tampered with via a crafted request. The function
+// checks balance >= cost atomically, so concurrent spends can't both succeed
+// past a stale read.
+async function spendCredits(cost, actionLabel) {
+  if (!currentUser) return false;
+  if (userCredits < cost) {
+    // Fast local check just for snappy UI feedback — not relied on for security.
+    showToast(`Insufficient credits — ${actionLabel} requires ${cost}C, you have ${userCredits}C`, true);
+    return false;
+  }
+  const { data, error } = await sb.rpc('spend_credits', { p_cost: cost });
+  if (error) {
+    if (error.message && error.message.includes('Insufficient credits')) {
+      await loadCredits();
+      showToast(`Insufficient credits — ${actionLabel} requires ${cost}C, you have ${userCredits}C`, true);
+    } else {
+      showToast('Error processing credits: ' + error.message, true);
+    }
+    return false;
+  }
+  userCredits = data;
+  renderCredits();
+  return true;
+}
+
+function setAvatarEl(el, url, initial) {
+  if (url) { el.innerHTML = `<img src="${url}" alt=""/>`; }
+  else { el.innerHTML = ''; el.textContent = initial; }
+}
+
+function launchApp() {
+  authScreen.style.display = 'none';
+  app.style.display = 'flex';
+  const displayName = (userData && userData.username) || currentUser.email.split('@')[0];
+  document.getElementById('header-name').textContent = displayName;
+  setAvatarEl(document.getElementById('header-av'), userData && userData.avatarUrl, displayName.charAt(0).toUpperCase());
+
+  buildYearTabs();
+  buildMiniChips();
+  switchYear(0, true);
+  loadCredits();
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  currentUser = null; userData = null;
+  document.getElementById('profile-screen').style.display = 'none';
+  document.getElementById('edit-profile-screen').style.display = 'none';
+  document.getElementById('faq-screen').style.display = 'none';
+  app.style.display = 'none';
+  authScreen.style.display = 'flex';
+}
+
+// ── Profile screen ──────────────────────────────────────────
+function showProfile() {
+  const displayName = (userData && userData.username) || currentUser.email.split('@')[0];
+  setAvatarEl(document.getElementById('profile-avatar'), userData && userData.avatarUrl, displayName.charAt(0).toUpperCase());
+  document.getElementById('profile-name').textContent = displayName;
+  document.getElementById('profile-email').textContent = currentUser.email;
+  document.getElementById('profile-meta').textContent = (userData && userData.department) ? userData.department : 'Student';
+  const levelEl = document.getElementById('profile-level');
+  if (userData && userData.level) {
+    levelEl.textContent = `${userData.level * 100} L`;
+    levelEl.style.display = 'block';
+  } else {
+    levelEl.style.display = 'none';
+  }
+  app.style.display = 'none';
+  document.getElementById('profile-screen').style.display = 'flex';
+  const copyEl = document.getElementById('footer-copyright');
+  if (copyEl) copyEl.textContent = `© ${new Date().getFullYear()} GradeVault. All rights reserved.`;
+}
+
+function hideProfile() {
+  document.getElementById('profile-screen').style.display = 'none';
+  app.style.display = 'flex';
+}
+
+// ── Edit profile screen ─────────────────────────────────────
+function showEditProfile() {
+  const fallbackName = currentUser.email.split('@')[0];
+  const username = (userData && userData.username) || fallbackName;
+  const fullName = (userData && userData.fullName) || '';
+  renderEditAvatar();
+  document.getElementById('edit-username').value = username;
+  document.getElementById('edit-fullname').value = fullName;
+  document.getElementById('edit-level').value = (userData && userData.level) ? String(userData.level) : '';
+  document.getElementById('edit-email').value = currentUser.email;
+  document.getElementById('profile-screen').style.display = 'none';
+  document.getElementById('edit-profile-screen').style.display = 'flex';
+}
+
+function renderEditAvatar() {
+  const fallbackName = currentUser.email.split('@')[0];
+  const username = (userData && userData.username) || fallbackName;
+  setAvatarEl(document.getElementById('edit-avatar'), userData && userData.avatarUrl, username.charAt(0).toUpperCase());
+}
+
+let avatarsCache = null;
+
+async function openAvatarPicker() {
+  document.getElementById('avatar-picker-overlay').classList.add('open');
+  const grid = document.getElementById('avatar-picker-grid');
+  if (avatarsCache) {
+    renderAvatarGrid(avatarsCache);
+    return;
+  }
+  grid.innerHTML = '<div class="avatar-picker-loading">Loading avatars…</div>';
+  try {
+    const { data, error } = await sb.from('avatars').select('id,url').order('created_at');
+    if (error) throw error;
+    avatarsCache = data || [];
+    renderAvatarGrid(avatarsCache);
+  } catch (err) {
+    grid.innerHTML = '<div class="avatar-picker-empty">Couldn\'t load avatars.</div>';
+  }
+}
+
+function renderAvatarGrid(avatars) {
+  const grid = document.getElementById('avatar-picker-grid');
+  if (!avatars.length) {
+    grid.innerHTML = '<div class="avatar-picker-empty">No avatars available yet.</div>';
+    return;
+  }
+  const selectedId = userData && userData.avatarId;
+  grid.innerHTML = avatars.map(a => `
+    <div class="avatar-picker-item ${a.id === selectedId ? 'selected' : ''}" onclick="selectAvatar('${a.id}', '${a.url}')">
+      <img src="${a.url}" alt="" loading="lazy"/>
+    </div>
+  `).join('');
+}
+
+function selectAvatar(id, url) {
+  userData.avatarId = id;
+  userData.avatarUrl = url;
+  renderEditAvatar();
+  closeAvatarPicker();
+}
+
+function closeAvatarPicker() {
+  document.getElementById('avatar-picker-overlay').classList.remove('open');
+}
+
+function hideEditProfile() {
+  document.getElementById('edit-profile-screen').style.display = 'none';
+  document.getElementById('profile-screen').style.display = 'flex';
+}
+
+// ── FAQ screen ───────────────────────────────────────────────
+const FAQ_ITEMS = [
+  {
+    q: 'Are credits charged when I save profile changes?',
+    a: 'Yes. Saving profile changes (username, full name, level, or avatar) costs 5 credits per save.'
+  },
+  {
+    q: 'Are credits charged while I edit my courses?',
+    a: 'Editing courses autosaves in the background for free. Every 10th autosave costs 10 credits, so frequent small edits stay cheap.'
+  },
+  {
+    q: 'How much does adding a course cost?',
+    a: 'Adding a new course row to a semester costs 2 credits.'
+  },
+  {
+    q: 'How much does saving a semester note cost?',
+    a: 'Saving a semester note costs 1 credit per save.'
+  },
+  {
+    q: 'How much does importing/uploading courses cost?',
+    a: 'Importing courses from a file costs 10 credits per import.'
+  },
+  {
+    q: 'Why are credits charged for simple actions?',
+    a: 'Credits help prevent abuse and ensure the system remains stable for everyone.'
+  },
+  {
+    q: 'Where can I buy credits?',
+    a: 'Registered users can purchase credits by contacting us on WhatsApp at +234 90 192 525 94.'
+  },
+  {
+    q: 'What happens if I run out of credits?',
+    a: 'Actions that cost credits will be blocked until your balance is topped up. Your existing course data is never deleted — autosaves for course edits still go through even if a 10-save charge fails.'
+  },
+  {
+    q: 'Do credits expire?',
+    a: 'No. Credits stay on your account until you spend them.'
+  }
+];
+
+function renderFAQ() {
+  const list = document.getElementById('faq-list');
+  list.innerHTML = FAQ_ITEMS.map((item, i) => `
+    <div class="faq-item" id="faq-item-${i}">
+      <button class="faq-q" onclick="toggleFAQ(${i})">
+        <span class="faq-q-icon">+</span>
+        <span class="faq-q-text">${item.q}</span>
+      </button>
+      <div class="faq-a-wrap">
+        <div class="faq-a">${item.a}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleFAQ(i) {
+  const el = document.getElementById('faq-item-' + i);
+  if (!el) return;
+  const wasOpen = el.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(o => {
+    o.classList.remove('open');
+    o.querySelector('.faq-q-icon').textContent = '+';
+  });
+  if (!wasOpen) {
+    el.classList.add('open');
+    el.querySelector('.faq-q-icon').textContent = '−';
+  }
+}
+
+function showFAQ() {
+  renderFAQ();
+  document.getElementById('profile-screen').style.display = 'none';
+  document.getElementById('faq-screen').style.display = 'flex';
+}
+
+function hideFAQ() {
+  document.getElementById('faq-screen').style.display = 'none';
+  document.getElementById('profile-screen').style.display = 'flex';
+}
+
+async function saveProfileEdits() {
+  const username = document.getElementById('edit-username').value.trim();
+  const fullName = document.getElementById('edit-fullname').value.trim();
+  const levelRaw = document.getElementById('edit-level').value;
+  const fallbackName = currentUser.email.split('@')[0];
+  const btn = document.getElementById('save-profile-btn');
+
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+  try {
+    const ok = await spendCredits(CREDIT_COSTS.editProfile, 'Saving profile changes');
+    if (!ok) return;
+
+    userData.username = username || fallbackName;
+    userData.fullName = fullName;
+    userData.level = levelRaw ? parseInt(levelRaw, 10) : null;
+
+    await saveToSupabase();
+    // Username only affects the header pill display — not the login email.
+    document.getElementById('header-name').textContent = userData.username;
+    setAvatarEl(document.getElementById('header-av'), userData.avatarUrl, userData.username.charAt(0).toUpperCase());
+    showToast('Profile updated');
+    hideEditProfile();
+    showProfile();
+  } catch (err) {
+    showToast('Error saving profile: ' + err.message, true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Save Changes';
+  }
+}
+
+// ── Course catalog import ───────────────────────────────────
+// Admin pre-builds catalogs in Supabase (course_catalogs table, via
+// admin_cli.py), scoped to Department × Year × Semester × Level. The
+// student just picks Year + Semester here — no PIN, no file.
+
+let catalogRows = [];          // catalogs for this student's department+level
+let catalogPickDefaultSem = null;
+
+function semToLevel(sem) {
+  // 'y3s1' -> 3
+  return parseInt(sem.slice(1, sem.indexOf('s')), 10);
+}
+function semToSemesterLabel(sem) {
+  // 'y3s1' -> '1st', 'y3s2' -> '2nd'
+  return sem.endsWith('s1') ? '1st' : '2nd';
+}
+
+async function openCatalogPicker() {
+  if (!userData.department) {
+    showToast('Set your department in your profile first', true);
+    return;
+  }
+  const level = semToLevel(currentSem);
+  catalogPickDefaultSem = semToSemesterLabel(currentSem);
+
+  document.getElementById('catalog-picker-meta').textContent = `${userData.department} · ${SEM_NAMES[currentSem]}`;
+  const info = document.getElementById('catalog-picker-info');
+  info.style.display = 'block';
+  info.textContent = 'Loading available catalogs…';
+  document.getElementById('catalog-year-field').style.display = 'none';
+  document.getElementById('catalog-sem-field').style.display = 'none';
+  document.getElementById('catalog-import-btn').disabled = true;
+  document.getElementById('catalog-picker-overlay').classList.add('open');
+
+  try {
+    const { data, error } = await sb
+      .from('course_catalogs')
+      .select('id,year,semester,courses')
+      .eq('department', userData.department)
+      .eq('level', level)
+      .order('year', { ascending: false });
+    if (error) throw error;
+    catalogRows = data || [];
+  } catch (err) {
+    info.textContent = 'Error loading catalogs: ' + err.message;
+    return;
+  }
+
+  if (catalogRows.length === 0) {
+    info.textContent = `No catalogs available yet for ${userData.department} · Year ${level}. Check back later.`;
+    return;
+  }
+
+  info.style.display = 'none';
+  document.getElementById('catalog-year-field').style.display = 'block';
+  document.getElementById('catalog-sem-field').style.display = 'block';
+
+  const years = [...new Set(catalogRows.map(r => r.year))].sort((a, b) => b - a);
+  const yearSelect = document.getElementById('catalog-year-select');
+  yearSelect.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
+  yearSelect.onchange = populateCatalogSemesters;
+  populateCatalogSemesters();
+}
+
+function populateCatalogSemesters() {
+  const year = parseInt(document.getElementById('catalog-year-select').value, 10);
+  const sems = catalogRows.filter(r => r.year === year).map(r => r.semester);
+  const semSelect = document.getElementById('catalog-sem-select');
+  semSelect.innerHTML = sems.map(s => `<option value="${s}">${s} Semester</option>`).join('');
+  semSelect.value = sems.includes(catalogPickDefaultSem) ? catalogPickDefaultSem : sems[0];
+  semSelect.onchange = updateCatalogPreview;
+  updateCatalogPreview();
+}
+
+function getSelectedCatalogRow() {
+  const year = parseInt(document.getElementById('catalog-year-select').value, 10);
+  const semester = document.getElementById('catalog-sem-select').value;
+  return catalogRows.find(r => r.year === year && r.semester === semester) || null;
+}
+
+function updateCatalogPreview() {
+  const row = getSelectedCatalogRow();
+  const info = document.getElementById('catalog-picker-info');
+  const btn = document.getElementById('catalog-import-btn');
+  if (row) {
+    info.style.display = 'block';
+    info.textContent = `${row.courses.length} course(s) available — will import into ${SEM_NAMES[currentSem]}.`;
+    btn.disabled = false;
+  } else {
+    info.style.display = 'none';
+    btn.disabled = true;
+  }
+}
+
+function closeCatalogPicker() {
+  document.getElementById('catalog-picker-overlay').classList.remove('open');
+}
+
+async function confirmCatalogImport() {
+  const row = getSelectedCatalogRow();
+  if (!row) return;
+
+  const existing = userData.semesters[currentSem] || [];
+  if (existing.length > 0) {
+    const proceed = confirm(`This will replace the ${existing.length} course(s) already in ${SEM_NAMES[currentSem]}. Continue?`);
+    if (!proceed) return;
+  }
+
+  const ok = await spendCredits(CREDIT_COSTS.upload, 'Importing courses');
+  if (!ok) return;
+
+  userData.semesters[currentSem] = row.courses.map(c => ({
+    code: c.code || '', title: c.title || '', units: c.units || '', grade: ''
+  }));
+
+  try {
+    await saveToSupabase();
+  } catch (err) {
+    showToast('Error saving: ' + err.message, true);
+    return;
+  }
+  closeCatalogPicker();
+  showToast(`Imported ${row.courses.length} course(s)!`);
+  renderTable();
+}
+
+// ── Supabase save ────────────────────────────────────────────
+async function saveToSupabase() {
+  if (!currentUser) return;
+  const { error } = await sb
+    .from('gpa_data')
+    .upsert({
+      id: currentUser.id,
+      department: userData.department || '',
+      semesters: userData.semesters,
+      courses: userData.courses,
+      notes: userData.notes,
+      username: userData.username || '',
+      full_name: userData.fullName || '',
+      level: userData.level || null,
+      avatar_id: userData.avatarId || null
+    });
+  if (error) throw error;
+}
+
+function loadNoteForSem() {
+  const ta = document.getElementById('note-textarea');
+  if (!ta) return;
+  ta.value = (userData.notes && userData.notes[currentSem]) || '';
+}
+
+async function saveNote() {
+  const ta = document.getElementById('note-textarea');
+  const btn = document.getElementById('save-note-btn');
+  if (!ta) return;
+  btn.disabled = true;
+  try {
+    const ok = await spendCredits(CREDIT_COSTS.saveNote, 'Saving note');
+    if (!ok) return;
+    if (!userData.notes) userData.notes = {};
+    userData.notes[currentSem] = ta.value;
+    await saveToSupabase();
+    showToast('Note saved');
+  } catch (err) {
+    showToast('Error saving note: ' + err.message, true);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function scheduleSave() {
+  const ind = document.getElementById('save-ind');
+  ind.textContent = 'Saving…';
+  ind.className = 'save-indicator saving';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    try {
+      await saveToSupabase();
+      autosaveCount++;
+      if (autosaveCount % AUTOSAVE_BATCH_SIZE === 0) {
+        // Charge for the batch *after* the save succeeds, so a failed/short balance
+        // never blocks the user's course data from being saved.
+        const ok = await spendCredits(CREDIT_COSTS.autosaveBatch, 'Auto-save (10 saves)');
+        if (!ok) {
+          // Insufficient credits — data is still saved, just surface the shortfall.
+          console.warn('Autosave batch charge failed: insufficient credits');
+        }
+      }
+      ind.textContent = 'Saved ✓';
+      ind.className = 'save-indicator saved';
+      setTimeout(() => { ind.className = 'save-indicator'; }, 1800);
+    } catch (err) {
+      ind.textContent = 'Save failed';
+      ind.className = 'save-indicator saving';
+      setTimeout(() => { ind.className = 'save-indicator'; }, 2500);
+      showToast('Save error: ' + err.message, true);
+    }
+  }, 900);
+}
+
+// ── UI Builders ─────────────────────────────────────────────
+function buildYearTabs() {
+  const container = document.getElementById('year-groups');
+  container.innerHTML = YEARS.map((y, i) =>
+    `<button class="year-btn" id="ybtn-${i}" onclick="switchYear(${i})">${y.label}</button>`
+  ).join('');
+}
+
+function buildMiniChips() {
+  const container = document.getElementById('mini-chips');
+  container.innerHTML = YEARS.map(y =>
+    y.sems.map(s =>
+      `<div class="stat-chip sm" style="padding-right:12px;">
+        <div class="stat-label">${s.toUpperCase()}</div>
+        <div class="stat-value" id="mini-${s}">—</div>
+      </div>`
+    ).join('')
+  ).join('');
+}
+
+function switchYear(idx, firstLoad=false) {
+  currentYear = idx;
+  document.querySelectorAll('.year-btn').forEach((b,i) =>
+    b.classList.toggle('active', i === idx)
+  );
+  const year = YEARS[idx];
+  const semTabs = document.getElementById('sem-tabs');
+  semTabs.innerHTML = year.sems.map(s =>
+    `<button class="sem-tab" id="stab-${s}" onclick="switchSem('${s}')">
+      ${SEM_SHORT[s]}
+      <span class="gpa-tag" id="stab-gpa-${s}">—</span>
+    </button>`
+  ).join('');
+  const target = firstLoad ? 'y1s1' : (year.sems.includes(currentSem) ? currentSem : year.sems[0]);
+  switchSem(target);
+}
+
+function switchSem(sem) {
+  currentSem = sem;
+  const yearIdx = YEARS.findIndex(y => y.sems.includes(sem));
+  if (yearIdx !== -1 && yearIdx !== currentYear) {
+    switchYear(yearIdx, false);
+    return;
+  }
+  document.querySelectorAll('.sem-tab').forEach(t =>
+    t.classList.toggle('active', t.id === 'stab-' + sem)
+  );
+  document.getElementById('sem-title').textContent = SEM_NAMES[sem];
+  resetLockForSem();
+  renderTable();
+  updateStats();
+  loadNoteForSem();
+}
+
+// ── Course lock toggle ─────────────────────────────────────────
+let courseLocked = true; // locked by default each time a semester loads
+
+function updateLockUI() {
+  const input = document.getElementById('lock-toggle-input');
+  if (input) input.checked = !courseLocked;
+  const label = document.getElementById('lock-status-text');
+  if (label) {
+    label.textContent = courseLocked ? 'Locked' : 'Unlocked';
+    label.classList.toggle('unlocked', !courseLocked);
+  }
+  const addBtn = document.getElementById('btn-add-course');
+  if (addBtn) addBtn.disabled = courseLocked;
+}
+
+function applyCourseLock() {
+  document.querySelectorAll('#course-tbody .cell-input, #course-tbody .grade-select, #course-tbody .btn-del')
+    .forEach(el => { el.disabled = courseLocked; });
+  const wrap = document.querySelector('.course-table-wrap');
+  if (wrap) wrap.classList.toggle('locked', courseLocked);
+}
+
+function onLockToggle(checked) {
+  courseLocked = !checked;
+  updateLockUI();
+  applyCourseLock();
+}
+
+function resetLockForSem() {
+  courseLocked = true;
+  updateLockUI();
+}
+
+// ── Table rendering ──────────────────────────────────────────
+function renderTable() {
+  const courses = userData.semesters[currentSem] || [];
+  const tbody   = document.getElementById('course-tbody');
+  const tfoot   = document.getElementById('totals-foot');
+
+  if (courses.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">
+      <div class="icon">📚</div>
+      <p>No courses yet. Tap <strong>Add Course</strong> to get started.</p>
+    </div></td></tr>`;
+    tfoot.innerHTML = '';
+    document.getElementById('sem-gpa-detail').textContent = '';
+    applyCourseLock();
+    return;
+  }
+
+  tbody.innerHTML = courses.map((c, i) => {
+    const gp    = GRADE_POINTS[c.grade] ?? null;
+    const units = parseFloat(c.units) || 0;
+    const contrib = (gp !== null && units > 0 && c.grade !== '') ? (gp * units) : '—';
+    const gradeClass = c.grade ? `grade-${c.grade}` : '';
+    return `<tr>
+      <td><input class="cell-input" value="${esc(c.code)}" placeholder="e.g. FRS 301"
+            oninput="updateField(${i},'code',this.value)"/></td>
+      <td><input class="cell-input" value="${esc(c.title)}" placeholder="Course title…"
+            oninput="updateField(${i},'title',this.value)"/></td>
+      <td style="text-align:center">
+        <input class="cell-input unit-input" type="number" min="1" max="6"
+          value="${c.units||''}" placeholder="2"
+          oninput="updateField(${i},'units',this.value)"/>
+      </td>
+      <td style="text-align:center">
+        <select class="grade-select ${gradeClass}" onchange="updateField(${i},'grade',this.value)">
+          <option value="">—</option>
+          ${['A','B','C','D','E','F'].map(g =>
+            `<option value="${g}" ${c.grade===g?'selected':''} class="grade-${g}">${g}</option>`
+          ).join('')}
+        </select>
+      </td>
+      <td class="gp-cell" style="text-align:center">${contrib === '—' ? '—' : contrib}</td>
+      <td><button class="btn-del" onclick="deleteCourse(${i})">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 7h14"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
+          <path d="M7 7l1 13a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2l1-13"/>
+          <line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
+        </svg>
+      </button></td>
+    </tr>`;
+  }).join('');
+
+  renderTotals(courses);
+  applyCourseLock();
+}
+
+function renderTotals(courses) {
+  const { tgp, tnu, gpa } = calcSemGPA(courses);
+  const tfoot = document.getElementById('totals-foot');
+  tfoot.innerHTML = `
+    <tr class="totals-row">
+      <td colspan="2" style="text-align:right">Totals</td>
+      <td style="text-align:center">${tnu || '—'}</td>
+      <td></td>
+      <td style="text-align:center">${gpaHidden ? '***' : (tgp || '—')}</td>
+      <td></td>
+    </tr>
+    <tr class="totals-row">
+      <td colspan="4" style="text-align:right;color:var(--text3)">Semester GPA</td>
+      <td class="total-gpa" style="text-align:center">${gpaHidden ? '***' : fmt(gpa)}</td>
+      <td></td>
+    </tr>`;
+  document.getElementById('sem-gpa-detail').textContent =
+    gpaHidden ? '' : (gpa !== null ? `TGP ${tgp} ÷ TNU ${tnu} = ${fmt(gpa)}` : '');
+}
+
+// ── Course actions ──────────────────────────────────────────
+async function addCourse() {
+  if (courseLocked) return;
+  const ok = await spendCredits(CREDIT_COSTS.addCourse, 'Adding a course');
+  if (!ok) return;
+  const courses = userData.semesters[currentSem];
+  courses.push({ code:'', title:'', units:'', grade:'' });
+  renderTable();
+  updateStats();
+  scheduleSave();
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('#course-tbody tr:last-child input:first-child');
+    if (inputs.length) inputs[0].focus();
+  }, 50);
+}
+
+function deleteCourse(i) {
+  if (courseLocked) return;
+  userData.semesters[currentSem].splice(i, 1);
+  renderTable();
+  updateStats();
+  scheduleSave();
+}
+
+function updateField(i, field, val) {
+  userData.semesters[currentSem][i][field] = val;
+  updateTotalsOnly(userData.semesters[currentSem]);
+  updateStats();
+  scheduleSave();
+}
+
+function updateTotalsOnly(courses) {
+  if (!courses.length) { document.getElementById('totals-foot').innerHTML = ''; return; }
+  const tbody = document.getElementById('course-tbody');
+  const rows  = tbody.querySelectorAll('tr');
+  rows.forEach((row, i) => {
+    if (!courses[i]) return;
+    const c = courses[i];
+    const gp    = GRADE_POINTS[c.grade] ?? null;
+    const units = parseFloat(c.units) || 0;
+    const contrib = (gp !== null && units > 0 && c.grade !== '') ? (gp * units) : '—';
+    const gpCell = row.querySelectorAll('td')[4];
+    if (gpCell) gpCell.textContent = contrib === '—' ? '—' : contrib;
+    const sel = row.querySelector('.grade-select');
+    if (sel) sel.className = 'grade-select' + (c.grade ? ' grade-'+c.grade : '');
+  });
+  renderTotals(courses);
+}
+
+// ── Stats update ─────────────────────────────────────────────
+function updateStats() {
+  const sems = userData.semesters;
+  SEMS.forEach(s => {
+    const { gpa } = calcSemGPA(sems[s] || []);
+    const mini = document.getElementById('mini-' + s);
+    if (mini) {
+      mini.textContent = gpaHidden ? '*' : fmt(gpa);
+      mini.className = 'stat-value ' + (gpaHidden ? '' : gpaClass(gpa));
+    }
+    const stabGpa = document.getElementById('stab-gpa-' + s);
+    if (stabGpa) stabGpa.textContent = gpaHidden ? '*' : fmt(gpa);
+  });
+  const { gpa: curGpa } = calcSemGPA(sems[currentSem] || []);
+  const curEl = document.getElementById('stat-cur-gpa');
+  curEl.textContent = gpaHidden ? '***' : fmt(curGpa);
+  curEl.className   = 'stat-value ' + (gpaHidden ? '' : gpaClass(curGpa));
+
+  const cgpa = calcCGPA(sems);
+  document.getElementById('cgpa-big').textContent = gpaHidden ? '***' : fmt(cgpa);
+  const clsEl = document.getElementById('cgpa-class');
+  clsEl.textContent = gpaHidden ? '' : classifyGPA(cgpa);
+  clsEl.className   = 'cls ' + (gpaHidden ? '' : classifyBadge(cgpa));
+}
+
+// ── Auto-login check ────────────────────────────────────────
+async function checkSession() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    currentUser = { id: session.user.id, email: session.user.email };
+    try {
+      await loadUserData();
+      launchApp();
+    } catch (err) {
+      console.error('Failed to load user data', err);
+      showToast('Error loading data', true);
+    }
+  } else {
+    authScreen.style.display = 'flex';
+  }
+}
+
+// ── Event Listeners ─────────────────────────────────────────
+tabLogin.addEventListener('click', () => showAuthTab('login'));
+tabRegister.addEventListener('click', () => showAuthTab('register'));
+authSwitchLink.addEventListener('click', () => showAuthTab(authMode === 'login' ? 'register' : 'login'));
+
+authSubmit.addEventListener('click', submitAuth);
+
+authPassword.addEventListener('keydown', e => {
+  if (e.key === 'Enter') submitAuth();
+});
+authEmail.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (authMode === 'register') authDept.focus();
+    else authPassword.focus();
+  }
+});
+authDept.addEventListener('keydown', e => {
+  if (e.key === 'Enter') authPassword.focus();
+});
+
+// ── Init ─────────────────────────────────────────────────────
+showAuthTab('login');
+checkSession();
+</script>
+</body>
+</html>
