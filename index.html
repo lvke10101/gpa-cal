@@ -903,32 +903,29 @@ function renderCredits() {
 }
 
 // Attempts to spend `cost` credits. Returns true if successful, false if insufficient.
-// Uses a conditional update (balance = old - cost only where balance >= cost) to avoid
-// a race where two actions could both pass a stale client-side check.
+// The actual deduction happens server-side in the spend_credits() Postgres
+// function (SECURITY DEFINER) — the client never computes or sends the new
+// balance, so it can't be tampered with via a crafted request. The function
+// checks balance >= cost atomically, so concurrent spends can't both succeed
+// past a stale read.
 async function spendCredits(cost, actionLabel) {
   if (!currentUser) return false;
   if (userCredits < cost) {
+    // Fast local check just for snappy UI feedback — not relied on for security.
     showToast(`Insufficient credits — ${actionLabel} requires ${cost}C, you have ${userCredits}C`, true);
     return false;
   }
-  const { data, error } = await sb
-    .from('credits')
-    .update({ balance: userCredits - cost, updated_at: new Date().toISOString() })
-    .eq('id', currentUser.id)
-    .gte('balance', cost)
-    .select('balance')
-    .maybeSingle();
+  const { data, error } = await sb.rpc('spend_credits', { p_cost: cost });
   if (error) {
-    showToast('Error processing credits: ' + error.message, true);
+    if (error.message && error.message.includes('Insufficient credits')) {
+      await loadCredits();
+      showToast(`Insufficient credits — ${actionLabel} requires ${cost}C, you have ${userCredits}C`, true);
+    } else {
+      showToast('Error processing credits: ' + error.message, true);
+    }
     return false;
   }
-  if (!data) {
-    // Someone/something else spent credits in between our check and this update
-    await loadCredits();
-    showToast(`Insufficient credits — ${actionLabel} requires ${cost}C, you have ${userCredits}C`, true);
-    return false;
-  }
-  userCredits = data.balance;
+  userCredits = data;
   renderCredits();
   return true;
 }
