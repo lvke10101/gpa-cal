@@ -30,6 +30,20 @@
   .auth-field input:focus, .auth-field select:focus { border-color:var(--gold); }
   .auth-field select option { background:var(--card); color:var(--text); }
   .auth-error { font-size:13px; color:var(--red2); background:rgba(192,57,43,0.1); border:1px solid rgba(192,57,43,0.2); border-radius:8px; padding:10px 12px; margin-bottom:14px; display:none; }
+
+  /* Custom department dropdown (replaces native <datalist>) */
+  .dept-combo { position:relative; }
+  .dept-combo input { cursor:pointer; }
+  .dept-combo .dept-caret { position:absolute; right:14px; top:50%; transform:translateY(-50%); color:var(--text3); font-size:11px; pointer-events:none; transition:transform 0.2s; }
+  .dept-combo.open .dept-caret { transform:translateY(-50%) rotate(180deg); }
+  .dept-panel { position:absolute; left:0; right:0; top:calc(100% + 6px); background:var(--card); border:1px solid var(--border2); border-radius:10px; box-shadow:var(--shadow); max-height:240px; overflow-y:auto; z-index:50; display:none; -webkit-overflow-scrolling:touch; }
+  .dept-panel.open { display:block; }
+  .dept-option { padding:11px 14px; font-size:14px; color:var(--text); cursor:pointer; border-bottom:1px solid var(--border); }
+  .dept-option:last-child { border-bottom:none; }
+  .dept-option:hover, .dept-option.active { background:rgba(212,168,67,0.12); color:var(--gold2); }
+  .dept-panel .dept-empty { padding:14px; font-size:13px; color:var(--text3); text-align:center; }
+  .dept-panel::-webkit-scrollbar { width:6px; }
+  .dept-panel::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
   .btn-full { width:100%; background:var(--gold); color:#0e0f14; border:none; padding:14px; border-radius:10px; font-weight:600; font-size:15px; cursor:pointer; font-family:inherit; transition:background 0.2s; margin-top:6px; }
   .btn-full:hover { background:var(--gold2); }
   .btn-full:disabled { opacity:0.5; cursor:not-allowed; }
@@ -269,65 +283,11 @@
     </div>
     <div class="auth-field" id="dept-field" style="display:none;">
       <label>Department</label>
-      <input type="text" id="auth-dept" list="dept-list" placeholder="Search or select your department" autocomplete="off"/>
-      <datalist id="dept-list">
-        <option value="Agricultural and Bioresources Engineering">
-        <option value="Agricultural Economics">
-        <option value="Agricultural Extension">
-        <option value="Animal Science and Technology">
-        <option value="Architecture">
-        <option value="Biochemistry">
-        <option value="Biology">
-        <option value="Biomedical Engineering">
-        <option value="Biotechnology">
-        <option value="Building Technology">
-        <option value="Chemical Engineering">
-        <option value="Chemistry">
-        <option value="Civil Engineering">
-        <option value="Computer Engineering">
-        <option value="Computer Science">
-        <option value="Crop Science and Technology">
-        <option value="Cyber Security">
-        <option value="Dental Technology">
-        <option value="Electrical and Electronic Engineering">
-        <option value="Electrical Engineering">
-        <option value="Electronics Engineering">
-        <option value="Entrepreneurship and Innovation">
-        <option value="Environmental Health Science">
-        <option value="Environmental Management">
-        <option value="Environmental Management and Evaluation">
-        <option value="Fisheries and Aquaculture Technology">
-        <option value="Food Science and Technology">
-        <option value="Forensic Science">
-        <option value="Forestry and Wildlife Technology">
-        <option value="Geology">
-        <option value="Human Anatomy">
-        <option value="Human Physiology">
-        <option value="Information Technology">
-        <option value="Logistics and Transport Technology">
-        <option value="Maritime Technology and Logistics">
-        <option value="Materials and Metallurgical Engineering">
-        <option value="Mathematics">
-        <option value="Mechanical Engineering">
-        <option value="Mechatronics Engineering">
-        <option value="Microbiology">
-        <option value="Optometry">
-        <option value="Petroleum Engineering">
-        <option value="Physics">
-        <option value="Polymer and Textile Engineering">
-        <option value="Project Management Technology">
-        <option value="Prosthetics and Orthotics">
-        <option value="Public Health Technology">
-        <option value="Quantity Surveying">
-        <option value="Science Laboratory Technology">
-        <option value="Soil Science and Technology">
-        <option value="Software Engineering">
-        <option value="Statistics">
-        <option value="Supply Chain Management">
-        <option value="Surveying and Geoinformatics">
-        <option value="Telecommunications Engineering">
-        <option value="Urban and Regional Planning">
-      </datalist>
+      <div class="dept-combo" id="dept-combo">
+        <input type="text" id="auth-dept" placeholder="Search or select your department" autocomplete="off"/>
+        <span class="dept-caret">▼</span>
+        <div class="dept-panel" id="dept-panel"></div>
+      </div>
     </div>
 
     <button class="btn-full" id="auth-submit">Login</button>
@@ -703,8 +663,95 @@ const tabLogin    = document.getElementById('tab-login');
 const tabRegister = document.getElementById('tab-register');
 const authSwitch     = document.getElementById('auth-switch');
 const authSwitchLink = document.getElementById('auth-switch-link');
+const deptCombo = document.getElementById('dept-combo');
+const deptPanel = document.getElementById('dept-panel');
 
-// ── Helpers ──────────────────────────────────────────────────
+// ── Department dropdown (custom, replaces native <datalist>) ──
+const DEPARTMENTS = [
+  "Agricultural and Bioresources Engineering","Agricultural Economics",
+  "Agricultural Extension","Animal Science and Technology","Architecture",
+  "Biochemistry","Biology","Biomedical Engineering","Biotechnology",
+  "Building Technology","Chemical Engineering","Chemistry",
+  "Civil Engineering","Computer Engineering","Computer Science",
+  "Crop Science and Technology","Cyber Security","Dental Technology",
+  "Electrical and Electronic Engineering","Electrical Engineering",
+  "Electronics Engineering","Entrepreneurship and Innovation",
+  "Environmental Health Science","Environmental Management",
+  "Environmental Management and Evaluation","Estate Management and Valuation",
+  "Fisheries and Aquaculture Technology","Food Science and Technology",
+  "Forensic Science","Forestry and Wildlife Technology","Geology",
+  "Human Anatomy","Human Physiology","Information Technology",
+  "Logistics and Transport Technology","Maritime Technology and Logistics",
+  "Materials and Metallurgical Engineering","Mathematics",
+  "Mechanical Engineering","Mechatronics Engineering","Microbiology",
+  "Optometry","Petroleum Engineering","Physics",
+  "Polymer and Textile Engineering","Project Management Technology",
+  "Prosthetics and Orthotics","Public Health Technology",
+  "Quantity Surveying","Radiography","Science Laboratory Technology",
+  "Soil Science and Technology","Software Engineering","Statistics",
+  "Supply Chain Management","Surveying and Geoinformatics",
+  "Telecommunications Engineering","Urban and Regional Planning",
+];
+
+let deptActiveIndex = -1;
+let deptVisible = [];
+
+function renderDeptPanel(filterText) {
+  const q = (filterText || '').trim().toLowerCase();
+  deptVisible = q ? DEPARTMENTS.filter(d => d.toLowerCase().includes(q)) : DEPARTMENTS;
+  deptActiveIndex = -1;
+
+  if (deptVisible.length === 0) {
+    deptPanel.innerHTML = '<div class="dept-empty">No matching department</div>';
+    return;
+  }
+  deptPanel.innerHTML = deptVisible.map((d, i) =>
+    `<div class="dept-option" data-index="${i}">${esc(d)}</div>`
+  ).join('');
+}
+
+function openDeptPanel() {
+  renderDeptPanel(authDept.value);
+  deptPanel.classList.add('open');
+  deptCombo.classList.add('open');
+}
+
+function closeDeptPanel() {
+  deptPanel.classList.remove('open');
+  deptCombo.classList.remove('open');
+  deptActiveIndex = -1;
+}
+
+function selectDept(name) {
+  authDept.value = name;
+  closeDeptPanel();
+}
+
+function updateDeptActiveHighlight() {
+  deptPanel.querySelectorAll('.dept-option').forEach(el => {
+    el.classList.toggle('active', Number(el.dataset.index) === deptActiveIndex);
+  });
+  const activeEl = deptPanel.querySelector('.dept-option.active');
+  if (activeEl) activeEl.scrollIntoView({ block: 'nearest' });
+}
+
+authDept.addEventListener('focus', openDeptPanel);
+authDept.addEventListener('input', () => {
+  renderDeptPanel(authDept.value);
+  deptPanel.classList.add('open');
+  deptCombo.classList.add('open');
+});
+
+deptPanel.addEventListener('click', e => {
+  const opt = e.target.closest('.dept-option');
+  if (opt) selectDept(deptVisible[Number(opt.dataset.index)]);
+});
+
+document.addEventListener('click', e => {
+  if (!deptCombo.contains(e.target)) closeDeptPanel();
+});
+
+
 function showToast(msg, isError=false) {
   const el = document.getElementById('toast');
   el.textContent = msg;
@@ -1682,7 +1729,29 @@ authEmail.addEventListener('keydown', e => {
   }
 });
 authDept.addEventListener('keydown', e => {
-  if (e.key === 'Enter') authPassword.focus();
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (!deptPanel.classList.contains('open')) { openDeptPanel(); return; }
+    if (deptVisible.length) {
+      deptActiveIndex = (deptActiveIndex + 1) % deptVisible.length;
+      updateDeptActiveHighlight();
+    }
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (deptVisible.length) {
+      deptActiveIndex = (deptActiveIndex - 1 + deptVisible.length) % deptVisible.length;
+      updateDeptActiveHighlight();
+    }
+  } else if (e.key === 'Enter') {
+    if (deptPanel.classList.contains('open') && deptActiveIndex >= 0 && deptVisible[deptActiveIndex]) {
+      selectDept(deptVisible[deptActiveIndex]);
+    } else {
+      closeDeptPanel();
+    }
+    authPassword.focus();
+  } else if (e.key === 'Escape') {
+    closeDeptPanel();
+  }
 });
 
 // ── Init ─────────────────────────────────────────────────────
