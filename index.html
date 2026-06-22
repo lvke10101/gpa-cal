@@ -26,6 +26,7 @@
   .auth-field { margin-bottom:14px; }
   .auth-field label { display:block; font-size:12px; font-weight:500; color:var(--text3); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px; }
   .auth-field input, .auth-field select { width:100%; background:var(--card); border:1px solid var(--border); color:var(--text); border-radius:10px; padding:13px 14px; font-family:inherit; font-size:15px; outline:none; transition:border-color 0.2s; -webkit-appearance:none; }
+  .auth-field input[type="checkbox"] { -webkit-appearance:auto; appearance:auto; width:auto; height:auto; padding:0; border-radius:3px; }
   .auth-field input:focus, .auth-field select:focus { border-color:var(--gold); }
   .auth-field select option { background:var(--card); color:var(--text); }
   .auth-error { font-size:13px; color:var(--red2); background:rgba(192,57,43,0.1); border:1px solid rgba(192,57,43,0.2); border-radius:8px; padding:10px 12px; margin-bottom:14px; display:none; }
@@ -262,6 +263,10 @@
       <label>Password</label>
       <input type="password" id="auth-password" placeholder="Enter password (min 6 chars)" autocomplete="current-password"/>
     </div>
+    <div class="auth-field" id="remember-field" style="display:flex; align-items:center; gap:8px;">
+      <input type="checkbox" id="auth-remember" checked style="width:auto; margin:0;"/>
+      <label for="auth-remember" style="margin:0; cursor:pointer; font-weight:normal;">Keep me logged in</label>
+    </div>
     <div class="auth-field" id="dept-field" style="display:none;">
       <label>Department</label>
       <input type="text" id="auth-dept" list="dept-list" placeholder="Search or select your department" autocomplete="off"/>
@@ -291,7 +296,6 @@
         <option value="Environmental Health Science">
         <option value="Environmental Management">
         <option value="Environmental Management and Evaluation">
-        <option value="Estate Management and Valuation">
         <option value="Fisheries and Aquaculture Technology">
         <option value="Food Science and Technology">
         <option value="Forensic Science">
@@ -690,6 +694,8 @@ const app         = document.getElementById('app');
 const authError   = document.getElementById('auth-error');
 const authEmail   = document.getElementById('auth-email');
 const authPassword = document.getElementById('auth-password');
+const authRemember = document.getElementById('auth-remember');
+const rememberField = document.getElementById('remember-field');
 const authDept    = document.getElementById('auth-dept');
 const deptField   = document.getElementById('dept-field');
 const authSubmit  = document.getElementById('auth-submit');
@@ -765,6 +771,7 @@ function showAuthTab(mode) {
   authSubmit.textContent = mode === 'login' ? 'Login' : 'Create Account';
   authPassword.autocomplete = mode === 'login' ? 'current-password' : 'new-password';
   deptField.style.display = mode === 'register' ? 'block' : 'none';
+  rememberField.style.display = mode === 'login' ? 'flex' : 'none';
   authError.style.display = 'none';
   authSwitch.firstChild.textContent = mode === 'login' ? "Don't have an account? " : 'Already have an account? ';
   authSwitchLink.textContent = mode === 'login' ? 'Register' : 'Login';
@@ -831,6 +838,8 @@ async function submitAuth() {
     }
 
     currentUser = { id: user.id, email: user.email };
+    setSessionPolicy(authMode === 'login' ? authRemember.checked : true);
+    stampActivity();
     await loadUserData();
     launchApp();
   } catch (err) {
@@ -951,6 +960,7 @@ function launchApp() {
 
 async function doLogout() {
   await sb.auth.signOut();
+  clearSessionPolicyState();
   currentUser = null; userData = null;
   document.getElementById('profile-screen').style.display = 'none';
   document.getElementById('edit-profile-screen').style.display = 'none';
@@ -1602,14 +1612,50 @@ function updateStats() {
   clsEl.className   = 'cls ' + (gpaHidden ? '' : classifyBadge(cgpa));
 }
 
+// ── Session policy: "keep me logged in" + 12hr inactivity expiry ─────
+const SESSION_POLICY_KEY = 'gv_session_policy'; // 'remember' | 'session-only'
+const LAST_ACTIVE_KEY    = 'gv_last_active';
+const INACTIVITY_LIMIT_MS = 12 * 60 * 60 * 1000; // 12 hours
+
+function setSessionPolicy(remember) {
+  try { localStorage.setItem(SESSION_POLICY_KEY, remember ? 'remember' : 'session-only'); } catch {}
+}
+function getSessionPolicy() {
+  try { return localStorage.getItem(SESSION_POLICY_KEY) || 'remember'; } catch { return 'remember'; }
+}
+function stampActivity() {
+  try { localStorage.setItem(LAST_ACTIVE_KEY, String(Date.now())); } catch {}
+}
+function getLastActive() {
+  try { const v = localStorage.getItem(LAST_ACTIVE_KEY); return v ? parseInt(v, 10) : null; } catch { return null; }
+}
+function clearSessionPolicyState() {
+  try { localStorage.removeItem(SESSION_POLICY_KEY); localStorage.removeItem(LAST_ACTIVE_KEY); } catch {}
+}
+
 // ── Auto-login check ────────────────────────────────────────
 async function checkSession() {
   const { data: { session } } = await sb.auth.getSession();
+
+  if (session) {
+    const policy = getSessionPolicy();
+    const lastActive = getLastActive();
+    const inactiveTooLong = lastActive !== null && (Date.now() - lastActive) > INACTIVITY_LIMIT_MS;
+
+    if (policy === 'session-only' || inactiveTooLong) {
+      await sb.auth.signOut();
+      clearSessionPolicyState();
+      authScreen.style.display = 'flex';
+      return;
+    }
+  }
+
   if (session) {
     currentUser = { id: session.user.id, email: session.user.email };
     try {
       await loadUserData();
       launchApp();
+      stampActivity();
     } catch (err) {
       console.error('Failed to load user data', err);
       showToast('Error loading data', true);
@@ -1641,6 +1687,11 @@ authDept.addEventListener('keydown', e => {
 
 // ── Init ─────────────────────────────────────────────────────
 showAuthTab('login');
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && currentUser) stampActivity();
+});
+document.addEventListener('click', () => { if (currentUser) stampActivity(); }, { passive: true });
+
 checkSession();
 </script>
 </body>
