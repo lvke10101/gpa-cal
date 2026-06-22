@@ -35,12 +35,21 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
-      - name: Build debug APK
+      - name: Decode keystore
+        working-directory: android/app
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release.keystore
+
+      - name: Build signed release APK
         working-directory: android
-        run: ./gradlew assembleDebug
+        env:
+          KEYSTORE_PATH: release.keystore
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew assembleRelease
 
       - name: Upload APK as build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: GradeVault-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: GradeVault-release-apk
+          path: android/app/build/outputs/apk/release/app-release.apk
