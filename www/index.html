@@ -1,8 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<script>
+  (function() {
+    try {
+      var t = localStorage.getItem('gv_theme');
+      if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
 <title>GradeVault — FUTO GPA Calculator</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -14,15 +22,28 @@
     --blue:#2980b9; --text:#e8eaf0; --text2:#9da0b0; --text3:#6b6f80;
     --A:#3da86c; --B:#2980b9; --C:#d4a843; --D:#c0784a; --E:#c0392b; --F:#6b2d2d;
     --shadow:0 4px 24px rgba(0,0,0,0.4); --radius:14px;
+    --overlay-soft:rgba(255,255,255,0.02); --overlay-soft2:rgba(255,255,255,0.04);
+    --auth-gradient:radial-gradient(ellipse at 30% 20%, #1a1230 0%, #0e0f14 60%);
+    --on-gold:#0e0f14;
+  }
+  :root[data-theme="light"] {
+    --bg:#f5f3ee; --surface:#ffffff; --card:#faf8f3; --border:#e3ddd0; --border2:#d4cbb8;
+    --gold:#d4a843; --gold2:#b8893a; --green:#2d7a4f; --green2:#2f8c5c; --red:#c0392b; --red2:#b8362a;
+    --blue:#2980b9; --text:#1f2126; --text2:#3d4047; --text3:#666970;
+    --A:#2f8c5c; --B:#2980b9; --C:#b8893a; --D:#a8623a; --E:#c0392b; --F:#6b2d2d;
+    --shadow:0 4px 24px rgba(31,33,38,0.08); --radius:14px;
+    --overlay-soft:rgba(0,0,0,0.025); --overlay-soft2:rgba(0,0,0,0.05);
+    --auth-gradient:radial-gradient(ellipse at 30% 20%, #fdf6e3 0%, #f5f3ee 60%);
+    --on-gold:#0e0f14;
   }
   html, body { height:100%; background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; font-size:15px; -webkit-font-smoothing:antialiased; }
-  #auth-screen { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; background:radial-gradient(ellipse at 30% 20%, #1a1230 0%, #0e0f14 60%); }
+  #auth-screen { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; background:var(--auth-gradient); }
   .auth-box { width:100%; max-width:400px; background:var(--surface); border:1px solid var(--border); border-radius:22px; padding:40px 28px 32px; box-shadow:0 0 60px rgba(212,168,67,0.07), var(--shadow); }
   .auth-logo { font-family:'Playfair Display',serif; font-size:26px; color:var(--gold); margin-bottom:4px; }
   .auth-tagline { color:var(--text3); font-size:12px; margin-bottom:32px; }
   .auth-tabs { display:flex; background:var(--card); border-radius:10px; padding:4px; margin-bottom:24px; gap:4px; }
   .auth-tab { flex:1; padding:9px; text-align:center; font-size:13px; font-weight:500; border-radius:7px; cursor:pointer; color:var(--text3); transition:all 0.2s; border:none; background:none; font-family:inherit; }
-  .auth-tab.active { background:var(--gold); color:#0e0f14; }
+  .auth-tab.active { background:var(--gold); color:var(--on-gold); }
   .auth-field { margin-bottom:14px; }
   .auth-field label { display:block; font-size:12px; font-weight:500; color:var(--text3); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px; }
   .auth-field input, .auth-field select { width:100%; background:var(--card); border:1px solid var(--border); color:var(--text); border-radius:10px; padding:13px 14px; font-family:inherit; font-size:15px; outline:none; transition:border-color 0.2s; -webkit-appearance:none; }
@@ -44,7 +65,7 @@
   .dept-panel .dept-empty { padding:14px; font-size:13px; color:var(--text3); text-align:center; }
   .dept-panel::-webkit-scrollbar { width:6px; }
   .dept-panel::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
-  .btn-full { width:100%; background:var(--gold); color:#0e0f14; border:none; padding:14px; border-radius:10px; font-weight:600; font-size:15px; cursor:pointer; font-family:inherit; transition:background 0.2s; margin-top:6px; }
+  .btn-full { width:100%; background:var(--gold); color:var(--on-gold); border:none; padding:14px; border-radius:10px; font-weight:600; font-size:15px; cursor:pointer; font-family:inherit; transition:background 0.2s; margin-top:6px; }
   .btn-full:hover { background:var(--gold2); }
   .btn-full:disabled { opacity:0.5; cursor:not-allowed; }
   .auth-switch { text-align:center; font-size:13px; color:var(--text3); margin-top:18px; }
@@ -56,7 +77,7 @@
   header .spacer { flex:1; }
   .header-user { display:flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--border); border-radius:24px; padding:5px 12px 5px 6px; cursor:pointer; transition:border-color 0.2s; flex-shrink:0; }
   .header-user:hover { border-color:var(--gold); }
-  .header-avatar { width:26px; height:26px; border-radius:50%; background:linear-gradient(135deg, var(--gold), #a07820); display:flex; align-items:center; justify-content:center; font-weight:600; font-size:11px; color:#0e0f14; overflow:hidden; }
+  .header-avatar { width:26px; height:26px; border-radius:50%; background:linear-gradient(135deg, var(--gold), #a07820); display:flex; align-items:center; justify-content:center; font-weight:600; font-size:11px; color:var(--on-gold); overflow:hidden; }
   .header-avatar img { width:100%; height:100%; object-fit:cover; }
   .header-username { font-size:13px; font-weight:500; max-width:80px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .logout-icon { color:var(--text3); font-size:11px; }
@@ -89,7 +110,7 @@
   .semester-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:8px; }
   .semester-title { font-family:'Playfair Display',serif; font-size:18px; color:var(--text); }
   .semester-gpa-detail { font-size:12px; color:var(--text3); font-family:'DM Mono',monospace; margin-top:2px; }
-  .btn-add { background:var(--gold); color:#0e0f14; border:none; padding:9px 14px; border-radius:10px; font-weight:600; font-size:13px; cursor:pointer; font-family:inherit; transition:all 0.2s; display:flex; align-items:center; gap:5px; flex-shrink:0; }
+  .btn-add { background:var(--gold); color:var(--on-gold); border:none; padding:9px 14px; border-radius:10px; font-weight:600; font-size:13px; cursor:pointer; font-family:inherit; transition:all 0.2s; display:flex; align-items:center; gap:5px; flex-shrink:0; }
   .btn-add:hover { background:var(--gold2); }
   .btn-add svg { width:13px; height:13px; }
   .btn-upload { background:var(--card); color:var(--text2); border:1px solid var(--border); padding:6px 12px; border-radius:8px; font-size:11px; cursor:pointer; font-family:inherit; transition:all 0.2s; }
@@ -110,13 +131,16 @@
   .lock-icon-open { left:2px; }
   .lock-status-text { font-size:13px; font-weight:600; color:var(--red2); transition:color 0.3s; }
   .lock-status-text.unlocked { color:var(--green2); }
+  /* Light mode: knob is dark, icon is light (track stays red/green) */
+  [data-theme="light"] .lock-toggle-track::after { background:#1f2126; }
+  [data-theme="light"] .lock-icon { fill:#f5f3ee; }
   .course-table-wrap.locked { opacity:0.92; }
   .course-table-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; overflow-x:auto; -webkit-overflow-scrolling:touch; }
   table { width:100%; border-collapse:collapse; min-width:500px; }
   thead th { background:var(--card); padding:10px 12px; text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:0.8px; color:var(--text3); font-weight:600; border-bottom:1px solid var(--border); white-space:nowrap; }
   tbody tr { border-bottom:1px solid var(--border); transition:background 0.15s; }
   tbody tr:last-child { border-bottom:none; }
-  tbody tr:hover { background:rgba(255,255,255,0.02); }
+  tbody tr:hover { background:var(--overlay-soft); }
   td { padding:8px 12px; font-size:14px; }
   .cell-input { background:transparent; border:1px solid transparent; color:var(--text); font-family:inherit; font-size:14px; padding:5px 8px; border-radius:7px; width:100%; transition:all 0.15s; outline:none; -webkit-appearance:none; }
   .cell-input:hover { border-color:var(--border2); background:var(--card); }
@@ -151,7 +175,7 @@
   ::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
   .header-actions { display:flex; align-items:center; gap:10px; }
   .credit-pill { display:flex; align-items:center; gap:6px; background:var(--card); border:1px solid var(--border); border-radius:24px; padding:6px 12px; flex-shrink:0; }
-  .credit-pill .credit-icon { width:18px; height:18px; border-radius:50%; background:var(--gold); color:#0e0f14; font-weight:700; font-size:11px; display:flex; align-items:center; justify-content:center; font-family:'DM Mono',monospace; }
+  .credit-pill .credit-icon { width:18px; height:18px; border-radius:50%; background:var(--gold); color:var(--on-gold); font-weight:700; font-size:11px; display:flex; align-items:center; justify-content:center; font-family:'DM Mono',monospace; }
   .credit-pill .credit-amt { font-family:'DM Mono',monospace; font-size:13px; font-weight:500; color:var(--gold); }
   .credit-pill.low .credit-amt { color:var(--red2); }
   .credit-pill.low .credit-icon { background:var(--red2); }
@@ -173,19 +197,19 @@
   .profile-content { flex:1; max-width:480px; width:100%; margin:0 auto; padding:20px 16px 40px; }
   .profile-page-title { font-family:'Playfair Display',serif; font-size:24px; color:var(--text); margin-bottom:18px; }
   .profile-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:28px 20px 22px; display:flex; flex-direction:column; align-items:center; text-align:center; margin-bottom:20px; }
-  .profile-avatar { width:92px; height:92px; border-radius:50%; background:linear-gradient(135deg, var(--gold), #a07820); display:flex; align-items:center; justify-content:center; font-weight:600; font-size:32px; color:#0e0f14; margin-bottom:14px; overflow:hidden; }
+  .profile-avatar { width:92px; height:92px; border-radius:50%; background:linear-gradient(135deg, var(--gold), #a07820); display:flex; align-items:center; justify-content:center; font-weight:600; font-size:32px; color:var(--on-gold); margin-bottom:14px; overflow:hidden; }
   .profile-avatar img { width:100%; height:100%; object-fit:cover; }
   .profile-name { font-size:17px; font-weight:600; color:var(--text); }
   .profile-email { font-size:13px; color:var(--text3); margin-top:3px; }
   .profile-meta { font-size:12px; color:var(--text3); margin-top:6px; }
   .profile-level { font-size:12px; color:var(--text3); margin-top:2px; }
-  .btn-edit-profile { margin-top:18px; background:var(--gold); color:#0e0f14; border:none; padding:11px 24px; border-radius:24px; font-weight:600; font-size:13px; cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:7px; transition:background 0.2s; }
+  .btn-edit-profile { margin-top:18px; background:var(--gold); color:var(--on-gold); border:none; padding:11px 24px; border-radius:24px; font-weight:600; font-size:13px; cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:7px; transition:background 0.2s; }
   .btn-edit-profile:hover { background:var(--gold2); }
   .btn-edit-profile svg { width:14px; height:14px; }
   .profile-menu { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:16px; overflow:hidden; }
   .profile-item { width:100%; display:flex; align-items:center; gap:14px; padding:15px 16px; background:none; border:none; border-bottom:1px solid var(--border); color:var(--text); font-family:inherit; font-size:14px; cursor:pointer; text-align:left; }
   .profile-item:last-child { border-bottom:none; }
-  .profile-item:hover { background:rgba(255,255,255,0.02); }
+  .profile-item:hover { background:var(--overlay-soft); }
   .profile-item-icon { width:30px; height:30px; border-radius:50%; border:1.5px solid var(--border2); display:flex; align-items:center; justify-content:center; color:var(--text2); flex-shrink:0; }
   .profile-item-icon svg { width:15px; height:15px; }
   .profile-item-label { flex:1; }
@@ -245,12 +269,40 @@
   .faq-item:first-child { border-top:3px solid var(--gold); }
   .faq-q { width:100%; display:flex; align-items:center; gap:14px; padding:16px 2px; background:none; border:none; color:var(--text); font-family:inherit; font-size:14px; font-weight:500; text-align:left; cursor:pointer; }
   .faq-q-icon { flex-shrink:0; width:20px; height:20px; border-radius:50%; border:1.5px solid var(--gold); color:var(--gold); display:flex; align-items:center; justify-content:center; font-size:14px; line-height:1; transition:transform 0.25s, background 0.25s, color 0.25s; }
-  .faq-item.open .faq-q-icon { background:var(--gold); color:#0e0f14; transform:rotate(180deg); }
+  .faq-item.open .faq-q-icon { background:var(--gold); color:var(--on-gold); transform:rotate(180deg); }
   .faq-q-text { flex:1; }
   .faq-a-wrap { max-height:0; overflow:hidden; transition:max-height 0.3s ease; }
   .faq-item.open .faq-a-wrap { max-height:240px; }
   .faq-a { padding:0 2px 18px 36px; font-size:13px; line-height:1.55; color:var(--text2); border-left:2px solid var(--border2); margin-left:8px; }
   .faq-footer-note { text-align:center; font-size:12px; color:var(--text3); margin-top:24px; padding:0 8px; line-height:1.5; }
+
+  /* Appearance screen */
+  #appearance-screen { display:none; min-height:100vh; flex-direction:column; background:var(--bg); }
+  .appearance-subtitle { font-size:13px; color:var(--text3); margin:-10px 0 22px; }
+  .appearance-section-label { font-size:11px; font-weight:600; color:var(--text3); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:10px; }
+  .theme-options { display:flex; flex-direction:column; gap:12px; margin-bottom:18px; }
+  .theme-card { width:100%; display:flex; align-items:center; gap:14px; padding:12px 14px; background:var(--card); border:1.5px solid var(--border); border-radius:14px; cursor:pointer; transition:border-color 0.2s, background 0.2s; text-align:left; font-family:inherit; }
+  .theme-card.active { border-color:var(--gold); background:rgba(212,168,67,0.07); }
+  .theme-card-preview { width:46px; height:58px; border-radius:8px; border:1px solid var(--border2); flex-shrink:0; padding:7px 6px; display:flex; flex-direction:column; gap:4px; }
+  .theme-card-preview.preview-dark { background:#1c1f2a; }
+  .theme-card-preview.preview-light { background:#ffffff; }
+  .theme-card-preview-dot { width:9px; height:9px; border-radius:50%; }
+  .theme-card-preview.preview-dark .theme-card-preview-dot { background:#5a5d68; }
+  .theme-card-preview.preview-light .theme-card-preview-dot { background:#c7c2b5; }
+  .theme-card-preview-line { height:2.5px; border-radius:2px; }
+  .theme-card-preview.preview-dark .theme-card-preview-line { background:#3a3d4a; }
+  .theme-card-preview.preview-light .theme-card-preview-line { background:#e3ddd0; }
+  .theme-card-preview-line.short { width:60%; }
+  .theme-card-preview-bar { margin-top:auto; height:5px; border-radius:2px; background:var(--gold); width:70%; }
+  .theme-card-body { flex:1; min-width:0; }
+  .theme-card-title { font-size:14px; font-weight:600; color:var(--text); margin-bottom:2px; }
+  .theme-card-desc { font-size:12px; color:var(--text3); line-height:1.4; }
+  .theme-card-radio { width:20px; height:20px; border-radius:50%; border:2px solid var(--border2); flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:border-color 0.2s; }
+  .theme-card.active .theme-card-radio { border-color:var(--gold); }
+  .theme-card-radio-dot { width:10px; height:10px; border-radius:50%; background:var(--gold); transform:scale(0); transition:transform 0.2s; }
+  .theme-card.active .theme-card-radio-dot { transform:scale(1); }
+  .appearance-note { display:flex; align-items:flex-start; gap:8px; font-size:12px; color:var(--text3); line-height:1.5; margin-top:4px; }
+  .appearance-note svg { width:15px; height:15px; flex-shrink:0; margin-top:1px; }
 
 </style>
 </head>
@@ -431,7 +483,7 @@
         <span class="profile-item-label">Currencies</span>
         <span class="profile-item-arrow">›</span>
       </button>
-      <button class="profile-item">
+      <button class="profile-item" onclick="showAppearance()">
         <span class="profile-item-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="12" r="6"/><circle cx="15" cy="12" r="6"/></svg>
         </span>
@@ -549,6 +601,54 @@
   <div class="profile-content">
     <div class="faq-list" id="faq-list"></div>
     <div class="faq-footer-note">Still have questions? Reach us on WhatsApp at <a href="https://wa.me/2349019252594" style="color:var(--gold); text-decoration:none;">+234 90 192 525 94</a>.</div>
+  </div>
+</div>
+
+<!-- ══ APPEARANCE SCREEN ════════════════════════════════════ -->
+<div id="appearance-screen">
+  <header>
+    <button class="profile-back" onclick="hideAppearance()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    </button>
+  </header>
+  <div class="profile-content">
+    <h1 class="profile-page-title">Appearance</h1>
+    <div class="appearance-subtitle">Choose how the app looks for you.</div>
+
+    <div class="appearance-section-label">Theme</div>
+    <div class="theme-options">
+      <button class="theme-card" id="theme-card-dark" onclick="setTheme('dark')">
+        <div class="theme-card-preview preview-dark">
+          <div class="theme-card-preview-dot"></div>
+          <div class="theme-card-preview-line"></div>
+          <div class="theme-card-preview-line short"></div>
+          <div class="theme-card-preview-bar"></div>
+        </div>
+        <div class="theme-card-body">
+          <div class="theme-card-title">Dark Mode</div>
+          <div class="theme-card-desc">Ideal for low light environments.</div>
+        </div>
+        <div class="theme-card-radio"><div class="theme-card-radio-dot"></div></div>
+      </button>
+      <button class="theme-card" id="theme-card-light" onclick="setTheme('light')">
+        <div class="theme-card-preview preview-light">
+          <div class="theme-card-preview-dot"></div>
+          <div class="theme-card-preview-line"></div>
+          <div class="theme-card-preview-line short"></div>
+          <div class="theme-card-preview-bar"></div>
+        </div>
+        <div class="theme-card-body">
+          <div class="theme-card-title">Light Mode</div>
+          <div class="theme-card-desc">Better for bright environments.</div>
+        </div>
+        <div class="theme-card-radio"><div class="theme-card-radio-dot"></div></div>
+      </button>
+    </div>
+
+    <div class="appearance-note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <span>You can change this setting any time in the app.</span>
+    </div>
   </div>
 </div>
 
@@ -1191,6 +1291,37 @@ function hideFAQ() {
   document.getElementById('profile-screen').style.display = 'flex';
 }
 
+// ── Appearance / theme ───────────────────────────────────────
+function getStoredTheme() {
+  try { return localStorage.getItem('gv_theme') || 'dark'; } catch { return 'dark'; }
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  const darkCard  = document.getElementById('theme-card-dark');
+  const lightCard = document.getElementById('theme-card-light');
+  if (darkCard && lightCard) {
+    darkCard.classList.toggle('active', theme === 'dark');
+    lightCard.classList.toggle('active', theme === 'light');
+  }
+}
+
+function setTheme(theme) {
+  try { localStorage.setItem('gv_theme', theme); } catch {}
+  applyTheme(theme);
+}
+
+function showAppearance() {
+  applyTheme(getStoredTheme());
+  document.getElementById('profile-screen').style.display = 'none';
+  document.getElementById('appearance-screen').style.display = 'flex';
+}
+
+function hideAppearance() {
+  document.getElementById('appearance-screen').style.display = 'none';
+  document.getElementById('profile-screen').style.display = 'flex';
+}
+
 async function saveProfileEdits() {
   const username = document.getElementById('edit-username').value.trim();
   const fullName = document.getElementById('edit-fullname').value.trim();
@@ -1755,6 +1886,7 @@ authDept.addEventListener('keydown', e => {
 });
 
 // ── Init ─────────────────────────────────────────────────────
+applyTheme(getStoredTheme());
 showAuthTab('login');
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && currentUser) stampActivity();
