@@ -75,12 +75,42 @@
   header { background:var(--surface); border-bottom:1px solid var(--border); padding:0 16px; display:flex; align-items:center; gap:12px; height:54px; flex-shrink:0; position:sticky; top:0; z-index:100; }
   .header-logo { font-family:'Playfair Display',serif; font-size:18px; color:var(--gold); }
   header .spacer { flex:1; }
-  .header-user { display:flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--border); border-radius:24px; padding:5px 12px 5px 6px; cursor:pointer; transition:border-color 0.2s; flex-shrink:0; }
+  .header-user { position:relative; display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--border); border-radius:24px; padding:6px 18px 6px 7px; cursor:pointer; transition:border-color 0.2s; flex-shrink:0; }
   .header-user:hover { border-color:var(--gold); }
-  .header-avatar { width:26px; height:26px; border-radius:50%; background:linear-gradient(135deg, var(--gold), #a07820); display:flex; align-items:center; justify-content:center; font-weight:600; font-size:11px; color:var(--on-gold); overflow:hidden; }
+  .header-avatar { width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg, var(--gold), #a07820); display:flex; align-items:center; justify-content:center; font-weight:600; font-size:12px; color:var(--on-gold); overflow:hidden; flex-shrink:0; }
   .header-avatar img { width:100%; height:100%; object-fit:cover; }
-  .header-username { font-size:13px; font-weight:500; max-width:80px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .header-user-text { display:flex; flex-direction:column; gap:1px; min-width:0; }
+  .header-user-row1 { display:flex; align-items:center; gap:4px; }
+  .header-username { font-size:13px; font-weight:600; color:var(--text); max-width:100px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .header-user-chevron { color:var(--text3); flex-shrink:0; transition:transform 0.2s; }
+  .header-user.open .header-user-chevron { transform:rotate(180deg); }
+  .header-balance { display:flex; align-items:center; gap:4px; font-size:10.5px; color:var(--text3); white-space:nowrap; }
+  .header-balance .credit-icon-inline { display:inline-flex; align-items:center; justify-content:center; width:14px; height:14px; border-radius:50%; background:var(--gold); color:var(--on-gold); font-weight:700; font-size:8.5px; font-family:'DM Mono',monospace; flex-shrink:0; line-height:1; }
+  .header-balance .balance-amt { font-weight:600; color:var(--gold); }
+  .header-balance.low .credit-icon-inline { background:var(--red2); }
+  .header-balance.low .balance-amt { color:var(--red2); }
+  .header-user-popover { position:absolute; top:calc(100% + 8px); right:0; min-width:188px; background:var(--card); border:1px solid var(--border2); border-radius:12px; box-shadow:var(--shadow); z-index:150; display:none; overflow:hidden; }
+  .header-user-popover.open { display:block; }
+  .hu-pop-item { display:flex; align-items:center; gap:10px; padding:12px 14px; font-size:13.5px; color:var(--text); cursor:pointer; transition:background 0.15s; border-bottom:1px solid var(--border); }
+  .hu-pop-item:last-child { border-bottom:none; cursor:default; }
+  .hu-pop-item:hover:not(.static) { background:var(--overlay-soft2); }
+  .hu-pop-item svg { width:16px; height:16px; flex-shrink:0; color:var(--text3); }
+  .hu-pop-balance-amt { margin-left:auto; font-family:'DM Mono',monospace; color:var(--gold); font-weight:600; }
   .logout-icon { color:var(--text3); font-size:11px; }
+  .header-bell { position:relative; display:flex; align-items:center; justify-content:center; width:44px; height:44px; border-radius:50%; background:var(--card); border:1px solid var(--border); color:var(--text2); cursor:pointer; flex-shrink:0; }
+  .header-bell svg { width:19px; height:19px; }
+  .header-bell-badge { position:absolute; top:-4px; right:-4px; min-width:17px; height:17px; padding:0 4px; border-radius:9px; background:var(--red2); color:#fff; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; line-height:1; }
+
+  /* Nav pill row (My Semester · News Feed) */
+  .nav-pill-row { background:var(--surface); border-bottom:1px solid var(--border); padding:14px 16px; display:flex; align-items:center; justify-content:center; gap:14px; }
+  .nav-pill { display:flex; align-items:center; gap:8px; padding:9px 18px; border-radius:999px; border:1px solid var(--border2); background:var(--card); font-size:13.5px; font-weight:600; color:var(--text2); cursor:pointer; white-space:nowrap; }
+  .nav-pill svg { width:16px; height:16px; flex-shrink:0; }
+  .nav-pill.active { color:var(--gold); border-color:var(--gold); background:rgba(212,168,67,0.08); }
+  .nav-pill-badge { min-width:18px; height:18px; padding:0 4px; border-radius:9px; background:var(--red2); color:#fff; font-size:10.5px; font-weight:700; display:flex; align-items:center; justify-content:center; line-height:1; }
+  .nav-pill-divider { display:flex; align-items:center; gap:6px; color:var(--gold); flex-shrink:0; }
+  .nav-pill-divider .line { width:26px; height:1px; background:var(--gold); opacity:0.5; }
+  .nav-pill-divider .diamond { width:6px; height:6px; background:var(--gold); transform:rotate(45deg); flex-shrink:0; }
+
   .stats-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:12px 16px; display:flex; gap:0; align-items:center; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
   .stats-bar::-webkit-scrollbar { display:none; }
   .stat-chip { display:flex; flex-direction:column; gap:2px; flex-shrink:0; padding-right:16px; }
@@ -174,11 +204,6 @@
   ::-webkit-scrollbar-track { background:transparent; }
   ::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
   .header-actions { display:flex; align-items:center; gap:10px; }
-  .credit-pill { display:flex; align-items:center; gap:6px; background:var(--card); border:1px solid var(--border); border-radius:24px; padding:6px 12px; flex-shrink:0; }
-  .credit-pill .credit-icon { width:18px; height:18px; border-radius:50%; background:var(--gold); color:var(--on-gold); font-weight:700; font-size:11px; display:flex; align-items:center; justify-content:center; font-family:'DM Mono',monospace; }
-  .credit-pill .credit-amt { font-family:'DM Mono',monospace; font-size:13px; font-weight:500; color:var(--gold); }
-  .credit-pill.low .credit-amt { color:var(--red2); }
-  .credit-pill.low .credit-icon { background:var(--red2); }
   .note-section { margin-top:20px; }
   .note-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
   .note-title { font-size:13px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:0.6px; }
@@ -353,16 +378,47 @@
     <div class="header-logo">GradeVault</div>
     <div class="spacer"></div>
     <div class="header-actions">
-      <div class="credit-pill" id="credit-pill">
-        <div class="credit-icon">C</div>
-        <span class="credit-amt" id="credit-amt">—</span>
-      </div>
-      <div class="header-user" onclick="showProfile()">
+      <div class="header-user" id="header-user" onclick="toggleHeaderUserPopover(event)">
         <div class="header-avatar" id="header-av"></div>
-        <span class="header-username" id="header-name"></span>
+        <div class="header-user-text">
+          <div class="header-user-row1">
+            <span class="header-username" id="header-name"></span>
+            <svg class="header-user-chevron" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="header-balance" id="header-balance"><span>Balance:</span> <span class="credit-icon-inline">C</span><span class="balance-amt" id="header-balance-amt">—</span></div>
+        </div>
+        <div class="header-user-popover" id="header-user-popover">
+          <div class="hu-pop-item" onclick="event.stopPropagation(); showProfile();">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+            <span>Profile</span>
+          </div>
+          <div class="hu-pop-item static">
+            <span>Credit balance</span>
+            <span class="hu-pop-balance-amt" id="hu-pop-balance-amt">—</span>
+          </div>
+        </div>
+      </div>
+      <div class="header-bell" title="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 3.2-1 5.4-2 7h16c-1-1.6-2-3.8-2-7"/><path d="M9.5 19a2.5 2.5 0 0 0 5 0"/></svg>
+        <span class="header-bell-badge" id="header-bell-badge">7</span>
       </div>
     </div>
   </header>
+
+  <div class="nav-pill-row">
+    <div class="nav-pill active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 8l10 5 10-5-10-5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>
+      <span>My Semester</span>
+    </div>
+    <div class="nav-pill-divider">
+      <span class="line"></span><span class="diamond"></span><span class="line"></span>
+    </div>
+    <div class="nav-pill">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="15" rx="2"/><line x1="7" y1="9" x2="11" y2="9"/><line x1="7" y1="13" x2="17" y2="13"/><line x1="7" y1="16" x2="17" y2="16"/><line x1="14" y1="9" x2="17" y2="9"/></svg>
+      <span>News Feed</span>
+      <span class="nav-pill-badge">2</span>
+    </div>
+  </div>
 
   <div class="stats-bar" id="stats-bar">
     <div class="stat-chip">
@@ -380,6 +436,7 @@
 
   <div class="year-groups" id="year-groups"></div>
   <div class="sem-tabs" id="sem-tabs"></div>
+
 
   <div class="content">
     <div class="semester-header">
@@ -744,6 +801,26 @@ function toggleGpaPrivacy() {
   renderTable();
   updateStats();
 }
+
+// ── Header user popover (Profile / Credit balance) ────────────
+function toggleHeaderUserPopover(e) {
+  e.stopPropagation();
+  const userBlock = document.getElementById('header-user');
+  const popover = document.getElementById('header-user-popover');
+  const isOpen = popover.classList.contains('open');
+  popover.classList.toggle('open', !isOpen);
+  userBlock.classList.toggle('open', !isOpen);
+}
+document.addEventListener('click', (e) => {
+  const userBlock = document.getElementById('header-user');
+  const popover = document.getElementById('header-user-popover');
+  if (!userBlock || !popover) return;
+  if (!userBlock.contains(e.target)) {
+    popover.classList.remove('open');
+    userBlock.classList.remove('open');
+  }
+});
+
 let saveTimer = null;
 let autosaveCount = 0; // counts successful course autosaves; every 10th charges credits
 let authMode = 'login';
@@ -1052,11 +1129,13 @@ async function loadCredits() {
 }
 
 function renderCredits() {
-  const amt = document.getElementById('credit-amt');
-  const pill = document.getElementById('credit-pill');
-  if (!amt || !pill) return;
-  amt.textContent = userCredits;
-  pill.classList.toggle('low', userCredits <= 2);
+  const headerAmt = document.getElementById('header-balance-amt');
+  const headerBal = document.getElementById('header-balance');
+  const popAmt = document.getElementById('hu-pop-balance-amt');
+  if (!headerAmt || !headerBal) return;
+  headerAmt.textContent = userCredits;
+  headerBal.classList.toggle('low', userCredits <= 2);
+  if (popAmt) popAmt.textContent = userCredits;
 }
 
 // Attempts to spend `cost` credits. Returns true if successful, false if insufficient.
@@ -1118,6 +1197,8 @@ async function doLogout() {
 
 // ── Profile screen ──────────────────────────────────────────
 function showProfile() {
+  document.getElementById('header-user-popover')?.classList.remove('open');
+  document.getElementById('header-user')?.classList.remove('open');
   const displayName = (userData && userData.username) || currentUser.email.split('@')[0];
   setAvatarEl(document.getElementById('profile-avatar'), userData && userData.avatarUrl, displayName.charAt(0).toUpperCase());
   document.getElementById('profile-name').textContent = displayName;
