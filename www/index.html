@@ -190,7 +190,7 @@
   .btn-add:disabled:hover { background:var(--gold); }
   .totals-row td { background:var(--card); border-top:1px solid var(--border2); font-weight:600; font-size:12px; color:var(--text2); font-family:'DM Mono',monospace; }
   .totals-row .total-gpa { color:var(--gold); font-size:14px; }
-  .empty-state { padding:48px 16px; text-align:center; }
+  .empty-state { padding:48px 16px; text-align:center; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); }
   .empty-state .icon { font-size:36px; margin-bottom:10px; opacity:0.3; }
   .empty-state p { color:var(--text3); font-size:13px; }
   .class-first { color:var(--green2); } .class-second-upper { color:#5dade2; } .class-second-lower { color:var(--gold); } .class-third { color:#e59866; } .class-pass { color:var(--text3); }
@@ -476,7 +476,7 @@
       <span class="lock-status-text" id="lock-status-text">Locked</span>
     </div>
 
-    <div class="course-table-wrap">
+    <div class="course-table-wrap" id="course-table-wrap">
       <table>
         <thead>
           <tr>
@@ -491,6 +491,10 @@
         <tbody id="course-tbody"></tbody>
         <tfoot id="totals-foot"></tfoot>
       </table>
+    </div>
+    <div class="empty-state" id="empty-state-standalone" style="display:none;">
+      <div class="icon">📚</div>
+      <p>No courses yet. Tap <strong>Add Course</strong> to get started.</p>
     </div>
 
     <div class="note-section">
@@ -1727,17 +1731,20 @@ function renderTable() {
   const courses = userData.semesters[currentSem] || [];
   const tbody   = document.getElementById('course-tbody');
   const tfoot   = document.getElementById('totals-foot');
+  const tableWrap = document.getElementById('course-table-wrap');
+  const emptyWrap  = document.getElementById('empty-state-standalone');
 
   if (courses.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">
-      <div class="icon">📚</div>
-      <p>No courses yet. Tap <strong>Add Course</strong> to get started.</p>
-    </div></td></tr>`;
+    tbody.innerHTML = '';
     tfoot.innerHTML = '';
+    tableWrap.style.display = 'none';
+    emptyWrap.style.display = 'block';
     document.getElementById('sem-gpa-detail').textContent = '';
     applyCourseLock();
     return;
   }
+  tableWrap.style.display = 'block';
+  emptyWrap.style.display = 'none';
 
   tbody.innerHTML = courses.map((c, i) => {
     const gp    = GRADE_POINTS[c.grade] ?? null;
