@@ -102,10 +102,13 @@
   .header-bell-badge { position:absolute; top:-4px; right:-4px; min-width:17px; height:17px; padding:0 4px; border-radius:9px; background:var(--red2); color:#fff; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; line-height:1; }
 
   /* Nav pill row (My Semester · News Feed) */
-  .nav-pill-row { background:var(--surface); border-bottom:1px solid var(--border); padding:14px 16px; display:flex; align-items:center; justify-content:center; gap:14px; }
-  .nav-pill { display:flex; align-items:center; gap:8px; padding:9px 18px; border-radius:999px; border:1px solid var(--border2); background:var(--card); font-size:13.5px; font-weight:600; color:var(--text2); cursor:pointer; white-space:nowrap; }
-  .nav-pill svg { width:16px; height:16px; flex-shrink:0; }
-  .nav-pill.active { color:var(--gold); border-color:var(--gold); background:rgba(212,168,67,0.08); }
+  .nav-pill-row { background:var(--surface); border-bottom:1px solid var(--border); padding:14px 16px; display:flex; align-items:center; justify-content:center; gap:30px; }
+  .nav-pill { display:flex; flex-direction:column; align-items:center; gap:7px; cursor:pointer; white-space:nowrap; background:none; border:none; padding:0; }
+  .nav-pill-main { display:flex; align-items:center; gap:8px; font-size:13.5px; font-weight:600; color:var(--text2); }
+  .nav-pill svg { width:16px; height:16px; flex-shrink:0; color:var(--text2); }
+  .nav-pill.active .nav-pill-main, .nav-pill.active svg { color:var(--gold); }
+  .nav-pill-underline { width:0; height:4px; border-radius:3px; background:var(--gold); transition:width 0.2s; }
+  .nav-pill.active .nav-pill-underline { width:22px; }
   .nav-pill-badge { min-width:18px; height:18px; padding:0 4px; border-radius:9px; background:var(--red2); color:#fff; font-size:10.5px; font-weight:700; display:flex; align-items:center; justify-content:center; line-height:1; }
   .nav-pill-divider { display:flex; align-items:center; gap:6px; color:var(--gold); flex-shrink:0; }
   .nav-pill-divider .line { width:26px; height:1px; background:var(--gold); opacity:0.5; }
@@ -407,16 +410,22 @@
 
   <div class="nav-pill-row">
     <div class="nav-pill active">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 8l10 5 10-5-10-5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>
-      <span>My Semester</span>
+      <div class="nav-pill-main">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 8l10 5 10-5-10-5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>
+        <span>My Semester</span>
+      </div>
+      <div class="nav-pill-underline"></div>
     </div>
     <div class="nav-pill-divider">
       <span class="line"></span><span class="diamond"></span><span class="line"></span>
     </div>
     <div class="nav-pill">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="15" rx="2"/><line x1="7" y1="9" x2="11" y2="9"/><line x1="7" y1="13" x2="17" y2="13"/><line x1="7" y1="16" x2="17" y2="16"/><line x1="14" y1="9" x2="17" y2="9"/></svg>
-      <span>News Feed</span>
-      <span class="nav-pill-badge">2</span>
+      <div class="nav-pill-main">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="15" rx="2"/><line x1="7" y1="9" x2="11" y2="9"/><line x1="7" y1="13" x2="17" y2="13"/><line x1="7" y1="16" x2="17" y2="16"/><line x1="14" y1="9" x2="17" y2="9"/></svg>
+        <span>News Feed</span>
+        <span class="nav-pill-badge">2</span>
+      </div>
+      <div class="nav-pill-underline"></div>
     </div>
   </div>
 
