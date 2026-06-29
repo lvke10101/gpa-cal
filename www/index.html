@@ -280,6 +280,12 @@
   .pd-comment-body { font-size:14px; color:var(--text2); line-height:1.55; padding-left:34px; word-break:break-word; }
   .pd-comments-empty { font-size:13.5px; color:var(--text3); text-align:center; padding:20px 0; }
   .pd-comments-restricted { font-size:13px; color:var(--text3); text-align:center; padding:16px 0; font-style:italic; }
+  .pd-comment-actions { display:flex; align-items:center; gap:14px; padding-left:34px; margin-top:8px; }
+  .pd-comment-reply { padding-left:34px; border-left:2px solid var(--border); margin-top:8px; }
+  .pd-replies { margin-top:8px; }
+  .pd-show-more { display:block; width:100%; padding:14px; text-align:center; color:var(--gold); font-size:13.5px; font-weight:600; background:none; border:none; cursor:pointer; font-family:inherit; }
+  .pd-show-more:hover { color:var(--gold2); }
+  .pd-verified-badge { color:var(--blue); flex-shrink:0; }
   .cp-form { padding:20px 16px 60px; display:flex; flex-direction:column; gap:6px; }
   .cp-label { font-size:12.5px; font-weight:600; color:var(--text2); margin-top:16px; margin-bottom:2px; }
   .cp-label-sub { font-weight:400; color:var(--text3); }
@@ -418,11 +424,11 @@
   .nf-empty { text-align: center; color: var(--text3); padding: 60px 20px; font-size: 14px; }
   .nf-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; cursor: pointer; transition: border-color 0.15s; }
   .nf-card:active { border-color: var(--border2); }
-  .nf-card-inner { display: flex; gap: 12px; padding: 14px; align-items: flex-start; }
-  .nf-thumb { width: 90px; height: 90px; flex-shrink: 0; border-radius: 10px; background: var(--surface); overflow: hidden; }
+  .nf-card-inner { display: flex; gap: 12px; padding: 10px 14px 10px 14px; align-items: center; }
+  .nf-thumb { width: 100px; height: 100px; flex-shrink: 0; border-radius: 10px; background: var(--surface); overflow: hidden; align-self: center; }
   .nf-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .nf-body { flex: 1; min-width: 0; }
-  .nf-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+  .nf-body { flex: 1; min-width: 0; padding-left: 2px; }
+  .nf-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
   .nf-tag { font-size: 10.5px; font-weight: 700; letter-spacing: 0.3px; padding: 3px 8px; border-radius: 999px; text-transform: uppercase; }
   .nf-tag-breaking, .nf-tag-urgent { background: rgba(192,57,43,0.15); color: var(--red2); }
   .nf-tag-verified, .nf-tag-official { background: rgba(45,122,79,0.15); color: var(--green2); }
@@ -430,14 +436,14 @@
   .nf-tag-false, .nf-tag-misleading { background: rgba(192,57,43,0.1); color: var(--red); }
   .nf-tag-live { background: rgba(41,128,185,0.15); color: var(--blue); }
   .nf-tag-sponsored, .nf-tag-updated { background: var(--overlay-soft2); color: var(--text2); }
-  .nf-title { font-size: 15.5px; font-weight: 600; color: var(--text); line-height: 1.35; margin-bottom: 10px; }
+  .nf-title { font-size: 15.5px; font-weight: 600; color: var(--text); line-height: 1.35; margin-bottom: 8px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
   .nf-meta-row { display: flex; align-items: center; gap: 8px; }
   .nf-avatar { width: 24px; height: 24px; border-radius: 50%; background: var(--border2); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: var(--text2); flex-shrink: 0; overflow: hidden; }
   .nf-avatar img { width: 100%; height: 100%; object-fit: cover; }
   .nf-author { font-size: 12.5px; font-weight: 600; color: var(--text2); }
   .nf-verified-badge { width: 14px; height: 14px; color: var(--blue); flex-shrink: 0; }
   .nf-time { font-size: 12px; color: var(--text3); margin-left: auto; }
-  .nf-reactions { display: flex; gap: 14px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+  .nf-reactions { display: flex; gap: 14px; padding: 7px 14px; border-top: 1px solid var(--border); }
   .nf-reaction { display: flex; align-items: center; gap: 5px; font-size: 12.5px; color: var(--text3); }
   .nf-reaction svg { width: 15px; height: 15px; }
   .nf-reaction.active { color: var(--gold); }
@@ -765,11 +771,17 @@
   </header>
 
   <div class="cp-form">
-    <label class="cp-label">Cover image URL <span class="cp-label-sub">(optional)</span></label>
-    <input type="url" id="cp-image-url" class="cp-input" placeholder="https://…" oninput="cpPreviewImage(this.value)">
-    <div id="cp-image-preview" style="display:none;margin-top:8px;border-radius:10px;overflow:hidden;max-height:160px;">
+    <label class="cp-label">Cover image <span class="cp-label-sub">(optional)</span></label>
+    <label id="cp-image-pick-btn" style="display:flex;align-items:center;gap:10px;background:var(--card);border:1px dashed var(--border2);border-radius:10px;padding:12px 14px;cursor:pointer;color:var(--text2);font-size:14px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <span id="cp-image-pick-label">Choose image…</span>
+      <input type="file" id="cp-image-file" accept="image/*" style="display:none;" onchange="cpHandleImageFile(this)">
+    </label>
+    <div id="cp-image-preview" style="display:none;margin-top:8px;border-radius:10px;overflow:hidden;position:relative;">
       <img id="cp-image-preview-img" src="" alt="" style="width:100%;height:160px;object-fit:cover;display:block;"/>
+      <button onclick="cpClearImage()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);border:none;border-radius:50%;width:28px;height:28px;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">×</button>
     </div>
+    <div id="cp-image-uploading" style="display:none;font-size:12.5px;color:var(--text3);margin-top:6px;">Uploading…</div>
 
     <label class="cp-label">Title</label>
     <input type="text" id="cp-title" class="cp-input" placeholder="Headline" maxlength="200">
@@ -1480,7 +1492,7 @@ async function loadPosts() {
     const postIds = posts.map(p => p.id);
     const authorIds = [...new Set(posts.map(p => p.author_id))];
 
-    const [{ data: reactions }, { data: authors }, { data: myUnlocks }, { data: myBookmarks }] = await Promise.all([
+    const [{ data: reactions }, { data: authors }, { data: myUnlocks }, { data: myBookmarks }, { data: commentRows }] = await Promise.all([
       sb.from('reactions').select('post_id, type, user_id').in('post_id', postIds),
       sb.from('gpa_data').select('id, username, full_name, avatar_id, verified').in('id', authorIds),
       currentUser
@@ -1488,7 +1500,8 @@ async function loadPosts() {
         : Promise.resolve({ data: [] }),
       currentUser
         ? sb.from('bookmarks').select('post_id').eq('user_id', currentUser.id).in('post_id', postIds)
-        : Promise.resolve({ data: [] })
+        : Promise.resolve({ data: [] }),
+      sb.from('comments').select('post_id').in('post_id', postIds)
     ]);
 
     const bookmarkedSet = new Set((myBookmarks || []).map(b => b.post_id));
@@ -1513,11 +1526,15 @@ async function loadPosts() {
       if (currentUser && r.user_id === currentUser.id) myReaction[r.post_id] = r.type;
     });
 
+    const commentCounts = {};
+    (commentRows || []).forEach(c => { commentCounts[c.post_id] = (commentCounts[c.post_id] || 0) + 1; });
+
     postsCache = posts.map(p => ({
       ...p,
       author: authorMap[p.author_id] || null,
       likeCount: (reactionCounts[p.id] && reactionCounts[p.id].like) || 0,
       dislikeCount: (reactionCounts[p.id] && reactionCounts[p.id].dislike) || 0,
+      commentCount: commentCounts[p.id] || 0,
       myReaction: myReaction[p.id] || null,
       unlocked: unlockedSet.has(p.id),
       bookmarked: bookmarkedSet.has(p.id)
@@ -1542,7 +1559,7 @@ function renderPostCard(p) {
   const tagsHtml = (p.tags || []).map(t => `<span class="${tagClass(t)}">${esc(t)}</span>`).join('');
 
   const thumbHtml = p.image_url
-    ? `<div class="nf-thumb"><img src="${esc(p.image_url)}" alt="" loading="lazy"/></div>`
+    ? `<div class="nf-thumb"><img src="${esc(p.image_url)}" alt=""/></div>`
     : '';
 
   const verifiedBadge = author && author.verified
@@ -1566,21 +1583,25 @@ function renderPostCard(p) {
               ${verifiedBadge}
               <span class="nf-time">${timeAgo(p.created_at)}</span>
             </div>
-            <div class="nf-reactions">
-              <span class="nf-reaction ${p.myReaction === 'like' ? 'active' : ''}">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/></svg>
-                ${p.likeCount}
-              </span>
-              <span class="nf-reaction ${p.myReaction === 'dislike' ? 'active' : ''}">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/></svg>
-                ${p.dislikeCount}
-              </span>
-              ${lockHtml}
-              <span class="nf-bookmark-btn ${p.bookmarked ? 'active' : ''}" onclick="event.stopPropagation(); toggleBookmark('${p.id}', this);">
-                <svg viewBox="0 0 24 24" fill="${p.bookmarked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-              </span>
-            </div>
           </div>
+        </div>
+        <div class="nf-reactions">
+          <span class="nf-reaction ${p.myReaction === 'like' ? 'active' : ''}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/></svg>
+            ${p.likeCount}
+          </span>
+          <span class="nf-reaction ${p.myReaction === 'dislike' ? 'active' : ''}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/></svg>
+            ${p.dislikeCount}
+          </span>
+          <span class="nf-reaction">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            ${p.commentCount}
+          </span>
+          ${lockHtml}
+          <span class="nf-bookmark-btn ${p.bookmarked ? 'active' : ''}" onclick="event.stopPropagation(); toggleBookmark('${p.id}', this);">
+            <svg viewBox="0 0 24 24" fill="${p.bookmarked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          </span>
         </div>
       </div>`;
 }
@@ -1658,7 +1679,7 @@ function renderPostDetail(p) {
   }
 
   body.innerHTML = `
-    ${p.image_url ? `<img class="pd-hero-img" src="${esc(p.image_url)}" alt="" loading="lazy"/>` : ''}
+    ${p.image_url ? `<img class="pd-hero-img" src="${esc(p.image_url)}" alt=""/>` : ''}
     <div class="pd-content">
       ${tagsHtml ? `<div class="pd-tags">${tagsHtml}</div>` : ''}
       <div class="pd-title">${esc(p.title)}</div>
@@ -1854,24 +1875,55 @@ async function loadComments(postId) {
 
   try {
     const { data: rows, error } = await sb
-      .from('comments')
-      .select('id, body, created_at, author_id')
-      .eq('post_id', postId)
-      .order('created_at', { ascending: true });
-    if (error) throw error;
+  .from('comments')
+  .select('id, body, created_at, author_id, parent_id, upvotes, downvotes')
+  .eq('post_id', postId)
+  .order('created_at', { ascending: true });
+if (error) throw error;
 
-    const authorIds = [...new Set((rows || []).map(c => c.author_id))];
-    let profileMap = {};
-    if (authorIds.length) {
-      const { data: profiles } = await sb
-        .from('gpa_data')
-        .select('id, username, full_name, avatar_id')
-        .in('id', authorIds);
-      (profiles || []).forEach(pr => { profileMap[pr.id] = pr; });
-    }
-    const enriched = (rows || []).map(c => ({ ...c, profile: profileMap[c.author_id] || null }));
+const authorIds = [...new Set((rows || []).map(c => c.author_id))];
+let profileMap = {};
+if (authorIds.length) {
+  const { data: profiles } = await sb
+    .from('gpa_data')
+    .select('id, username, full_name, avatar_id, role, verified')
+    .in('id', authorIds);
+  (profiles || []).forEach(pr => { profileMap[pr.id] = pr; });
+}
 
-    renderComments(postId, enriched, restricted, isAuthor || isAdmin);
+// Fetch avatar URLs for authors who have one
+const avatarIds = [...new Set(Object.values(profileMap).map(p => p.avatar_id).filter(Boolean))];
+let avatarMap = {};
+if (avatarIds.length) {
+  const { data: avatars } = await sb
+    .from('avatars')
+    .select('id, url')
+    .in('id', avatarIds);
+  (avatars || []).forEach(a => { avatarMap[a.id] = a.url; });
+}
+Object.values(profileMap).forEach(p => {
+  p.avatar_url = p.avatar_id ? (avatarMap[p.avatar_id] || null) : null;
+});
+
+// Fetch current user's votes on these comments
+let voteMap = {};
+if (currentUser && rows && rows.length) {
+  const commentIds = rows.map(c => c.id);
+  const { data: myVotes } = await sb
+    .from('comment_votes')
+    .select('comment_id, vote')
+    .eq('user_id', currentUser.id)
+    .in('comment_id', commentIds);
+  (myVotes || []).forEach(v => { voteMap[v.comment_id] = v.vote; });
+}
+
+const enriched = (rows || []).map(c => ({
+  ...c,
+  profile:  profileMap[c.author_id] || null,
+  userVote: voteMap[c.id] || 0
+}));
+
+renderComments(postId, enriched, restricted, isAuthor || isAdmin);
   } catch (err) {
     wrap.innerHTML = '<div class="pd-comments-section"><div class="pd-comments-empty">Could not load comments.</div></div>';
   }
@@ -1882,6 +1934,68 @@ function renderComments(postId, rows, restricted, canComment) {
   if (!wrap) return;
 
   const canView = !restricted || canComment;
+
+  // Split flat list into top-level and replies
+  const topLevel = (rows || []).filter(c => !c.parent_id);
+  const replyMap = {};
+  (rows || []).filter(c => c.parent_id).forEach(r => {
+    if (!replyMap[r.parent_id]) replyMap[r.parent_id] = [];
+    replyMap[r.parent_id].push(r);
+  });
+
+  const INITIAL_SHOW = 5;
+  let visibleCount = INITIAL_SHOW;
+
+  function commentHtml(c, isReply) {
+    const profile = c.profile;
+    const name = (profile && (profile.username || profile.full_name)) || 'User';
+    const initials = name.charAt(0).toUpperCase();
+    const avatarHtml = (profile && profile.avatar_url)
+      ? `<div class="pd-comment-avatar"><img src="${esc(profile.avatar_url)}" loading="lazy"/></div>`
+      : `<div class="pd-comment-avatar">${initials}</div>`;
+
+    const isVerified = profile && (profile.verified || profile.role === 'contributor' || profile.role === 'admin');
+    const badgeHtml = isVerified
+      ? `<svg class="pd-verified-badge" viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+           <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+         </svg>`
+      : '';
+
+    const upSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>`;
+    const downSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>`;
+    const replySvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>`;
+
+    const childrenHtml = (replyMap[c.id] || []).map(r => commentHtml(r, true)).join('');
+
+    return `
+      <div class="pd-comment ${isReply ? 'pd-comment-reply' : ''}" id="comment-${c.id}">
+        <div class="pd-comment-top">
+          ${avatarHtml}
+          <span class="pd-comment-author">${esc(name)}</span>
+          ${badgeHtml}
+          <span class="pd-comment-time">${timeAgo(c.created_at)}</span>
+        </div>
+        <div class="pd-comment-body">${esc(c.body)}</div>
+        <div class="pd-comment-actions">
+          <button class="pd-react-btn ${c.userVote === 1 ? 'active' : ''}"
+            onclick="voteComment('${c.id}', 1, '${postId}')">
+            ${upSvg} <span id="up-${c.id}">${c.upvotes || 0}</span>
+          </button>
+          <button class="pd-react-btn ${c.userVote === -1 ? 'active' : ''}"
+            onclick="voteComment('${c.id}', -1, '${postId}')">
+            ${downSvg} <span id="down-${c.id}">${c.downvotes || 0}</span>
+          </button>
+          ${canComment
+            ? `<button class="pd-react-btn" onclick="showReplyBox('${c.id}', '${postId}')">
+                 ${replySvg} Reply
+               </button>`
+            : ''}
+        </div>
+        <div id="reply-box-${c.id}" style="display:none;"></div>
+        ${childrenHtml ? `<div class="pd-replies">${childrenHtml}</div>` : ''}
+      </div>`;
+  }
+
   const composeHtml = currentUser && canComment
     ? `<div class="pd-comment-compose">
          <textarea class="pd-comment-input" id="pd-comment-input" placeholder="Write a comment…" rows="1"
@@ -1894,57 +2008,102 @@ function renderComments(postId, rows, restricted, canComment) {
         : (!currentUser ? `<div class="pd-comments-empty">Log in to comment.</div>` : ''));
 
   let commentsHtml = '';
-  if (canView && rows.length > 0) {
-    commentsHtml = rows.map(c => {
-      const profile = c.profile;
-      const name = (profile && (profile.username || profile.full_name)) || 'User';
-      const initials = name.charAt(0).toUpperCase();
-      const avatarHtml = `<div class="pd-comment-avatar">${initials}</div>`;
-      const timeStr = c.created_at ? new Date(c.created_at).toLocaleDateString(undefined, {month:'short',day:'numeric'}) : '';
-      return `<div class="pd-comment">
-        <div class="pd-comment-top">
-          ${avatarHtml}
-          <span class="pd-comment-author">${esc(name)}</span>
-          <span class="pd-comment-time">${timeStr}</span>
-        </div>
-        <div class="pd-comment-body">${esc(c.body)}</div>
-      </div>`;
-    }).join('');
+  if (canView && topLevel.length > 0) {
+    commentsHtml = topLevel.slice(0, visibleCount).map(c => commentHtml(c, false)).join('');
   } else if (canView) {
     commentsHtml = `<div class="pd-comments-empty">No comments yet. Be the first!</div>`;
   }
 
+  const hasMore = canView && topLevel.length > visibleCount;
+  const showMoreHtml = hasMore
+    ? `<button class="pd-show-more" onclick="showMoreComments('${postId}')">Show more ↓</button>`
+    : '';
+
   wrap.innerHTML = `<div class="pd-comments-section">
     <div class="pd-comments-header">Comments (${canView ? rows.length : '—'})</div>
     ${composeHtml}
-    ${commentsHtml}
+    <div id="pd-comments-list">${commentsHtml}</div>
+    ${showMoreHtml}
   </div>`;
 }
 
-async function submitComment(postId) {
+async function submitComment(postId, parentId) {
   if (!currentUser) return;
-  const input = document.getElementById('pd-comment-input');
-  const btn = document.getElementById('pd-comment-send');
+  const inputId = parentId ? `reply-input-${parentId}` : 'pd-comment-input';
+  const sendBtn = parentId ? null : document.getElementById('pd-comment-send');
+  const input = document.getElementById(inputId);
   const body = (input && input.value.trim()) || '';
   if (!body) { showToast('Comment cannot be empty.', true); return; }
 
-  if (btn) { btn.disabled = true; btn.textContent = 'Posting…'; }
+  if (sendBtn) { sendBtn.disabled = true; sendBtn.textContent = 'Posting…'; }
 
   try {
-    const { data, error } = await sb.rpc('post_comment', { p_post_id: postId, p_body: body });
+    const { data, error } = await sb.rpc('post_comment', {
+      p_post_id: postId,
+      p_body: body,
+      p_parent_id: parentId || null
+    });
     if (error) throw error;
-    // post_comment returns the new comment row, not a balance — refresh credits separately
     await loadCredits();
     if (input) { input.value = ''; input.style.height = 'auto'; }
     showToast('Comment posted.');
-    // Reload comments
     await loadComments(postId);
   } catch (err) {
-    if (btn) { btn.disabled = false; btn.textContent = 'Post (1C)'; }
+    if (sendBtn) { sendBtn.disabled = false; sendBtn.textContent = 'Post (1C)'; }
     const msg = err.message || '';
     if (msg.includes('insufficient')) showToast('Not enough credits to comment (need 1C).', true);
     else showToast('Could not post comment: ' + (msg || 'unknown error'), true);
   }
+}
+
+async function voteComment(commentId, vote, postId) {
+  if (!currentUser) { showToast('Log in to vote.', true); return; }
+  const upBtn = document.querySelector(`#comment-${commentId} .pd-react-btn:nth-child(1)`);
+  const downBtn = document.querySelector(`#comment-${commentId} .pd-react-btn:nth-child(2)`);
+  if (upBtn) upBtn.disabled = true;
+  if (downBtn) downBtn.disabled = true;
+  try {
+    const { data, error } = await sb.rpc('vote_comment', {
+      p_comment_id: commentId,
+      p_vote: vote
+    });
+    if (error) throw error;
+    const upEl = document.getElementById(`up-${commentId}`);
+    const downEl = document.getElementById(`down-${commentId}`);
+    if (upEl) upEl.textContent = data.upvotes;
+    if (downEl) downEl.textContent = data.downvotes;
+    if (upBtn) upBtn.classList.toggle('active', data.user_vote === 1);
+    if (downBtn) downBtn.classList.toggle('active', data.user_vote === -1);
+  } catch (err) {
+    showToast('Vote failed.', true);
+  } finally {
+    if (upBtn) upBtn.disabled = false;
+    if (downBtn) downBtn.disabled = false;
+  }
+}
+
+function showReplyBox(commentId, postId) {
+  document.querySelectorAll('.pd-reply-compose').forEach(el => el.remove());
+  const box = document.getElementById(`reply-box-${commentId}`);
+  if (!box) return;
+  if (box.style.display !== 'none' && box.children.length > 0) {
+    box.style.display = 'none';
+    box.innerHTML = '';
+    return;
+  }
+  box.style.display = 'block';
+  box.innerHTML = `
+    <div class="pd-reply-compose pd-comment-compose" style="margin-top:10px;">
+      <textarea class="pd-comment-input" id="reply-input-${commentId}" placeholder="Write a reply…" rows="1"
+        oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+      <button class="pd-comment-send"
+        onclick="submitComment('${postId}', '${commentId}')">Reply (1C)</button>
+    </div>`;
+  document.getElementById(`reply-input-${commentId}`)?.focus();
+}
+
+function showMoreComments(postId) {
+  loadComments(postId);
 }
 
 async function doLogout() {
@@ -2030,8 +2189,11 @@ function showCompose() {
   document.getElementById('cp-title').value = '';
   document.getElementById('cp-body').value = '';
   document.getElementById('cp-sources').value = '';
-  document.getElementById('cp-image-url').value = '';
+  document.getElementById('cp-image-file').value = '';
+  document.getElementById('cp-image-pick-label').textContent = 'Choose image…';
   document.getElementById('cp-image-preview').style.display = 'none';
+  document.getElementById('cp-image-uploading').style.display = 'none';
+  cpUploadedImageUrl = null;
   document.getElementById('cp-comments-restricted').checked = false;
   document.getElementById('cp-premium').checked = false;
   document.getElementById('cp-cost').value = 5;
@@ -2047,22 +2209,83 @@ function hideCompose() {
   app.style.display = 'flex';
 }
 
-function cpPreviewImage(url) {
-  const wrap = document.getElementById('cp-image-preview');
-  const img = document.getElementById('cp-image-preview-img');
-  if (url && url.startsWith('http')) {
+let cpUploadedImageUrl = null;
+
+function compressImage(file, maxPx, quality) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let { width, height } = img;
+      if (width > maxPx || height > maxPx) {
+        if (width > height) { height = Math.round(height * maxPx / width); width = maxPx; }
+        else { width = Math.round(width * maxPx / height); height = maxPx; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Canvas toBlob failed')), 'image/jpeg', quality);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Image load failed')); };
     img.src = url;
-    wrap.style.display = 'block';
-  } else {
-    wrap.style.display = 'none';
-    img.src = '';
+  });
+}
+
+async function cpHandleImageFile(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+
+  const uploadingEl = document.getElementById('cp-image-uploading');
+  const previewWrap = document.getElementById('cp-image-preview');
+  const previewImg = document.getElementById('cp-image-preview-img');
+  const pickLabel = document.getElementById('cp-image-pick-label');
+  const submitBtn = document.getElementById('cp-submit-btn');
+
+  uploadingEl.style.display = 'block';
+  previewWrap.style.display = 'none';
+  submitBtn.disabled = true;
+  cpUploadedImageUrl = null;
+
+  try {
+    const blob = await compressImage(file, 1200, 0.82);
+    const ext = 'jpg';
+    const path = `${currentUser.id}/${Date.now()}.${ext}`;
+    const { error: upErr } = await sb.storage.from('news-images').upload(path, blob, { contentType: 'image/jpeg', upsert: false });
+    if (upErr) throw upErr;
+
+    const { data: urlData } = sb.storage.from('news-images').getPublicUrl(path);
+    cpUploadedImageUrl = urlData.publicUrl;
+
+    // Insert row into news_images table (mirrors avatars pattern)
+    await sb.from('news_images').insert({ id: path, path, url: cpUploadedImageUrl });
+
+    previewImg.src = cpUploadedImageUrl;
+    previewWrap.style.display = 'block';
+    pickLabel.textContent = file.name.length > 28 ? file.name.slice(0, 25) + '…' : file.name;
+  } catch (err) {
+    console.error('Image upload failed', err);
+    showToast('Image upload failed: ' + (err.message || 'unknown'), true);
+    pickLabel.textContent = 'Choose image…';
+    cpUploadedImageUrl = null;
+  } finally {
+    uploadingEl.style.display = 'none';
+    submitBtn.disabled = false;
   }
+}
+
+function cpClearImage() {
+  cpUploadedImageUrl = null;
+  document.getElementById('cp-image-file').value = '';
+  document.getElementById('cp-image-pick-label').textContent = 'Choose image…';
+  document.getElementById('cp-image-preview').style.display = 'none';
+  document.getElementById('cp-image-preview-img').src = '';
 }
 
 async function submitPost() {
   const title = document.getElementById('cp-title').value.trim();
   const body = document.getElementById('cp-body').value.trim();
-  const imageUrl = document.getElementById('cp-image-url').value.trim() || null;
+  const imageUrl = cpUploadedImageUrl || null;
   const isPremium = document.getElementById('cp-premium').checked;
   const creditCost = isPremium ? (parseInt(document.getElementById('cp-cost').value, 10) || 0) : 0;
   const commentsRestricted = document.getElementById('cp-comments-restricted').checked;
