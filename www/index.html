@@ -458,8 +458,7 @@
 </style>
 </head>
 <body>
-<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-<script>eruda.init();</script>
+
 <!-- ══ AUTH SCREEN ══════════════════════════════════════════ -->
 <div id="auth-screen">
   <div class="auth-box">
@@ -1450,7 +1449,9 @@ function switchNewsTab(tab) {
   document.getElementById('tab-semester').style.display = tab === 'semester' ? '' : 'none';
   document.getElementById('tab-news').style.display = tab === 'news' ? '' : 'none';
   document.getElementById('stats-bar').style.display = tab === 'semester' ? '' : 'none';
-  if (tab === 'news' && !newsLoaded) loadPosts();
+  if (tab === 'news' && !newsLoaded) {
+    requestAnimationFrame(() => loadPosts());
+  }
 }
 
 // ── News Feed: data + render ──────────────────────────────────
