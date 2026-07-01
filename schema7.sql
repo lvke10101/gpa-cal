@@ -681,6 +681,10 @@ CREATE POLICY "Posts are publicly readable" ON "public"."posts" FOR SELECT USING
 
 
 
+CREATE POLICY "Public profiles are viewable by all" ON "public"."gpa_data" FOR SELECT TO "authenticated" USING (true);
+
+
+
 CREATE POLICY "Reactions are publicly readable" ON "public"."reactions" FOR SELECT USING (true);
 
 
