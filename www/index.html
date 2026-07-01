@@ -1477,6 +1477,10 @@ async function loadPosts() {
   const list = document.getElementById('nf-list');
   list.innerHTML = '<div class="nf-empty">Loading…</div>';
   try {
+    if (!avatarsCache) {
+      const { data: avData } = await sb.from('avatars').select('id,url').order('created_at');
+      avatarsCache = avData || [];
+    }
     const { data: posts, error } = await sb
       .from('posts')
       .select('*')
@@ -1925,7 +1929,8 @@ const enriched = (rows || []).map(c => ({
   userVote: voteMap[c.id] || 0
 }));
 
-renderComments(postId, enriched, restricted, isAuthor || isAdmin);
+const canComment = !restricted ? !!currentUser : (isAuthor || isAdmin);
+ renderComments(postId, enriched, restricted, canComment);
   } catch (err) {
     wrap.innerHTML = '<div class="pd-comments-section"><div class="pd-comments-empty">Could not load comments.</div></div>';
   }
