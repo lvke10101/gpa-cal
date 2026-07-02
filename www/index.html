@@ -11,7 +11,7 @@
     } catch (e) {}
   })();
 </script>
-<title>GradeVault — FUTO GPA Calculator</title>
+<title>GradeVault — Student Utility App</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -119,6 +119,24 @@
   .notif-text b { font-weight:600; }
   .notif-time { font-size:12.5px; color:var(--text3); margin-top:3px; }
   .notif-empty { padding:60px 20px; text-align:center; color:var(--text3); font-size:14px; }
+  #compose-screen.cp-mode-announcement .cp-news-only { display:none; }
+  .notif-item.announcement { cursor:pointer; }
+  .notif-badge-ann { display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:0.03em; text-transform:uppercase; color:var(--gold); border:1px solid var(--gold); border-radius:4px; padding:1px 5px; margin-right:6px; vertical-align:middle; }
+  .notif-ann-box { overflow:hidden; height:0; transition:height 0.25s ease; }
+  .notif-ann-box-inner { padding-top:10px; font-size:13.5px; line-height:1.5; color:var(--text2); white-space:pre-wrap; }
+  .notif-ann-title { font-weight:600; color:var(--text); margin-bottom:4px; }
+
+  /* ── Post-type picker sheet ───────────────────────────────── */
+  #post-type-sheet { position:fixed; inset:0; z-index:500; display:none; align-items:flex-end; justify-content:center; background:rgba(0,0,0,0.45); }
+  #post-type-sheet.open { display:flex; }
+  .pts-panel { width:100%; max-width:480px; background:var(--card); border-radius:16px 16px 0 0; padding:10px 16px 28px; }
+  .pts-handle { width:36px; height:4px; border-radius:2px; background:var(--border2); margin:8px auto 14px; }
+  .pts-title { font-size:13px; color:var(--text3); padding:0 4px 10px; }
+  .pts-option { display:flex; align-items:center; gap:12px; padding:14px 10px; border-radius:10px; cursor:pointer; }
+  .pts-option:active { background:var(--overlay-soft2); }
+  .pts-option.disabled { opacity:0.45; cursor:not-allowed; }
+  .pts-option-label { font-size:15px; font-weight:600; color:var(--text); }
+  .pts-option-sub { font-size:12.5px; color:var(--text3); margin-top:2px; }
   .notif-footer { flex-shrink:0; padding:14px 16px; border-top:1px solid var(--border); text-align:center; }
   .notif-mark-all { background:none; border:none; color:var(--gold); font-weight:600; font-size:14px; font-family:inherit; cursor:pointer; padding:6px; }
   .notif-mark-all:disabled { opacity:0.4; cursor:not-allowed; }
@@ -449,6 +467,11 @@
 
   /* ── News Feed ──────────────────────────────────────────── */
   .nf-list { padding: 12px 16px 90px; display: flex; flex-direction: column; gap: 14px; }
+  .cs-wrap { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:120px 32px 90px; gap:14px; }
+  .cs-icon { width:64px; height:64px; border-radius:50%; background:var(--card); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--text3); }
+  .cs-icon svg { width:26px; height:26px; }
+  .cs-title { font-size:19px; font-weight:700; color:var(--text); letter-spacing:-0.2px; }
+  .cs-sub { font-size:13.5px; color:var(--text3); max-width:260px; line-height:1.5; }
   .nf-empty { text-align: center; color: var(--text3); padding: 60px 20px; font-size: 14px; }
   .nf-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; cursor: pointer; transition: border-color 0.15s; }
   .nf-card:active { border-color: var(--border2); }
@@ -491,7 +514,7 @@
 <div id="auth-screen">
   <div class="auth-box">
     <div class="auth-logo">GradeVault</div>
-    <div class="auth-tagline">FUTO GPA &amp; CGPA Calculator · 5-Point Scale</div>
+    <div class="auth-tagline">GPA &amp; CGPA Calculator · 5-Point Scale</div>
 
     <div class="auth-tabs">
       <button class="auth-tab active" id="tab-login">Login</button>
@@ -508,6 +531,10 @@
       <label>Password</label>
       <input type="password" id="auth-password" placeholder="Enter password (min 6 chars)" autocomplete="current-password"/>
     </div>
+    <div class="auth-field" id="confirm-password-field" style="display:none;">
+      <label>Confirm Password</label>
+      <input type="password" id="auth-confirm-password" placeholder="Re-enter password" autocomplete="new-password"/>
+    </div>
     <div class="auth-field" id="remember-field" style="display:flex; align-items:center; gap:8px;">
       <input type="checkbox" id="auth-remember" checked style="width:auto; margin:0;"/>
       <label for="auth-remember" style="margin:0; cursor:pointer; font-weight:normal;">Keep me logged in</label>
@@ -519,6 +546,10 @@
         <span class="dept-caret">▼</span>
         <div class="dept-panel" id="dept-panel"></div>
       </div>
+    </div>
+    <div class="auth-field" id="terms-field" style="display:none; align-items:flex-start; gap:8px;">
+      <input type="checkbox" id="auth-terms" style="width:auto; margin:3px 0 0 0;"/>
+      <label for="auth-terms" style="margin:0; cursor:pointer; font-weight:normal; font-size:13px; line-height:1.4;">I agree to the <span id="auth-terms-link" style="color:var(--gold); font-weight:600; cursor:pointer; text-decoration:underline;">Terms and Conditions</span></label>
     </div>
 
     <button class="btn-full" id="auth-submit">Login</button>
@@ -550,7 +581,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
             <span>Bookmarks</span>
           </div>
-          <div class="hu-pop-item" id="hu-pop-new-post" style="display:none;" onclick="event.stopPropagation(); showCompose();">
+          <div class="hu-pop-item" id="hu-pop-new-post" style="display:none;" onclick="event.stopPropagation(); openPostTypeSheet();">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
             <span>New Post</span>
           </div>
@@ -675,7 +706,14 @@
   </div>
 
   <div id="tab-news" style="display:none;">
-    <div class="nf-list" id="nf-list"></div>
+    <div class="cs-wrap">
+      <div class="cs-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="15" rx="2"/><line x1="7" y1="9" x2="11" y2="9"/><line x1="7" y1="13" x2="17" y2="13"/><line x1="7" y1="16" x2="17" y2="16"/><line x1="14" y1="9" x2="17" y2="9"/></svg>
+      </div>
+      <div class="cs-title">Coming Soon</div>
+      <div class="cs-sub">The News Feed is being rebuilt. Check back later.</div>
+    </div>
+    <div class="nf-list" id="nf-list" style="display:none;"></div>
   </div>
 </div>
 
@@ -789,16 +827,37 @@
   <div class="nf-list" id="bm-list" style="padding-top:16px;"></div>
 </div>
 
+<!-- ══ POST TYPE PICKER SHEET ═══════════════════════════════ -->
+<div id="post-type-sheet" onclick="closePostTypeSheet()">
+  <div class="pts-panel" onclick="event.stopPropagation()">
+    <div class="pts-handle"></div>
+    <div class="pts-title">New post</div>
+    <div class="pts-option" onclick="pickPostType('news')">
+      <div>
+        <div class="pts-option-label">News</div>
+        <div class="pts-option-sub">Standard post with image, tags &amp; sources</div>
+      </div>
+    </div>
+    <div class="pts-option" id="pts-option-announcement" onclick="pickPostType('announcement')">
+      <div>
+        <div class="pts-option-label">Announcement</div>
+        <div class="pts-option-sub" id="pts-announcement-sub">Admin only — sent to everyone's notifications</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ══ COMPOSE SCREEN ═══════════════════════════════════════ -->
 <div id="compose-screen">
   <header>
     <button class="profile-back" onclick="hideCompose()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
     </button>
-    <span style="font-size:16px;font-weight:600;color:var(--text);margin-left:8px;">New Post</span>
+    <span style="font-size:16px;font-weight:600;color:var(--text);margin-left:8px;" id="cp-header-label">New Post</span>
   </header>
 
   <div class="cp-form">
+    <div class="cp-news-only">
     <label class="cp-label">Cover image <span class="cp-label-sub">(optional)</span></label>
     <label id="cp-image-pick-btn" style="display:flex;align-items:center;gap:10px;background:var(--card);border:1px dashed var(--border2);border-radius:10px;padding:12px 14px;cursor:pointer;color:var(--text2);font-size:14px;">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
@@ -810,6 +869,7 @@
       <button onclick="cpClearImage()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);border:none;border-radius:50%;width:28px;height:28px;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">×</button>
     </div>
     <div id="cp-image-uploading" style="display:none;font-size:12.5px;color:var(--text3);margin-top:6px;">Uploading…</div>
+    </div>
 
     <label class="cp-label">Title</label>
     <input type="text" id="cp-title" class="cp-input" placeholder="Headline" maxlength="200">
@@ -817,11 +877,13 @@
     <label class="cp-label">Body</label>
     <textarea id="cp-body" class="cp-textarea" placeholder="Write the story…"></textarea>
 
+    <div class="cp-news-only">
     <label class="cp-label">Tags</label>
     <div class="cp-tags" id="cp-tags"></div>
 
     <label class="cp-label">Source links <span class="cp-label-sub">(optional, one per line)</span></label>
     <textarea id="cp-sources" class="cp-textarea cp-textarea-sm" placeholder="https://…"></textarea>
+    </div>
 
     <div class="cp-toggle-row">
       <span>Restrict comments to author only</span>
@@ -831,6 +893,7 @@
       </label>
     </div>
 
+    <div class="cp-news-only">
     <div class="cp-toggle-row">
       <span>Premium post</span>
       <label class="cp-switch">
@@ -841,6 +904,7 @@
     <div class="cp-toggle-row" id="cp-cost-row" style="display:none;">
       <span>Credit cost to unlock</span>
       <input type="number" id="cp-cost" class="cp-cost-input" min="1" value="5">
+    </div>
     </div>
 
     <button class="cp-submit-btn" id="cp-submit-btn" onclick="submitPost()">Publish</button>
@@ -1124,6 +1188,8 @@ const app         = document.getElementById('app');
 const authError   = document.getElementById('auth-error');
 const authEmail   = document.getElementById('auth-email');
 const authPassword = document.getElementById('auth-password');
+const confirmPasswordField = document.getElementById('confirm-password-field');
+const authConfirmPassword = document.getElementById('auth-confirm-password');
 const authRemember = document.getElementById('auth-remember');
 const rememberField = document.getElementById('remember-field');
 const authDept    = document.getElementById('auth-dept');
@@ -1133,6 +1199,28 @@ const tabLogin    = document.getElementById('tab-login');
 const tabRegister = document.getElementById('tab-register');
 const authSwitch     = document.getElementById('auth-switch');
 const authSwitchLink = document.getElementById('auth-switch-link');
+const termsField     = document.getElementById('terms-field');
+const authTerms      = document.getElementById('auth-terms');
+const authTermsLink  = document.getElementById('auth-terms-link');
+
+const TERMS_URL = 'https://YOUR_DOMAIN/terms.html'; // TODO: replace with hosted terms.html URL
+
+async function openTermsPage(e) {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  const url = TERMS_URL;
+  try {
+    if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+      if (window.Capacitor.Plugins && window.Capacitor.Plugins.Browser) {
+        await window.Capacitor.Plugins.Browser.open({ url });
+        return;
+      }
+    }
+  } catch (e) {
+    console.error('In-app browser open failed:', e);
+  }
+  window.open(url, '_blank');
+}
+authTermsLink.addEventListener('click', openTermsPage);
 const deptCombo = document.getElementById('dept-combo');
 const deptPanel = document.getElementById('dept-panel');
 
@@ -1288,6 +1376,8 @@ function showAuthTab(mode) {
   authSubmit.textContent = mode === 'login' ? 'Login' : 'Create Account';
   authPassword.autocomplete = mode === 'login' ? 'current-password' : 'new-password';
   deptField.style.display = mode === 'register' ? 'block' : 'none';
+  termsField.style.display = mode === 'register' ? 'flex' : 'none';
+  confirmPasswordField.style.display = mode === 'register' ? 'block' : 'none';
   rememberField.style.display = mode === 'login' ? 'flex' : 'none';
   authError.style.display = 'none';
   authSwitch.firstChild.textContent = mode === 'login' ? "Don't have an account? " : 'Already have an account? ';
@@ -1309,8 +1399,20 @@ async function submitAuth() {
     setAuthError('Please fill in your email and password.');
     return;
   }
+  if (authMode === 'register' && !email.toLowerCase().endsWith('@gmail.com')) {
+    setAuthError('Registration requires a Gmail address (must end in @gmail.com).');
+    return;
+  }
+  if (authMode === 'register' && password !== authConfirmPassword.value) {
+    setAuthError('Passwords do not match.');
+    return;
+  }
   if (authMode === 'register' && !department) {
     setAuthError('Please select your department.');
+    return;
+  }
+  if (authMode === 'register' && !authTerms.checked) {
+    setAuthError('You must accept the Terms and Conditions to register.');
     return;
   }
 
@@ -1512,8 +1614,19 @@ function notifActorName(n) {
 function notifText(n) {
   const name = esc(notifActorName(n));
   if (n.type === 'reply') return `<b>${name}</b> replied to your comment`;
+  if (n.type === 'announcement') return `<span class="notif-badge-ann">Announcement</span><b>${notifAnnouncementTitle(n)}</b>`;
   return `<b>${name}</b> sent you a notification`;
 }
+
+// Announcement notifications pack "Title|||Body" into body_preview.
+function notifAnnouncementParts(n) {
+  const raw = n.body_preview || '';
+  const idx = raw.indexOf('|||');
+  return idx === -1 ? { title: 'Announcement', body: raw } : { title: raw.slice(0, idx), body: raw.slice(idx + 3) };
+}
+function notifAnnouncementTitle(n) { return esc(notifAnnouncementParts(n).title); }
+
+let notifExpanded = new Set();
 
 function renderNotifications() {
   const list = document.getElementById('notif-list');
@@ -1522,15 +1635,63 @@ function renderNotifications() {
     list.innerHTML = '<div class="notif-empty">No notifications yet.</div>';
     return;
   }
-  list.innerHTML = notifications.map(n => `
+  list.innerHTML = notifications.map(n => {
+    if (n.type === 'announcement') {
+      const parts = notifAnnouncementParts(n);
+      return `
+    <div class="notif-item announcement ${n.is_read ? 'read' : 'unread'}" onclick="toggleAnnouncementNotif('${n.id}')">
+      <div class="notif-dot"></div>
+      <div class="notif-body">
+        <div class="notif-text">${notifText(n)}</div>
+        <div class="notif-time">${timeAgo(n.created_at)}</div>
+        <div class="notif-ann-box" id="notif-ann-box-${n.id}">
+          <div class="notif-ann-box-inner" id="notif-ann-inner-${n.id}">
+            <div class="notif-ann-title">${esc(parts.title)}</div>
+            <div>${esc(parts.body)}</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+    }
+    return `
     <div class="notif-item ${n.is_read ? 'read' : 'unread'}" onclick="handleNotifTap('${n.id}', ${n.post_id ? `'${n.post_id}'` : 'null'})">
       <div class="notif-dot"></div>
       <div class="notif-body">
         <div class="notif-text">${notifText(n)}${n.body_preview ? `: “${esc(n.body_preview)}”` : ''}</div>
         <div class="notif-time">${timeAgo(n.created_at)}</div>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
+
+  // Re-apply expanded heights (word-count-driven) after re-render.
+  notifExpanded.forEach(id => setAnnouncementBoxHeight(id, true));
+}
+
+// Sizes the announcement box to fit its content exactly — the box's natural
+// height is a direct function of the post's word count and line-wrapping.
+function setAnnouncementBoxHeight(notifId, expanded) {
+  const box = document.getElementById(`notif-ann-box-${notifId}`);
+  const inner = document.getElementById(`notif-ann-inner-${notifId}`);
+  if (!box || !inner) return;
+  box.style.height = expanded ? inner.scrollHeight + 'px' : '0px';
+}
+
+function toggleAnnouncementNotif(notifId) {
+  const n = notifications.find(x => x.id === notifId);
+  if (n && !n.is_read) {
+    n.is_read = true;
+    renderBellBadge();
+    sb.from('notifications').update({ is_read: true }).eq('id', notifId).then(() => {});
+    const item = document.querySelector(`[onclick="toggleAnnouncementNotif('${notifId}')"]`);
+    if (item) item.classList.replace('unread', 'read');
+  }
+  if (notifExpanded.has(notifId)) {
+    notifExpanded.delete(notifId);
+    setAnnouncementBoxHeight(notifId, false);
+  } else {
+    notifExpanded.add(notifId);
+    setAnnouncementBoxHeight(notifId, true);
+  }
 }
 
 async function handleNotifTap(notifId, postId) {
@@ -1608,7 +1769,7 @@ function launchApp() {
   buildMiniChips();
   switchYear(0, true);
   loadCredits();
-  loadPosts();
+  // loadPosts() disabled — News Feed on hold.
   loadNotifications();
   startNotifPolling();
 }
@@ -1621,9 +1782,7 @@ function switchNewsTab(tab) {
   document.getElementById('tab-semester').style.display = tab === 'semester' ? '' : 'none';
   document.getElementById('tab-news').style.display = tab === 'news' ? '' : 'none';
   document.getElementById('stats-bar').style.display = tab === 'semester' ? '' : 'none';
-  if (tab === 'news' && !newsLoaded) {
-    requestAnimationFrame(() => loadPosts());
-  }
+  // News Feed on hold — coming soon placeholder shown instead. loadPosts() disabled.
 }
 
 // ── News Feed: data + render ──────────────────────────────────
@@ -1656,6 +1815,7 @@ async function loadPosts() {
     const { data: posts, error } = await sb
       .from('posts')
       .select('*')
+      .eq('post_type', 'news')
       .order('created_at', { ascending: false })
       .limit(50);
     if (error) throw error;
@@ -2428,13 +2588,49 @@ function toggleCpTag(tag) {
   renderTagPicker();
 }
 
-function showCompose() {
+let cpPostType = 'news';
+
+function openPostTypeSheet() {
   document.getElementById('header-user-popover')?.classList.remove('open');
   document.getElementById('header-user')?.classList.remove('open');
   if (!userData || userData.role === 'student') {
     showToast('Posting is for contributors only.', true);
     return;
   }
+  const isAdmin = userData.role === 'admin';
+  const annOpt = document.getElementById('pts-option-announcement');
+  annOpt.classList.toggle('disabled', !isAdmin);
+  document.getElementById('pts-announcement-sub').textContent = isAdmin
+    ? "Sent to everyone's notifications"
+    : 'Admin only';
+  document.getElementById('post-type-sheet').classList.add('open');
+}
+
+function closePostTypeSheet() {
+  document.getElementById('post-type-sheet').classList.remove('open');
+}
+
+function pickPostType(type) {
+  if (type === 'announcement' && (!userData || userData.role !== 'admin')) {
+    showToast('Announcements are for admins only.', true);
+    return;
+  }
+  closePostTypeSheet();
+  showCompose(type);
+}
+
+function showCompose(type) {
+  cpPostType = type === 'announcement' ? 'announcement' : 'news';
+  if (!userData || userData.role === 'student') {
+    showToast('Posting is for contributors only.', true);
+    return;
+  }
+  if (cpPostType === 'announcement' && userData.role !== 'admin') {
+    showToast('Announcements are for admins only.', true);
+    return;
+  }
+  document.getElementById('cp-header-label').textContent = cpPostType === 'announcement' ? 'New Announcement' : 'New Post';
+  document.getElementById('compose-screen').classList.toggle('cp-mode-announcement', cpPostType === 'announcement');
   document.getElementById('cp-title').value = '';
   document.getElementById('cp-body').value = '';
   document.getElementById('cp-sources').value = '';
@@ -2549,28 +2745,40 @@ async function submitPost() {
   btn.disabled = true;
   btn.textContent = 'Publishing…';
 
+  const isAnnouncement = cpPostType === 'announcement';
+
   try {
-    const { error } = await sb.from('posts').insert({
+    const { data: inserted, error } = await sb.from('posts').insert({
       author_id: currentUser.id,
       title,
       body,
-      image_url: imageUrl,
-      tags: [...cpSelectedTags],
-      source_links: sourceLinks,
+      image_url: isAnnouncement ? null : imageUrl,
+      tags: isAnnouncement ? [] : [...cpSelectedTags],
+      source_links: isAnnouncement ? [] : sourceLinks,
       comments_restricted: commentsRestricted,
-      is_premium: isPremium,
-      credit_cost: creditCost
-    });
+      is_premium: isAnnouncement ? false : isPremium,
+      credit_cost: isAnnouncement ? 0 : creditCost,
+      post_type: cpPostType
+    }).select('id').single();
     if (error) throw error;
 
-    showToast('Post published.');
+    if (isAnnouncement && inserted) {
+      const { error: broadcastErr } = await sb.rpc('broadcast_announcement', {
+        p_post_id: inserted.id,
+        p_title: title,
+        p_body: body
+      });
+      if (broadcastErr) console.error('Announcement broadcast failed', broadcastErr);
+    }
+
+    showToast(isAnnouncement ? 'Announcement published.' : 'Post published.');
     newsLoaded = false; // force a refresh so the new post appears
     hideCompose();
     await loadPosts();
   } catch (err) {
     console.error('Publish failed', err);
     showToast(err.message && err.message.includes('row-level security')
-      ? 'Posting is for contributors only.'
+      ? (isAnnouncement ? 'Announcements are for admins only.' : 'Posting is for contributors only.')
       : 'Failed to publish: ' + (err.message || 'unknown error'), true);
   } finally {
     btn.disabled = false;
