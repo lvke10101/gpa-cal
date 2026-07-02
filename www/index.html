@@ -1772,6 +1772,7 @@ function launchApp() {
   // loadPosts() disabled — News Feed on hold.
   loadNotifications();
   startNotifPolling();
+  registerPushNotifications();
 }
 
 // ── News Feed tab switching ──────────────────────────────────
@@ -2515,6 +2516,7 @@ async function deleteComment(commentId, postId) {
 }
 
 async function doLogout() {
+  await removePushToken();
   await sb.auth.signOut();
   clearSessionPolicyState();
   currentUser = null; userData = null;
@@ -3505,6 +3507,75 @@ function clearSessionPolicyState() {
   try { localStorage.removeItem(SESSION_POLICY_KEY); localStorage.removeItem(LAST_ACTIVE_KEY); } catch {}
 }
 
+// ── Push Notifications (FCM via Capacitor) ───────────────────
+let pushToken = null;
+
+async function registerPushNotifications() {
+  try {
+    if (!window.Capacitor || !window.Capacitor.isNativePlatform || !window.Capacitor.isNativePlatform()) return;
+    const PN = window.Capacitor.Plugins && window.Capacitor.Plugins.PushNotifications;
+    if (!PN) return;
+
+    let status = (await PN.checkPermissions()).receive;
+    if (status !== 'granted') {
+      status = (await PN.requestPermissions()).receive;
+    }
+    if (status !== 'granted') return;
+
+    await PN.removeAllListeners();
+    PN.addListener('registration', (token) => savePushToken(token.value));
+    PN.addListener('registrationError', (err) => console.error('Push registration error:', err));
+    PN.addListener('pushNotificationReceived', () => {
+      if (currentUser) loadNotifications().then(renderNotifications);
+    });
+    PN.addListener('pushNotificationActionPerformed', () => {
+      if (currentUser) openNotifications();
+    });
+
+    await PN.register();
+  } catch (err) {
+    console.error('Push notification setup failed:', err);
+  }
+}
+
+async function savePushToken(token) {
+  if (!currentUser || !token) return;
+  pushToken = token;
+  try {
+    await sb.from('push_tokens').upsert({
+      user_id: currentUser.id,
+      token,
+      platform: 'android',
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'user_id,token' });
+  } catch (err) {
+    console.error('Failed to save push token:', err);
+  }
+}
+
+async function removePushToken() {
+  try {
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.PushNotifications) {
+      await window.Capacitor.Plugins.PushNotifications.unregister();
+    }
+  } catch (e) {}
+  if (pushToken) {
+    try { await sb.from('push_tokens').delete().eq('token', pushToken); } catch (e) {}
+  }
+  pushToken = null;
+}
+
+// ── Native splash screen ────────────────────────────────────
+function hideNativeSplash() {
+  try {
+    if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+      if (window.Capacitor.Plugins && window.Capacitor.Plugins.SplashScreen) {
+        window.Capacitor.Plugins.SplashScreen.hide();
+      }
+    }
+  } catch (e) {}
+}
+
 // ── Auto-login check ────────────────────────────────────────
 async function checkSession() {
   const { data: { session } } = await sb.auth.getSession();
@@ -3592,7 +3663,7 @@ document.addEventListener('click', (e) => {
   if (!e.target.closest('.pd-comment-more-wrap')) closeAllCommentMenus();
 }, { passive: true });
 
-checkSession();
+checkSession().finally(hideNativeSplash);
 </script>
 </body>
 </html>
