@@ -100,6 +100,28 @@
   .header-bell { position:relative; display:flex; align-items:center; justify-content:center; width:42px; height:42px; border-radius:50%; background:var(--card); border:1px solid var(--border); color:var(--text2); cursor:pointer; flex-shrink:0; }
   .header-bell svg { width:19px; height:19px; }
   .header-bell-badge { position:absolute; top:-4px; right:-4px; min-width:17px; height:17px; padding:0 4px; border-radius:9px; background:var(--red2); color:#fff; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; line-height:1; }
+  .header-bell-badge[hidden] { display:none; }
+
+  /* ── Notifications: full-screen slide-in ─────────────────── */
+  #notif-screen { position:fixed; inset:0; z-index:400; background:var(--bg); display:flex; flex-direction:column; transform:translateX(100%); transition:transform 0.28s cubic-bezier(0.2,0.8,0.2,1); }
+  #notif-screen.open { transform:translateX(0); }
+  #notif-screen header { justify-content:flex-start; padding:14px 16px; border-bottom:1px solid var(--border); align-items:center; flex-shrink:0; gap:12px; }
+  .notif-back { display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; background:var(--card); border:1px solid var(--border); color:var(--text2); cursor:pointer; flex-shrink:0; }
+  .notif-title { font-size:16px; font-weight:600; color:var(--text); }
+  .notif-list { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .notif-item { display:flex; align-items:flex-start; gap:12px; padding:16px; border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.15s; }
+  .notif-item:active { background:var(--overlay-soft2); }
+  .notif-item.unread { background:var(--overlay-soft); }
+  .notif-dot { width:9px; height:9px; border-radius:50%; background:var(--gold); flex-shrink:0; margin-top:6px; }
+  .notif-item.read .notif-dot { background:transparent; }
+  .notif-body { flex:1; min-width:0; }
+  .notif-text { font-size:14px; line-height:1.4; color:var(--text); }
+  .notif-text b { font-weight:600; }
+  .notif-time { font-size:12.5px; color:var(--text3); margin-top:3px; }
+  .notif-empty { padding:60px 20px; text-align:center; color:var(--text3); font-size:14px; }
+  .notif-footer { flex-shrink:0; padding:14px 16px; border-top:1px solid var(--border); text-align:center; }
+  .notif-mark-all { background:none; border:none; color:var(--gold); font-weight:600; font-size:14px; font-family:inherit; cursor:pointer; padding:6px; }
+  .notif-mark-all:disabled { opacity:0.4; cursor:not-allowed; }
 
   /* Nav pill row (My Semester · News Feed) */
   .nav-pill-row { background:var(--surface); border-bottom:1px solid var(--border); padding:14px 16px; display:flex; align-items:center; justify-content:center; gap:12px; }
@@ -267,7 +289,7 @@
   .pd-comment-compose { display:flex; gap:10px; align-items:flex-start; margin-bottom:20px; }
   .pd-comment-input { flex:1; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:14px; color:var(--text); font-family:inherit; resize:none; min-height:42px; max-height:120px; outline:none; line-height:1.4; }
   .pd-comment-input:focus { border-color:var(--border2); }
-  .pd-comment-send { background:var(--gold); color:var(--on-gold); border:none; border-radius:8px; padding:8px 14px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; flex-shrink:0; align-self:flex-end; }
+  .pd-comment-send { background:var(--gold); color:var(--on-gold); border:none; border-radius:8px; padding:8px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; flex-shrink:0; align-self:flex-end; display:inline-flex; align-items:center; justify-content:center; min-width:34px; height:34px; }
   .pd-comment-send:disabled { opacity:0.5; cursor:not-allowed; }
   .pd-comment-cost { font-size:11.5px; color:var(--text3); margin-bottom:14px; margin-top:-10px; }
   .pd-comment { padding:12px 0; border-bottom:1px solid var(--border); }
@@ -286,6 +308,12 @@
   .pd-show-more { display:block; width:100%; padding:14px; text-align:center; color:var(--gold); font-size:13.5px; font-weight:600; background:none; border:none; cursor:pointer; font-family:inherit; }
   .pd-show-more:hover { color:var(--gold2); }
   .pd-verified-badge { color:var(--blue); flex-shrink:0; }
+  .pd-comment-more-wrap { position:relative; margin-left:4px; flex-shrink:0; }
+  .pd-comment-more-btn { display:flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:50%; color:var(--text3); background:none; border:none; cursor:pointer; padding:0; }
+  .pd-comment-more-btn:active { background:var(--surface); }
+  .pd-comment-menu { display:none; position:absolute; top:calc(100% + 4px); right:0; background:var(--card); border:1px solid var(--border2); border-radius:10px; box-shadow:var(--shadow); min-width:130px; overflow:hidden; z-index:160; }
+  .pd-comment-menu.open { display:block; }
+  .pd-comment-deleted { font-style:italic; color:var(--text3); }
   .cp-form { padding:20px 16px 60px; display:flex; flex-direction:column; gap:6px; }
   .cp-label { font-size:12.5px; font-weight:600; color:var(--text2); margin-top:16px; margin-bottom:2px; }
   .cp-label-sub { font-weight:400; color:var(--text3); }
@@ -532,9 +560,9 @@
           </div>
         </div>
       </div>
-      <div class="header-bell" title="Notifications">
+      <div class="header-bell" title="Notifications" onclick="openNotifications()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 3.2-1 5.4-2 7h16c-1-1.6-2-3.8-2-7"/><path d="M9.5 19a2.5 2.5 0 0 0 5 0"/></svg>
-        <span class="header-bell-badge" id="header-bell-badge">7</span>
+        <span class="header-bell-badge" id="header-bell-badge" hidden>0</span>
       </div>
     </div>
   </header>
@@ -848,6 +876,22 @@
   </header>
   <div class="pd-body" id="pd-body">
     <!-- Populated by openPost() -->
+  </div>
+</div>
+
+<!-- ══ NOTIFICATIONS SCREEN ═════════════════════════════════ -->
+<div id="notif-screen">
+  <header>
+    <button class="notif-back" onclick="closeNotifications()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    </button>
+    <span class="notif-title">Notifications</span>
+  </header>
+  <div class="notif-list" id="notif-list">
+    <!-- Populated by renderNotifications() -->
+  </div>
+  <div class="notif-footer">
+    <button class="notif-mark-all" id="notif-mark-all-btn" onclick="markAllNotificationsRead()">Mark all as read</button>
   </div>
 </div>
 
@@ -1417,6 +1461,132 @@ async function spendCredits(cost, actionLabel) {
   return true;
 }
 
+// ── Notifications ──────────────────────────────────────────
+let notifications = [];
+
+async function loadNotifications() {
+  if (!currentUser) return;
+  try {
+    const { data: rows, error } = await sb
+      .from('notifications')
+      .select('id, actor_id, type, post_id, comment_id, body_preview, is_read, created_at')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    if (error) throw error;
+
+    const actorIds = [...new Set((rows || []).map(n => n.actor_id).filter(Boolean))];
+    let actorMap = {};
+    if (actorIds.length) {
+      const { data: profiles } = await sb
+        .from('gpa_data')
+        .select('id, username, full_name')
+        .in('id', actorIds);
+      (profiles || []).forEach(p => { actorMap[p.id] = p; });
+    }
+
+    notifications = (rows || []).map(n => ({ ...n, actor: actorMap[n.actor_id] || null }));
+    renderBellBadge();
+  } catch (err) {
+    console.error('Failed to load notifications:', err.message || err);
+  }
+}
+
+function renderBellBadge() {
+  const badge = document.getElementById('header-bell-badge');
+  if (!badge) return;
+  const unread = notifications.filter(n => !n.is_read).length;
+  if (unread > 0) {
+    badge.hidden = false;
+    badge.textContent = unread > 99 ? '99+' : String(unread);
+  } else {
+    badge.hidden = true;
+  }
+}
+
+function notifActorName(n) {
+  if (!n.actor) return 'Someone';
+  return n.actor.full_name || n.actor.username || 'Someone';
+}
+
+function notifText(n) {
+  const name = esc(notifActorName(n));
+  if (n.type === 'reply') return `<b>${name}</b> replied to your comment`;
+  return `<b>${name}</b> sent you a notification`;
+}
+
+function renderNotifications() {
+  const list = document.getElementById('notif-list');
+  if (!list) return;
+  if (!notifications.length) {
+    list.innerHTML = '<div class="notif-empty">No notifications yet.</div>';
+    return;
+  }
+  list.innerHTML = notifications.map(n => `
+    <div class="notif-item ${n.is_read ? 'read' : 'unread'}" onclick="handleNotifTap('${n.id}', ${n.post_id ? `'${n.post_id}'` : 'null'})">
+      <div class="notif-dot"></div>
+      <div class="notif-body">
+        <div class="notif-text">${notifText(n)}${n.body_preview ? `: “${esc(n.body_preview)}”` : ''}</div>
+        <div class="notif-time">${timeAgo(n.created_at)}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function handleNotifTap(notifId, postId) {
+  const n = notifications.find(x => x.id === notifId);
+  if (n && !n.is_read) {
+    n.is_read = true;
+    renderBellBadge();
+    renderNotifications();
+    sb.from('notifications').update({ is_read: true }).eq('id', notifId).then(() => {});
+  }
+  closeNotifications();
+  if (postId) {
+    switchNewsTab('news');
+    openPost(postId);
+  }
+}
+
+function openNotifications() {
+  renderNotifications();
+  document.getElementById('notif-screen').classList.add('open');
+  loadNotifications().then(renderNotifications);
+}
+
+function closeNotifications() {
+  document.getElementById('notif-screen').classList.remove('open');
+}
+
+let notifPollHandle = null;
+function startNotifPolling() {
+  if (notifPollHandle) return;
+  notifPollHandle = setInterval(() => {
+    if (!currentUser) return;
+    loadNotifications();
+  }, 30000);
+}
+function stopNotifPolling() {
+  if (notifPollHandle) { clearInterval(notifPollHandle); notifPollHandle = null; }
+}
+
+async function markAllNotificationsRead() {
+  if (!currentUser || !notifications.some(n => !n.is_read)) return;
+  const btn = document.getElementById('notif-mark-all-btn');
+  if (btn) btn.disabled = true;
+  try {
+    const { error } = await sb.rpc('mark_all_notifications_read');
+    if (error) throw error;
+    notifications.forEach(n => n.is_read = true);
+    renderBellBadge();
+    renderNotifications();
+  } catch (err) {
+    showToast('Could not mark notifications read.', true);
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
 function setAvatarEl(el, url, initial) {
   if (url) { el.innerHTML = `<img src="${url}" alt=""/>`; }
   else { el.innerHTML = ''; el.textContent = initial; }
@@ -1439,6 +1609,8 @@ function launchApp() {
   switchYear(0, true);
   loadCredits();
   loadPosts();
+  loadNotifications();
+  startNotifPolling();
 }
 
 // ── News Feed tab switching ──────────────────────────────────
@@ -1882,7 +2054,7 @@ async function loadComments(postId) {
   try {
     const { data: rows, error } = await sb
   .from('comments')
-  .select('id, body, created_at, author_id, parent_id, upvotes, downvotes')
+  .select('id, body, created_at, author_id, parent_id, upvotes, downvotes, is_deleted')
   .eq('post_id', postId)
   .order('created_at', { ascending: true });
 if (error) throw error;
@@ -1954,14 +2126,16 @@ function renderComments(postId, rows, restricted, canComment) {
   let visibleCount = INITIAL_SHOW;
 
   function commentHtml(c, isReply) {
+    const isDeleted = !!c.is_deleted;
+    const isOwn = !!(currentUser && c.author_id === currentUser.id);
     const profile = c.profile;
-    const name = (profile && (profile.username || profile.full_name)) || 'User';
-    const initials = name.charAt(0).toUpperCase();
-    const avatarHtml = (profile && profile.avatar_url)
+    const name = isDeleted ? '[deleted]' : ((profile && (profile.username || profile.full_name)) || 'User');
+    const initials = isDeleted ? '?' : name.charAt(0).toUpperCase();
+    const avatarHtml = (!isDeleted && profile && profile.avatar_url)
       ? `<div class="pd-comment-avatar"><img src="${esc(profile.avatar_url)}" loading="lazy"/></div>`
       : `<div class="pd-comment-avatar">${initials}</div>`;
 
-    const isVerified = profile && (profile.verified || profile.role === 'contributor' || profile.role === 'admin');
+    const isVerified = !isDeleted && profile && (profile.verified || profile.role === 'contributor' || profile.role === 'admin');
     const badgeHtml = isVerified
       ? `<svg class="pd-verified-badge" viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -1971,19 +2145,32 @@ function renderComments(postId, rows, restricted, canComment) {
     const upSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>`;
     const downSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>`;
     const replySvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>`;
+    const moreSvg = `<svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>`;
+    const trashSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`;
 
     const childrenHtml = (replyMap[c.id] || []).map(r => commentHtml(r, true)).join('');
 
-    return `
-      <div class="pd-comment ${isReply ? 'pd-comment-reply' : ''}" id="comment-${c.id}">
-        <div class="pd-comment-top">
-          ${avatarHtml}
-          <span class="pd-comment-author">${esc(name)}</span>
-          ${badgeHtml}
-          <span class="pd-comment-time">${timeAgo(c.created_at)}</span>
-        </div>
-        <div class="pd-comment-body">${esc(c.body)}</div>
-        <div class="pd-comment-actions">
+    const moreMenuHtml = (!isDeleted && isOwn)
+      ? `<div class="pd-comment-more-wrap">
+           <button class="pd-comment-more-btn" onclick="toggleCommentMenu('${c.id}', event)" aria-label="More options">
+             ${moreSvg}
+           </button>
+           <div class="pd-comment-menu" id="comment-menu-${c.id}">
+             <button class="pd-menu-item pd-menu-delete" onclick="deleteComment('${c.id}', '${postId}')">
+               ${trashSvg}
+               <span>Delete</span>
+             </button>
+           </div>
+         </div>`
+      : '';
+
+    const bodyHtml = isDeleted
+      ? `<div class="pd-comment-body pd-comment-deleted">This comment has been deleted.</div>`
+      : `<div class="pd-comment-body">${esc(c.body)}</div>`;
+
+    const actionsHtml = isDeleted
+      ? ''
+      : `<div class="pd-comment-actions">
           <button class="pd-react-btn ${c.userVote === 1 ? 'active' : ''}"
             onclick="voteComment('${c.id}', 1, '${postId}')">
             ${upSvg} <span id="up-${c.id}">${c.upvotes || 0}</span>
@@ -1997,7 +2184,19 @@ function renderComments(postId, rows, restricted, canComment) {
                  ${replySvg} Reply
                </button>`
             : ''}
+        </div>`;
+
+    return `
+      <div class="pd-comment ${isReply ? 'pd-comment-reply' : ''}" id="comment-${c.id}">
+        <div class="pd-comment-top">
+          ${avatarHtml}
+          <span class="pd-comment-author">${esc(name)}</span>
+          ${badgeHtml}
+          <span class="pd-comment-time">${timeAgo(c.created_at)}</span>
+          ${moreMenuHtml}
         </div>
+        ${bodyHtml}
+        ${actionsHtml}
         <div id="reply-box-${c.id}" style="display:none;"></div>
         ${childrenHtml ? `<div class="pd-replies">${childrenHtml}</div>` : ''}
       </div>`;
@@ -2007,7 +2206,9 @@ function renderComments(postId, rows, restricted, canComment) {
     ? `<div class="pd-comment-compose">
          <textarea class="pd-comment-input" id="pd-comment-input" placeholder="Write a comment…" rows="1"
            oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
-         <button class="pd-comment-send" id="pd-comment-send" onclick="submitComment('${postId}')">Post (1C)</button>
+         <button class="pd-comment-send" id="pd-comment-send" onclick="submitComment('${postId}')" aria-label="Post comment">
+           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+         </button>
        </div>
        <div class="pd-comment-cost">Posting a comment costs 1 credit.</div>`
     : (restricted && !canComment
@@ -2054,9 +2255,19 @@ async function submitComment(postId, parentId) {
     await loadCredits();
     if (input) { input.value = ''; input.style.height = 'auto'; }
     showToast('Comment posted.');
+    if (parentId && data) {
+      sb.rpc('notify_reply', {
+        p_comment_id: data.id,
+        p_parent_id: parentId,
+        p_post_id: postId,
+        p_body: body
+      }).then(({ error: notifErr }) => {
+        if (notifErr) console.error('notify_reply failed:', notifErr.message);
+      });
+    }
     await loadComments(postId);
   } catch (err) {
-    if (sendBtn) { sendBtn.disabled = false; sendBtn.textContent = 'Post (1C)'; }
+    if (sendBtn) { sendBtn.disabled = false; sendBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>'; }
     const msg = err.message || '';
     if (msg.includes('insufficient')) showToast('Not enough credits to comment (need 1C).', true);
     else showToast('Could not post comment: ' + (msg || 'unknown error'), true);
@@ -2104,7 +2315,9 @@ function showReplyBox(commentId, postId) {
       <textarea class="pd-comment-input" id="reply-input-${commentId}" placeholder="Write a reply…" rows="1"
         oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
       <button class="pd-comment-send"
-        onclick="submitComment('${postId}', '${commentId}')">Reply (1C)</button>
+        onclick="submitComment('${postId}', '${commentId}')" aria-label="Post reply">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>
+      </button>
     </div>`;
   document.getElementById(`reply-input-${commentId}`)?.focus();
 }
@@ -2113,10 +2326,39 @@ function showMoreComments(postId) {
   loadComments(postId);
 }
 
+// ── Comment 3-dot menu / delete ──────────────────────────────
+function toggleCommentMenu(commentId, evt) {
+  if (evt) evt.stopPropagation();
+  document.querySelectorAll('.pd-comment-menu.open').forEach(el => {
+    if (el.id !== `comment-menu-${commentId}`) el.classList.remove('open');
+  });
+  const menu = document.getElementById(`comment-menu-${commentId}`);
+  if (menu) menu.classList.toggle('open');
+}
+
+function closeAllCommentMenus() {
+  document.querySelectorAll('.pd-comment-menu.open').forEach(el => el.classList.remove('open'));
+}
+
+async function deleteComment(commentId, postId) {
+  if (!currentUser) return;
+  closeAllCommentMenus();
+  if (!confirm('Delete this comment? This cannot be undone.')) return;
+  try {
+    const { error } = await sb.rpc('delete_comment', { p_comment_id: commentId });
+    if (error) throw error;
+    showToast('Comment deleted.');
+    await loadComments(postId);
+  } catch (err) {
+    showToast('Could not delete comment: ' + (err.message || 'unknown error'), true);
+  }
+}
+
 async function doLogout() {
   await sb.auth.signOut();
   clearSessionPolicyState();
   currentUser = null; userData = null;
+  stopNotifPolling();
   document.getElementById('profile-screen').style.display = 'none';
   document.getElementById('edit-profile-screen').style.display = 'none';
   document.getElementById('faq-screen').style.display = 'none';
@@ -3139,6 +3381,7 @@ document.addEventListener('click', (e) => {
   if (currentUser) stampActivity();
   const wrap = document.getElementById('pd-more-wrap') || e.target.closest('.pd-more-wrap');
   if (!wrap && !e.target.closest('.pd-more-wrap')) closePostMenu();
+  if (!e.target.closest('.pd-comment-more-wrap')) closeAllCommentMenus();
 }, { passive: true });
 
 checkSession();
