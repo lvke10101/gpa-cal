@@ -71,6 +71,26 @@
   .auth-switch { text-align:center; font-size:13px; color:var(--text3); margin-top:18px; }
   .auth-switch span { color:var(--gold); font-weight:600; cursor:pointer; }
   .auth-switch span:hover { color:var(--gold2); text-decoration:underline; }
+  .auth-forgot-link { text-align:right; margin:-10px 0 14px; }
+  .auth-forgot-link span { font-size:12.5px; color:var(--gold); font-weight:600; cursor:pointer; }
+  .auth-forgot-link span:hover { color:var(--gold2); text-decoration:underline; }
+
+  /* Forgot password modal */
+  .fp-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:300; align-items:center; justify-content:center; padding:20px; }
+  .fp-overlay.open { display:flex; }
+  .fp-sheet { background:var(--surface); border:1px solid var(--border); border-radius:18px; width:100%; max-width:400px; padding:22px 20px; }
+  .fp-title { font-size:16px; font-weight:700; color:var(--text); margin-bottom:6px; }
+  .fp-subtitle { font-size:13px; color:var(--text3); line-height:1.5; margin-bottom:18px; }
+  .fp-success { display:none; font-size:13.5px; color:var(--text2); line-height:1.6; }
+  .fp-actions { display:flex; gap:10px; margin-top:16px; }
+  .fp-actions .btn-full { margin:0; }
+  .fp-cancel-btn { flex:1; padding:12px; border-radius:10px; background:var(--card); border:1px solid var(--border); color:var(--text2); font-family:inherit; font-size:14px; font-weight:600; cursor:pointer; }
+  .fp-close-btn { width:100%; padding:12px; border-radius:10px; background:var(--card); border:1px solid var(--border); color:var(--text2); font-family:inherit; font-size:14px; font-weight:600; cursor:pointer; margin-top:16px; }
+
+  /* Change password screen */
+  #change-password-screen { display:none; min-height:100vh; flex-direction:column; background:var(--bg); }
+  #change-password-screen header { justify-content:flex-start; gap:14px; }
+  .cp-subtitle { font-size:13px; color:var(--text3); line-height:1.5; margin:-6px 0 20px; }
   #app { display:none; min-height:100vh; flex-direction:column; }
   header { background:var(--surface); border-bottom:1px solid var(--border); padding:0 16px; display:flex; align-items:center; gap:12px; height:54px; flex-shrink:0; position:sticky; top:0; z-index:100; }
   .header-logo { font-family:'Playfair Display',serif; font-size:18px; color:var(--gold); }
@@ -531,6 +551,9 @@
       <label>Password</label>
       <input type="password" id="auth-password" placeholder="Enter password (min 6 chars)" autocomplete="current-password"/>
     </div>
+    <div class="auth-forgot-link" id="auth-forgot-link">
+      <span onclick="openForgotPassword()">Forgot password?</span>
+    </div>
     <div class="auth-field" id="confirm-password-field" style="display:none;">
       <label>Confirm Password</label>
       <input type="password" id="auth-confirm-password" placeholder="Re-enter password" autocomplete="new-password"/>
@@ -554,6 +577,30 @@
 
     <button class="btn-full" id="auth-submit">Login</button>
     <div class="auth-switch" id="auth-switch">Don't have an account? <span id="auth-switch-link">Register</span></div>
+  </div>
+</div>
+
+<!-- ══ FORGOT PASSWORD MODAL ═════════════════════════════════ -->
+<div class="fp-overlay" id="fp-overlay">
+  <div class="fp-sheet">
+    <div id="fp-form-view">
+      <div class="fp-title">Reset your password</div>
+      <div class="fp-subtitle">Enter the email on your account. We'll send a link to set a new password.</div>
+      <div id="fp-error" class="auth-error"></div>
+      <div class="auth-field">
+        <label>Email</label>
+        <input type="email" id="fp-email" placeholder="Enter your email" autocomplete="email"/>
+      </div>
+      <div class="fp-actions">
+        <button class="fp-cancel-btn" onclick="closeForgotPassword()">Cancel</button>
+        <button class="btn-full" id="fp-submit-btn" onclick="submitForgotPassword()">Send Reset Link</button>
+      </div>
+    </div>
+    <div id="fp-success-view" style="display:none;">
+      <div class="fp-title">Check your email</div>
+      <div class="fp-success" id="fp-success-text" style="display:block;"></div>
+      <button class="fp-close-btn" onclick="closeForgotPassword()">Close</button>
+    </div>
   </div>
 </div>
 
@@ -778,7 +825,7 @@
         <span class="profile-item-label">Manage Devices</span>
         <span class="profile-item-arrow">›</span>
       </button>
-      <button class="profile-item">
+      <button class="profile-item" onclick="showChangePassword()">
         <span class="profile-item-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 4.5-3 7.5-8 9-5-1.5-8-4.5-8-9V6z"/></svg>
         </span>
@@ -1000,6 +1047,29 @@
     </div>
 
     <button class="btn-full" id="save-profile-btn" onclick="saveProfileEdits()" style="margin-top:8px;">Save Changes</button>
+  </div>
+</div>
+
+<!-- ══ CHANGE PASSWORD SCREEN ═══════════════════════════════ -->
+<div id="change-password-screen">
+  <header>
+    <button class="profile-back" onclick="hideChangePassword()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    </button>
+    <div class="edit-profile-header-title">Change Password</div>
+  </header>
+  <div class="profile-content">
+    <div class="cp-subtitle">Choose a new password for your account.</div>
+    <div id="cp-error" class="auth-error"></div>
+    <div class="edit-field">
+      <label>New Password</label>
+      <input type="password" id="cp-new-password" placeholder="Min 6 characters" autocomplete="new-password"/>
+    </div>
+    <div class="edit-field">
+      <label>Confirm New Password</label>
+      <input type="password" id="cp-confirm-password" placeholder="Re-enter new password" autocomplete="new-password"/>
+    </div>
+    <button class="btn-full" id="cp-submit-btn" onclick="submitChangePassword()" style="margin-top:8px;">Update Password</button>
   </div>
 </div>
 
@@ -1379,6 +1449,7 @@ function showAuthTab(mode) {
   termsField.style.display = mode === 'register' ? 'flex' : 'none';
   confirmPasswordField.style.display = mode === 'register' ? 'block' : 'none';
   rememberField.style.display = mode === 'login' ? 'flex' : 'none';
+  document.getElementById('auth-forgot-link').style.display = mode === 'login' ? 'block' : 'none';
   authError.style.display = 'none';
   authSwitch.firstChild.textContent = mode === 'login' ? "Don't have an account? " : 'Already have an account? ';
   authSwitchLink.textContent = mode === 'login' ? 'Register' : 'Login';
@@ -1387,6 +1458,97 @@ function showAuthTab(mode) {
 function setAuthError(msg) {
   authError.textContent = msg;
   authError.style.display = 'block';
+}
+
+// ── Forgot password ──────────────────────────────────────────
+const RESET_PASSWORD_URL = 'https://gradevault-al3.pages.dev/reset-password.html';
+
+function openForgotPassword() {
+  document.getElementById('fp-email').value = authEmail.value.trim();
+  document.getElementById('fp-error').style.display = 'none';
+  document.getElementById('fp-form-view').style.display = 'block';
+  document.getElementById('fp-success-view').style.display = 'none';
+  document.getElementById('fp-overlay').classList.add('open');
+}
+
+function closeForgotPassword() {
+  document.getElementById('fp-overlay').classList.remove('open');
+}
+
+async function submitForgotPassword() {
+  const email = document.getElementById('fp-email').value.trim();
+  const errEl = document.getElementById('fp-error');
+  errEl.style.display = 'none';
+  if (!email) {
+    errEl.textContent = 'Please enter your email.';
+    errEl.style.display = 'block';
+    return;
+  }
+  const btn = document.getElementById('fp-submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  try {
+    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: RESET_PASSWORD_URL });
+    if (error) throw error;
+    document.getElementById('fp-form-view').style.display = 'none';
+    document.getElementById('fp-success-view').style.display = 'block';
+    document.getElementById('fp-success-text').textContent =
+      `If an account exists for ${email}, a password reset link is on its way. Open it on this device to set a new password.`;
+  } catch (err) {
+    errEl.textContent = err.message || 'Could not send reset link. Try again.';
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Send Reset Link';
+  }
+}
+
+// ── Change password (logged in) ──────────────────────────────
+function showChangePassword() {
+  document.getElementById('cp-new-password').value = '';
+  document.getElementById('cp-confirm-password').value = '';
+  document.getElementById('cp-error').style.display = 'none';
+  document.getElementById('profile-screen').style.display = 'none';
+  document.getElementById('change-password-screen').style.display = 'flex';
+}
+
+function hideChangePassword() {
+  document.getElementById('change-password-screen').style.display = 'none';
+  document.getElementById('profile-screen').style.display = 'flex';
+}
+
+async function submitChangePassword() {
+  const pw = document.getElementById('cp-new-password').value;
+  const confirm = document.getElementById('cp-confirm-password').value;
+  const errEl = document.getElementById('cp-error');
+  errEl.style.display = 'none';
+
+  if (!pw || pw.length < 6) {
+    errEl.textContent = 'Password must be at least 6 characters.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (pw !== confirm) {
+    errEl.textContent = 'Passwords do not match.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const btn = document.getElementById('cp-submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Updating…';
+  try {
+    const { error } = await sb.auth.updateUser({ password: pw });
+    if (error) throw error;
+    showToast('Password updated.');
+    hideChangePassword();
+  } catch (err) {
+    errEl.textContent = err.message || 'Could not update password. Try again.';
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Update Password';
+  }
 }
 
 // ── Auth submit ─────────────────────────────────────────────
@@ -2521,6 +2683,7 @@ async function doLogout() {
   stopNotifPolling();
   document.getElementById('profile-screen').style.display = 'none';
   document.getElementById('edit-profile-screen').style.display = 'none';
+  document.getElementById('change-password-screen').style.display = 'none';
   document.getElementById('faq-screen').style.display = 'none';
   app.style.display = 'none';
   authScreen.style.display = 'flex';
