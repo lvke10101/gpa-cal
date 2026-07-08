@@ -86,11 +86,60 @@
   .fp-actions .btn-full { margin:0; }
   .fp-cancel-btn { flex:1; padding:12px; border-radius:10px; background:var(--card); border:1px solid var(--border); color:var(--text2); font-family:inherit; font-size:14px; font-weight:600; cursor:pointer; }
   .fp-close-btn { width:100%; padding:12px; border-radius:10px; background:var(--card); border:1px solid var(--border); color:var(--text2); font-family:inherit; font-size:14px; font-weight:600; cursor:pointer; margin-top:16px; }
+  .fp-attempts { text-align:center; font-size:12px; color:var(--text3); margin-top:12px; }
+  .fp-attempts.zero { color:var(--red2); }
 
   /* Change password screen */
   #change-password-screen { display:none; min-height:100vh; flex-direction:column; background:var(--bg); }
   #change-password-screen header { justify-content:flex-start; gap:14px; }
   .cp-subtitle { font-size:13px; color:var(--text3); line-height:1.5; margin:-6px 0 20px; }
+
+  /* Credit History (static) */
+  #credit-history-screen { display:none; min-height:100vh; flex-direction:column; background:var(--bg); }
+  #credit-history-screen header { justify-content:flex-start; gap:14px; align-items:center; }
+  #credit-history-screen .edit-profile-header-title { flex:1; text-align:center; }
+  .ch-help-btn { width:34px; height:34px; border-radius:50%; border:none; background:none; color:var(--gold); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
+  .ch-help-btn svg { width:22px; height:22px; }
+  .ch-content { padding:16px; padding-bottom:40px; }
+  .ch-balance-card { display:flex; align-items:center; gap:16px; background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:18px 20px; margin-bottom:16px; }
+  .ch-coin-icon { width:40px; height:40px; flex-shrink:0; color:var(--gold); }
+  .ch-coin-icon svg { width:100%; height:100%; }
+  .ch-balance-label { font-size:13px; color:var(--text2); margin-bottom:2px; }
+  .ch-balance-value { font-size:28px; font-weight:700; color:var(--gold); }
+  .ch-search-row { display:flex; gap:10px; margin-bottom:14px; }
+  .ch-search-box { flex:1; display:flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px 12px; color:var(--text3); }
+  .ch-search-box svg { width:16px; height:16px; flex-shrink:0; }
+  .ch-search-box input { flex:1; background:none; border:none; outline:none; color:var(--text); font-family:inherit; font-size:14px; }
+  .ch-search-box input::placeholder { color:var(--text3); }
+  .ch-chips { display:flex; gap:8px; overflow-x:auto; margin-bottom:22px; padding-bottom:2px; }
+  .ch-chips::-webkit-scrollbar { display:none; }
+  .ch-chip { display:flex; align-items:center; gap:6px; padding:8px 14px; border-radius:20px; background:var(--surface); border:1px solid var(--border); color:var(--text2); font-family:inherit; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap; flex-shrink:0; }
+  .ch-chip svg { width:14px; height:14px; }
+  .ch-chip.active { background:var(--gold); border-color:var(--gold); color:var(--on-gold); font-weight:700; }
+  .ch-chip-red { color:var(--red2); font-weight:700; }
+  .ch-chip-green { color:var(--green2); font-weight:700; }
+  .ch-section-row { display:flex; align-items:center; justify-content:space-between; margin:0 2px 8px; }
+  .ch-section-title { font-size:15px; font-weight:700; color:var(--gold); }
+  .ch-view-all { font-size:12.5px; color:var(--text3); }
+  .ch-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:22px; }
+  .ch-item { display:flex; align-items:flex-start; gap:12px; padding:14px 16px; border-bottom:1px solid var(--border); }
+  .ch-item:last-child { border-bottom:none; }
+  .ch-item-icon { width:34px; height:34px; border-radius:50%; border:1.5px solid var(--border2); color:var(--gold); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .ch-item-icon svg { width:16px; height:16px; }
+  .ch-item-icon.ch-icon-gold { color:var(--gold); border-color:rgba(212,168,67,0.35); background:rgba(212,168,67,0.08); }
+  .ch-item-icon.ch-icon-green { color:var(--green2); border-color:rgba(61,168,108,0.35); background:rgba(61,168,108,0.08); }
+  .ch-item-icon.ch-icon-blue { color:var(--blue); border-color:rgba(41,128,185,0.35); background:rgba(41,128,185,0.08); }
+  .ch-item-body { flex:1; min-width:0; }
+  .ch-item-title { font-size:14.5px; font-weight:600; color:var(--text); }
+  .ch-item-sub { font-size:12.5px; color:var(--text3); margin-top:2px; }
+  .ch-item-right { text-align:right; flex-shrink:0; }
+  .ch-item-amount { font-size:14.5px; font-weight:700; }
+  .ch-item-amount.ch-neg { color:var(--red2); }
+  .ch-item-amount.ch-pos { color:var(--green2); }
+  .ch-item-time { font-size:11.5px; color:var(--text3); margin-top:3px; }
+  .ch-item-balance { font-size:11.5px; color:var(--gold); margin-top:2px; }
+  .ch-empty { padding:32px 16px; text-align:center; color:var(--text3); font-size:14px; }
+  .ch-load-more-btn { width:100%; padding:12px; margin-bottom:22px; border:1px solid var(--border2); border-radius:12px; background:var(--surface); color:var(--gold); font-weight:600; font-size:14px; cursor:pointer; }
   #app { display:none; min-height:100vh; flex-direction:column; }
   header { background:var(--surface); border-bottom:1px solid var(--border); padding:0 16px; display:flex; align-items:center; gap:12px; height:54px; flex-shrink:0; position:sticky; top:0; z-index:100; }
   .header-logo { font-family:'Playfair Display',serif; font-size:18px; color:var(--gold); }
@@ -261,7 +310,7 @@
   .save-indicator { position:fixed; bottom:16px; right:16px; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:8px 14px; font-size:12px; color:var(--text3); opacity:0; transition:opacity 0.3s; pointer-events:none; z-index:200; }
   .save-indicator.saving { opacity:1; color:var(--gold); }
   .save-indicator.saved { opacity:1; color:var(--green2); }
-  .toast { position:fixed; top:70px; left:50%; transform:translateX(-50%); background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px 18px; font-size:13px; color:var(--text2); opacity:0; transition:opacity 0.3s; z-index:300; white-space:nowrap; pointer-events:none; }
+  .toast { position:fixed; top:70px; left:50%; transform:translateX(-50%); background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px 18px; font-size:13px; color:var(--text2); opacity:0; transition:opacity 0.3s; z-index:300; white-space:normal; max-width:calc(100vw - 32px); width:max-content; box-sizing:border-box; text-align:center; line-height:1.4; pointer-events:none; }
   .toast.show { opacity:1; }
   .toast.error { color:var(--red2); border-color:rgba(192,57,43,0.3); }
   ::-webkit-scrollbar { width:4px; height:4px; }
@@ -378,7 +427,7 @@
   .profile-content { flex:1; max-width:480px; width:100%; margin:0 auto; padding:20px 16px 40px; }
   .profile-page-title { font-family:'Playfair Display',serif; font-size:24px; color:var(--text); margin-bottom:18px; }
   .profile-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:28px 20px 22px; display:flex; flex-direction:column; align-items:center; text-align:center; margin-bottom:20px; }
-  .profile-avatar { width:92px; height:92px; border-radius:50%; background:linear-gradient(135deg, var(--gold), #a07820); display:flex; align-items:center; justify-content:center; font-weight:600; font-size:32px; color:var(--on-gold); margin-bottom:14px; overflow:hidden; }
+  .profile-avatar { width:92px; height:92px; border-radius:50%; background:linear-gradient(135deg, var(--gold), #a07820); display:flex; align-items:center; justify-content:center; font-weight:600; font-size:32px; color:var(--on-gold); margin-bottom:14px; overflow:hidden; border:3px solid var(--gold2); box-shadow:0 0 0 2px var(--surface); }
   .profile-avatar img { width:100%; height:100%; object-fit:cover; }
   .profile-name { font-size:17px; font-weight:600; color:var(--text); }
   .profile-email { font-size:13px; color:var(--text3); margin-top:3px; }
@@ -391,10 +440,14 @@
   .profile-item { width:100%; display:flex; align-items:center; gap:14px; padding:15px 16px; background:none; border:none; border-bottom:1px solid var(--border); color:var(--text); font-family:inherit; font-size:14px; cursor:pointer; text-align:left; }
   .profile-item:last-child { border-bottom:none; }
   .profile-item:hover { background:var(--overlay-soft); }
-  .profile-item-icon { width:30px; height:30px; border-radius:50%; border:1.5px solid var(--border2); display:flex; align-items:center; justify-content:center; color:var(--text2); flex-shrink:0; }
-  .profile-item-icon svg { width:15px; height:15px; }
+  .profile-item-icon { width:26px; height:26px; display:flex; align-items:center; justify-content:center; color:var(--text2); flex-shrink:0; }
+  .profile-item-icon svg { width:22px; height:22px; }
+  .profile-item-icon.icon-gold { color:var(--gold); }
+  .profile-item-icon.icon-mono { color:var(--text2); }
+  .profile-item-icon.icon-danger { color:var(--red2); }
   .profile-item-label { flex:1; }
-  .profile-item-arrow { color:var(--text3); font-size:16px; }
+  .profile-item-arrow { color:var(--text3); display:flex; align-items:center; flex-shrink:0; }
+  .profile-item-arrow svg { width:16px; height:16px; }
   .profile-logout { width:100%; background:none; border:1px solid var(--border); color:var(--red2); padding:13px; border-radius:10px; font-weight:600; font-size:13px; cursor:pointer; font-family:inherit; margin-top:6px; transition:all 0.2s; }
   .profile-logout:hover { border-color:var(--red2); background:rgba(192,57,43,0.08); }
   .profile-footer-bar { margin-top:28px; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px 16px; display:flex; flex-direction:column; gap:12px; }
@@ -412,6 +465,9 @@
   #edit-profile-screen { display:none; min-height:100vh; flex-direction:column; background:var(--bg); }
   #edit-profile-screen header { justify-content:flex-start; gap:14px; }
   .edit-profile-header-title { font-family:'Playfair Display',serif; font-size:16px; color:var(--text); }
+  #profile-screen header { justify-content:flex-start; gap:14px; align-items:center; }
+  #profile-screen .edit-profile-header-title { flex:1; text-align:center; }
+  #profile-screen .profile-header-spacer { width:34px; flex-shrink:0; }
   .edit-avatar-wrap { position:relative; width:104px; height:104px; margin:8px auto 28px; cursor:pointer; }
   .edit-avatar-wrap .profile-avatar { width:104px; height:104px; font-size:34px; margin:0; }
   .edit-avatar-pencil { position:absolute; bottom:0; right:0; width:30px; height:30px; border-radius:50%; background:var(--blue); border:3px solid var(--bg); display:flex; align-items:center; justify-content:center; color:#fff; cursor:pointer; }
@@ -432,6 +488,9 @@
   .avatar-picker-close svg { width:14px; height:14px; }
   .avatar-picker-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; overflow-y:auto; padding-bottom:4px; }
   .avatar-picker-loading, .avatar-picker-empty { grid-column:1/-1; text-align:center; color:var(--text3); font-size:13px; padding:24px 0; }
+  .skel-circle { aspect-ratio:1; border-radius:50%; background:linear-gradient(100deg, var(--card) 30%, var(--border2) 50%, var(--card) 70%); background-size:200% 100%; animation:skel-shimmer 1.3s ease-in-out infinite; }
+  @keyframes skel-shimmer { 0% { background-position:150% 0; } 100% { background-position:-50% 0; } }
+  @media (prefers-reduced-motion: reduce) { .skel-circle { animation:none; background:var(--card); } }
   .avatar-picker-item { aspect-ratio:1; border-radius:50%; overflow:hidden; cursor:pointer; border:2px solid transparent; transition:border-color 0.2s; }
   .avatar-picker-item img { width:100%; height:100%; object-fit:cover; display:block; }
   .avatar-picker-item.selected { border-color:var(--gold); }
@@ -595,6 +654,7 @@
         <button class="fp-cancel-btn" onclick="closeForgotPassword()">Cancel</button>
         <button class="btn-full" id="fp-submit-btn" onclick="submitForgotPassword()">Send Reset Link</button>
       </div>
+      <div id="fp-attempts-left" class="fp-attempts"></div>
     </div>
     <div id="fp-success-view" style="display:none;">
       <div class="fp-title">Check your email</div>
@@ -770,10 +830,10 @@
     <button class="profile-back" onclick="hideProfile()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
     </button>
+    <div class="edit-profile-header-title">Profile</div>
+    <span class="profile-header-spacer"></span>
   </header>
   <div class="profile-content">
-    <h1 class="profile-page-title">Profile</h1>
-
     <div class="profile-card">
       <div class="profile-avatar" id="profile-avatar"></div>
       <div class="profile-name" id="profile-name">—</div>
@@ -788,56 +848,56 @@
 
     <div class="profile-menu">
       <button class="profile-item">
-        <span class="profile-item-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg>
+        <span class="profile-item-icon icon-gold">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 3c2.5 2.5 4 5.5 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.5-4-9s1.5-6.5 4-9z"/><path d="M3 12h18"/></svg>
         </span>
         <span class="profile-item-label">Language</span>
-        <span class="profile-item-arrow">›</span>
+        <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
-      <button class="profile-item">
-        <span class="profile-item-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="9" r="6"/><circle cx="15" cy="15" r="6"/></svg>
+      <button class="profile-item" onclick="showCreditHistory()">
+        <span class="profile-item-icon icon-gold">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
         </span>
-        <span class="profile-item-label">Currencies</span>
-        <span class="profile-item-arrow">›</span>
+        <span class="profile-item-label">Credit History</span>
+        <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
       <button class="profile-item" onclick="showAppearance()">
-        <span class="profile-item-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="12" r="6"/><circle cx="15" cy="12" r="6"/></svg>
+        <span class="profile-item-icon icon-gold">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2a10 10 0 1 0 0 20c1 0 2-.6 2-1.8 0-.5-.2-1-.5-1.4-.3-.4-.5-.9-.5-1.4 0-1 1-1.9 2-1.9h2a4.1 4.1 0 0 0 4-4.5C21 5.9 17 2 12 2z"/><circle cx="6.7" cy="11.5" r="1.1"/><circle cx="9.3" cy="7" r="1.1"/><circle cx="14.7" cy="7" r="1.1"/><circle cx="17.3" cy="11.5" r="1.1"/></svg>
         </span>
         <span class="profile-item-label">Appearance</span>
-        <span class="profile-item-arrow">›</span>
+        <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
     </div>
 
     <div class="profile-menu">
       <button class="profile-item">
-        <span class="profile-item-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="3" width="9" height="14" rx="2"/><path d="M14 6h3a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9"/></svg>
+        <span class="profile-item-icon icon-mono">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 3v6c0 4.5-3 7.5-8 9-5-1.5-8-4.5-8-9V6z"/></svg>
         </span>
         <span class="profile-item-label">Application Security</span>
-        <span class="profile-item-arrow">›</span>
+        <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
       <button class="profile-item">
-        <span class="profile-item-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+        <span class="profile-item-icon icon-mono">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
         </span>
         <span class="profile-item-label">Manage Devices</span>
-        <span class="profile-item-arrow">›</span>
+        <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
       <button class="profile-item" onclick="showChangePassword()">
-        <span class="profile-item-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 4.5-3 7.5-8 9-5-1.5-8-4.5-8-9V6z"/></svg>
+        <span class="profile-item-icon icon-mono">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M7.5 11V7.5a4.5 4.5 0 0 1 9 0V11"/></svg>
         </span>
         <span class="profile-item-label">Change Password</span>
-        <span class="profile-item-arrow">›</span>
+        <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
       <button class="profile-item" onclick="showFAQ()">
-        <span class="profile-item-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.35-1 .8-1 1.7v.5"/><line x1="12" y1="17" x2="12" y2="17.1"/></svg>
+        <span class="profile-item-icon icon-mono">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.35-1 .8-1 1.7v.5"/><line x1="12" y1="17" x2="12" y2="17.1"/></svg>
         </span>
         <span class="profile-item-label">FAQ</span>
-        <span class="profile-item-arrow">›</span>
+        <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
     </div>
 
@@ -1070,6 +1130,56 @@
       <input type="password" id="cp-confirm-password" placeholder="Re-enter new password" autocomplete="new-password"/>
     </div>
     <button class="btn-full" id="cp-submit-btn" onclick="submitChangePassword()" style="margin-top:8px;">Update Password</button>
+  </div>
+</div>
+
+<!-- ══ CREDIT HISTORY SCREEN ═══════════════════════════════ -->
+<div id="credit-history-screen">
+  <header>
+    <button class="profile-back" onclick="hideCreditHistory()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    </button>
+    <div class="edit-profile-header-title">Credit History</div>
+    <button class="ch-help-btn" onclick="showToast('Credits are spent to access, and earned by contributing.')">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor"><path d="M440-280h80v-240h-80v240Zm68.5-331.5Q520-623 520-640t-11.5-28.5Q497-680 480-680t-28.5 11.5Q440-657 440-640t11.5 28.5Q463-600 480-600t28.5-11.5ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></svg>
+    </button>
+  </header>
+  <div class="ch-content">
+    <div class="ch-balance-card">
+      <span class="ch-coin-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><ellipse cx="12" cy="7" rx="7" ry="3"/><path d="M5 7v10c0 1.66 3.13 3 7 3s7-1.34 7-3V7"/><path d="M5 12c0 1.66 3.13 3 7 3s7-1.34 7-3"/></svg>
+      </span>
+      <div class="ch-balance-text">
+        <div class="ch-balance-label">Current Balance</div>
+        <div class="ch-balance-value" id="ch-balance-value">0</div>
+      </div>
+    </div>
+
+    <div class="ch-search-row">
+      <div class="ch-search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="ch-search-input" placeholder="Search actions..." oninput="filterCreditHistory()"/>
+      </div>
+    </div>
+
+    <div class="ch-chips">
+      <button class="ch-chip active" data-filter="all" onclick="setCreditHistoryChip('all', this)">All</button>
+      <button class="ch-chip" data-filter="spent" onclick="setCreditHistoryChip('spent', this)"><span class="ch-chip-red">↓</span> Spent</button>
+      <button class="ch-chip" data-filter="topup" onclick="setCreditHistoryChip('topup', this)"><span class="ch-chip-green">↑</span> Top-up</button>
+      <button class="ch-chip" data-filter="week" onclick="setCreditHistoryChip('week', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>
+        This Week
+      </button>
+      <button class="ch-chip" data-filter="month" onclick="setCreditHistoryChip('month', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>
+        This Month
+      </button>
+    </div>
+
+    <div class="ch-card">
+      <div id="ch-list"></div>
+    </div>
+    <button id="ch-load-more" class="ch-load-more-btn" style="display:none" onclick="loadCreditHistory(false)">Load more</button>
   </div>
 </div>
 
@@ -1468,6 +1578,9 @@ function openForgotPassword() {
   document.getElementById('fp-error').style.display = 'none';
   document.getElementById('fp-form-view').style.display = 'block';
   document.getElementById('fp-success-view').style.display = 'none';
+  const attemptsEl = document.getElementById('fp-attempts-left');
+  attemptsEl.textContent = '';
+  attemptsEl.classList.remove('zero');
   document.getElementById('fp-overlay').classList.add('open');
 }
 
@@ -1488,6 +1601,18 @@ async function submitForgotPassword() {
   btn.disabled = true;
   btn.textContent = 'Sending…';
   try {
+    const { data: rl, error: rlError } = await sb.rpc('check_and_log_reset_attempt', { p_email: email });
+    if (rlError) throw rlError;
+    const attemptsEl = document.getElementById('fp-attempts-left');
+    if (!rl.allowed) {
+      showToast('Too many reset attempts. Try again in 1 hour.', true);
+      closeForgotPassword();
+      return;
+    }
+    attemptsEl.textContent = rl.remaining > 0
+      ? `${rl.remaining} attempt${rl.remaining === 1 ? '' : 's'} left this hour.`
+      : 'No attempts left this hour.';
+    attemptsEl.classList.toggle('zero', rl.remaining === 0);
     const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: RESET_PASSWORD_URL });
     if (error) throw error;
     document.getElementById('fp-form-view').style.display = 'none';
@@ -1691,6 +1816,8 @@ function renderCredits() {
   const headerAmt = document.getElementById('header-balance-amt');
   const headerBal = document.getElementById('header-balance');
   const popAmt = document.getElementById('hu-pop-balance-amt');
+  const chBal = document.getElementById('ch-balance-value');
+  if (chBal) chBal.textContent = userCredits;
   if (!headerAmt || !headerBal) return;
   headerAmt.textContent = userCredits;
   headerBal.classList.toggle('low', userCredits <= 2);
@@ -1703,18 +1830,23 @@ function renderCredits() {
 // balance, so it can't be tampered with via a crafted request. The function
 // checks balance >= cost atomically, so concurrent spends can't both succeed
 // past a stale read.
-async function spendCredits(cost, actionLabel) {
+// `reason` must match the CHECK constraint on credit_transactions.reason.
+async function spendCredits(cost, actionLabel, reason, referenceId = null) {
   if (!currentUser) return false;
   if (userCredits < cost) {
     // Fast local check just for snappy UI feedback — not relied on for security.
-    showToast(`Insufficient credits — ${actionLabel} requires ${cost}C, you have ${userCredits}C`, true);
+    showToast('Insufficient credits', true);
     return false;
   }
-  const { data, error } = await sb.rpc('spend_credits', { p_cost: cost });
+  const { data, error } = await sb.rpc('spend_credits', {
+    p_cost: cost,
+    p_reason: reason,
+    p_reference_id: referenceId
+  });
   if (error) {
     if (error.message && error.message.includes('Insufficient credits')) {
       await loadCredits();
-      showToast(`Insufficient credits — ${actionLabel} requires ${cost}C, you have ${userCredits}C`, true);
+      showToast('Insufficient credits', true);
     } else {
       showToast('Error processing credits: ' + error.message, true);
     }
@@ -1723,6 +1855,211 @@ async function spendCredits(cost, actionLabel) {
   userCredits = data;
   renderCredits();
   return true;
+}
+
+// ── Credit History: realtime + pagination ────────────────────
+let creditChannel = null;
+
+function subscribeCreditHistory(userId) {
+  if (creditChannel) return; // already subscribed
+  creditChannel = sb.channel(`credit-tx-${userId}`)
+    .on('postgres_changes', {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'credit_transactions',
+      filter: `user_id=eq.${userId}`
+    }, (payload) => {
+      const tx = payload.new;
+      userCredits = tx.balance_after;
+      renderCredits();
+      prependCreditHistoryRow(tx);
+    })
+    .subscribe();
+}
+
+function unsubscribeCreditHistory() {
+  if (creditChannel) {
+    sb.removeChannel(creditChannel);
+    creditChannel = null;
+  }
+}
+
+let creditHistoryCursor = null; // { createdAt, id } of last row loaded
+
+async function loadCreditHistory(reset = false) {
+  const list = document.getElementById('ch-list');
+  if (reset) {
+    creditHistoryCursor = null;
+    list.innerHTML = '';
+  }
+
+  const { data, error } = await sb.rpc('get_credit_history', {
+    p_limit: 30,
+    p_before_created_at: creditHistoryCursor?.createdAt ?? null,
+    p_before_id: creditHistoryCursor?.id ?? null
+  });
+
+  if (error) {
+    showToast('Failed to load credit history: ' + error.message, true);
+    return;
+  }
+
+  if (reset && data.length === 0) {
+    list.innerHTML = '<div class="ch-empty">No credit activity yet.</div>';
+  }
+
+  data.forEach(appendCreditHistoryRow);
+
+  if (data.length > 0) {
+    const last = data[data.length - 1];
+    creditHistoryCursor = { createdAt: last.created_at, id: last.id };
+  }
+
+  const loadMoreBtn = document.getElementById('ch-load-more');
+  if (loadMoreBtn) loadMoreBtn.style.display = data.length < 30 ? 'none' : 'block';
+}
+
+const CREDIT_REASON_LABELS = {
+  signup_bonus:   'Signup bonus',
+  unlock_post:    'Unlocked post',
+  comment_post:   'Posted comment',
+  profile_save:   'Saved profile',
+  course_add:     'Added course',
+  autosave_batch: 'Course autosave',
+  course_import:  'Imported courses',
+  semester_note:  'Saved semester note',
+  admin_grant:    'Admin credit grant',
+  purchase:       'Credit purchase',
+  admin_topup:    'Top-up',
+  admin_bonus:    'Signup bonus'
+};
+
+// Per-reason icon + accent color, using lucide's icon paths (stroke-based, 24x24).
+// Falls back to a plain up/down arrow, colored by credit direction, for unknown reasons.
+const CREDIT_ICON_MAP = {
+  profile_save:   { color: 'gold',  svg: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>' },
+  unlock_post:    { color: 'blue',  svg: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>' },
+  comment_post:   { color: 'blue',  svg: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>' },
+  course_add:     { color: 'green', svg: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>' },
+  course_import:  { color: 'green', svg: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>' },
+  autosave_batch: { color: 'green', svg: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>' },
+  semester_note:  { color: 'green', svg: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M15 2v7h7"/>' },
+  signup_bonus:   { color: 'green', svg: '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8"/><path d="M16.5 8a2.5 2.5 0 0 0 0-5C13 3 12 8 12 8"/>' },
+  admin_grant:    { color: 'green', svg: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>' },
+  purchase:       { color: 'green', svg: '<path d="M12 19V5"/><path d="m5 12 7-7 7 7"/>' },
+  admin_topup:    { color: 'green', svg: '<path d="M12 19V5"/><path d="m5 12 7-7 7 7"/>' },
+  admin_bonus:    { color: 'green', svg: '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8"/><path d="M16.5 8a2.5 2.5 0 0 0 0-5C13 3 12 8 12 8"/>' }
+};
+
+function creditHistoryIconSVG(tx) {
+  const entry = CREDIT_ICON_MAP[tx.reason];
+  if (entry) {
+    return { color: entry.color, markup: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${entry.svg}</svg>` };
+  }
+  const isCredit = tx.delta > 0;
+  const markup = isCredit
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>';
+  return { color: isCredit ? 'green' : 'gold', markup };
+}
+
+function creditHistoryDateLabel(createdAt) {
+  const d = new Date(createdAt);
+  const now = new Date();
+  const time = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+  const sameDay = d.toDateString() === now.toDateString();
+  if (sameDay) return `Today, ${time}`;
+  const yesterday = new Date(now); yesterday.setDate(now.getDate() - 1);
+  if (d.toDateString() === yesterday.toDateString()) return `Yesterday, ${time}`;
+  return `${d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}, ${time}`;
+}
+
+function creditHistoryRowHTML(tx) {
+  const label = CREDIT_REASON_LABELS[tx.reason] || tx.reason;
+  const isCredit = tx.delta > 0;
+  const sign = isCredit ? '+' : '';
+  const amtCls = isCredit ? 'ch-pos' : 'ch-neg';
+  const dateLabel = creditHistoryDateLabel(tx.created_at);
+  const icon = creditHistoryIconSVG(tx);
+  return `
+    <div class="ch-item" data-id="${tx.id}" data-delta="${tx.delta}" data-created-at="${tx.created_at}" data-label="${label.toLowerCase()}">
+      <span class="ch-item-icon ch-icon-${icon.color}">${icon.markup}</span>
+      <div class="ch-item-body">
+        <div class="ch-item-title">${label}</div>
+        <div class="ch-item-sub">${dateLabel}</div>
+      </div>
+      <div class="ch-item-right">
+        <div class="ch-item-amount ${amtCls}">${sign}${tx.delta}</div>
+        <div class="ch-item-balance">Balance: ${tx.balance_after}</div>
+      </div>
+    </div>`;
+}
+
+function appendCreditHistoryRow(tx) {
+  document.getElementById('ch-list').insertAdjacentHTML('beforeend', creditHistoryRowHTML(tx));
+  applyCreditHistoryFilter();
+}
+
+function prependCreditHistoryRow(tx) {
+  const list = document.getElementById('ch-list');
+  if (!list) return; // screen not mounted — realtime still kept userCredits current
+  const empty = list.querySelector('.ch-empty');
+  if (empty) empty.remove();
+  list.insertAdjacentHTML('afterbegin', creditHistoryRowHTML(tx));
+  applyCreditHistoryFilter();
+}
+
+// ── Credit History: chip + search filtering (client-side, over loaded rows) ──
+let creditHistoryChip = 'all';
+
+function setCreditHistoryChip(filter, btnEl) {
+  creditHistoryChip = filter;
+  document.querySelectorAll('.ch-chip').forEach(c => c.classList.remove('active'));
+  btnEl.classList.add('active');
+  applyCreditHistoryFilter();
+}
+
+function filterCreditHistory() {
+  applyCreditHistoryFilter();
+}
+
+function applyCreditHistoryFilter() {
+  const list = document.getElementById('ch-list');
+  if (!list) return;
+  const searchEl = document.getElementById('ch-search-input');
+  const query = (searchEl?.value || '').trim().toLowerCase();
+  const now = Date.now();
+  const weekMs = 7 * 24 * 60 * 60 * 1000;
+
+  let visibleCount = 0;
+  list.querySelectorAll('.ch-item').forEach(row => {
+    const delta = parseFloat(row.dataset.delta);
+    const createdAt = new Date(row.dataset.createdAt).getTime();
+    const label = row.dataset.label || '';
+
+    let matchesChip = true;
+    if (creditHistoryChip === 'spent') matchesChip = delta < 0;
+    else if (creditHistoryChip === 'topup') matchesChip = delta > 0;
+    else if (creditHistoryChip === 'week') matchesChip = (now - createdAt) <= weekMs;
+    else if (creditHistoryChip === 'month') matchesChip = (now - createdAt) <= (30 * 24 * 60 * 60 * 1000);
+
+    const matchesSearch = !query || label.includes(query);
+    const show = matchesChip && matchesSearch;
+    row.style.display = show ? '' : 'none';
+    if (show) visibleCount++;
+  });
+
+  let emptyMsg = list.querySelector('.ch-empty-filtered');
+  if (visibleCount === 0 && list.querySelector('.ch-item')) {
+    if (!emptyMsg) {
+      emptyMsg = document.createElement('div');
+      emptyMsg.className = 'ch-empty ch-empty-filtered';
+      emptyMsg.textContent = 'No matching transactions.';
+      list.appendChild(emptyMsg);
+    }
+  } else if (emptyMsg) {
+    emptyMsg.remove();
+  }
 }
 
 // ── Notifications ──────────────────────────────────────────
@@ -1777,6 +2114,8 @@ function notifText(n) {
   const name = esc(notifActorName(n));
   if (n.type === 'reply') return `<b>${name}</b> replied to your comment`;
   if (n.type === 'announcement') return `<span class="notif-badge-ann">Announcement</span><b>${notifAnnouncementTitle(n)}</b>`;
+  if (n.type === 'credit_topup') return `<span class="notif-badge-ann">Top-up</span>`;
+  if (n.type === 'credit_bonus') return `<span class="notif-badge-ann">Bonus</span>`;
   return `<b>${name}</b> sent you a notification`;
 }
 
@@ -1819,7 +2158,7 @@ function renderNotifications() {
     <div class="notif-item ${n.is_read ? 'read' : 'unread'}" onclick="handleNotifTap('${n.id}', ${n.post_id ? `'${n.post_id}'` : 'null'})">
       <div class="notif-dot"></div>
       <div class="notif-body">
-        <div class="notif-text">${notifText(n)}${n.body_preview ? `: “${esc(n.body_preview)}”` : ''}</div>
+        <div class="notif-text">${notifText(n)}${n.body_preview && n.type !== 'credit_topup' && n.type !== 'credit_bonus' ? `: “${esc(n.body_preview)}”` : n.body_preview && (n.type === 'credit_topup' || n.type === 'credit_bonus') ? `: ${esc(n.body_preview)}` : ''}</div>
         <div class="notif-time">${timeAgo(n.created_at)}</div>
       </div>
     </div>`;
@@ -1931,6 +2270,7 @@ function launchApp() {
   buildMiniChips();
   switchYear(0, true);
   loadCredits();
+  subscribeCreditHistory(currentUser.id);
   // loadPosts() disabled — News Feed on hold.
   loadNotifications();
   startNotifPolling();
@@ -2681,9 +3021,11 @@ async function doLogout() {
   clearSessionPolicyState();
   currentUser = null; userData = null;
   stopNotifPolling();
+  unsubscribeCreditHistory();
   document.getElementById('profile-screen').style.display = 'none';
   document.getElementById('edit-profile-screen').style.display = 'none';
   document.getElementById('change-password-screen').style.display = 'none';
+  document.getElementById('credit-history-screen').style.display = 'none';
   document.getElementById('faq-screen').style.display = 'none';
   app.style.display = 'none';
   authScreen.style.display = 'flex';
@@ -3024,7 +3366,7 @@ async function openAvatarPicker() {
     renderAvatarGrid(avatarsCache);
     return;
   }
-  grid.innerHTML = '<div class="avatar-picker-loading">Loading avatars…</div>';
+  grid.innerHTML = Array.from({ length: 8 }, () => '<div class="skel-circle"></div>').join('');
   try {
     const { data, error } = await sb.from('avatars').select('id,url').order('created_at');
     if (error) throw error;
@@ -3145,6 +3487,25 @@ function hideFAQ() {
   document.getElementById('profile-screen').style.display = 'flex';
 }
 
+// ── Credit History ─────────────────────────────────────────
+function showCreditHistory() {
+  document.getElementById('profile-screen').style.display = 'none';
+  document.getElementById('credit-history-screen').style.display = 'flex';
+  creditHistoryChip = 'all';
+  document.querySelectorAll('.ch-chip').forEach(c => c.classList.remove('active'));
+  document.querySelector('.ch-chip[data-filter="all"]')?.classList.add('active');
+  const searchEl = document.getElementById('ch-search-input');
+  if (searchEl) searchEl.value = '';
+  loadCreditHistory(true);
+  // No unsubscribe on close — realtime channel stays open app-wide
+  // so header balance keeps updating regardless of screen.
+}
+
+function hideCreditHistory() {
+  document.getElementById('credit-history-screen').style.display = 'none';
+  document.getElementById('profile-screen').style.display = 'flex';
+}
+
 // ── Appearance / theme ───────────────────────────────────────
 function getStoredTheme() {
   try { return localStorage.getItem('gv_theme') || 'dark'; } catch { return 'dark'; }
@@ -3186,7 +3547,7 @@ async function saveProfileEdits() {
   btn.disabled = true;
   btn.textContent = 'Saving…';
   try {
-    const ok = await spendCredits(CREDIT_COSTS.editProfile, 'Saving profile changes');
+    const ok = await spendCredits(CREDIT_COSTS.editProfile, 'Saving profile changes', 'profile_save');
     if (!ok) return;
 
     userData.username = username || fallbackName;
@@ -3316,7 +3677,7 @@ async function confirmCatalogImport() {
     if (!proceed) return;
   }
 
-  const ok = await spendCredits(CREDIT_COSTS.upload, 'Importing courses');
+  const ok = await spendCredits(CREDIT_COSTS.upload, 'Importing courses', 'course_import');
   if (!ok) return;
 
   userData.semesters[currentSem] = row.courses.map(c => ({
@@ -3365,7 +3726,7 @@ async function saveNote() {
   if (!ta) return;
   btn.disabled = true;
   try {
-    const ok = await spendCredits(CREDIT_COSTS.saveNote, 'Saving note');
+    const ok = await spendCredits(CREDIT_COSTS.saveNote, 'Saving note', 'semester_note');
     if (!ok) return;
     if (!userData.notes) userData.notes = {};
     userData.notes[currentSem] = ta.value;
@@ -3390,7 +3751,7 @@ function scheduleSave() {
       if (autosaveCount % AUTOSAVE_BATCH_SIZE === 0) {
         // Charge for the batch *after* the save succeeds, so a failed/short balance
         // never blocks the user's course data from being saved.
-        const ok = await spendCredits(CREDIT_COSTS.autosaveBatch, 'Auto-save (10 saves)');
+        const ok = await spendCredits(CREDIT_COSTS.autosaveBatch, 'Auto-save (10 saves)', 'autosave_batch');
         if (!ok) {
           // Insufficient credits — data is still saved, just surface the shortfall.
           console.warn('Autosave batch charge failed: insufficient credits');
@@ -3576,7 +3937,7 @@ function renderTotals(courses) {
 // ── Course actions ──────────────────────────────────────────
 async function addCourse() {
   if (courseLocked) return;
-  const ok = await spendCredits(CREDIT_COSTS.addCourse, 'Adding a course');
+  const ok = await spendCredits(CREDIT_COSTS.addCourse, 'Adding a course', 'course_add');
   if (!ok) return;
   const courses = userData.semesters[currentSem];
   courses.push({ code:'', title:'', units:'', grade:'' });
