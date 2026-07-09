@@ -1669,6 +1669,13 @@ function showToast(msg, isError=false) {
   el._t = setTimeout(() => el.className = 'toast', 2800);
 }
 
+// True when the error looks like a network/connectivity failure (offline,
+// DNS failure, request never reached the server) rather than a server-side
+// or validation error.
+function isNetworkError(err) {
+  return err instanceof TypeError && /fetch|network/i.test(err.message || '');
+}
+
 function fmt(n) { return n === null ? '—' : n.toFixed(2); }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
 
@@ -1791,7 +1798,9 @@ async function submitForgotPassword() {
     document.getElementById('fp-success-text').textContent =
       `If an account exists for ${email}, a password reset link is on its way. Open it on this device to set a new password.`;
   } catch (err) {
-    errEl.textContent = err.message || 'Could not send reset link. Try again.';
+    errEl.textContent = isNetworkError(err)
+      ? "Network unavailable. Couldn't send the reset email."
+      : (err.message || 'Could not send reset link. Try again.');
     errEl.style.display = 'block';
   } finally {
     btn.disabled = false;
@@ -1839,7 +1848,9 @@ async function submitChangePassword() {
     showToast('Password updated.');
     hideChangePassword();
   } catch (err) {
-    errEl.textContent = err.message || 'Could not update password. Try again.';
+    errEl.textContent = isNetworkError(err)
+      ? "Network unavailable. Couldn't update your password."
+      : (err.message || 'Could not update password. Try again.');
     errEl.style.display = 'block';
   } finally {
     btn.disabled = false;
@@ -1921,7 +1932,11 @@ async function submitAuth() {
     launchApp();
   } catch (err) {
     console.error('Auth error:', err);
-    setAuthError(err.message || 'Authentication failed. Please try again.');
+    if (err instanceof TypeError && /fetch|network/i.test(err.message)) {
+      setAuthError('No internet connection. Check your network and try again.');
+    } else {
+      setAuthError(err.message || 'Authentication failed. Please try again.');
+    }
   } finally {
     authSubmit.disabled = false;
     authSubmit.textContent = authMode === 'login' ? 'Login' : 'Create Account';
@@ -3846,7 +3861,9 @@ async function saveProfileEdits() {
     hideEditProfile();
     showProfile();
   } catch (err) {
-    showToast('Error saving profile: ' + err.message, true);
+    showToast(isNetworkError(err)
+      ? "Network unavailable. Your profile wasn't saved."
+      : 'Error saving profile: ' + err.message, true);
   } finally {
     btn.disabled = false;
     btn.textContent = 'Save Changes';
@@ -3897,7 +3914,9 @@ async function openCatalogPicker() {
     if (error) throw error;
     catalogRows = data || [];
   } catch (err) {
-    info.textContent = 'Error loading catalogs: ' + err.message;
+    info.textContent = isNetworkError(err)
+      ? "Network unavailable. Couldn't load catalogs."
+      : 'Error loading catalogs: ' + err.message;
     return;
   }
 
@@ -3971,7 +3990,9 @@ async function confirmCatalogImport() {
   try {
     await saveToSupabase();
   } catch (err) {
-    showToast('Error saving: ' + err.message, true);
+    showToast(isNetworkError(err)
+      ? "Network unavailable. Course import couldn't be completed."
+      : 'Error saving: ' + err.message, true);
     return;
   }
   closeCatalogPicker();
@@ -4017,7 +4038,9 @@ async function saveNote() {
     await saveToSupabase();
     showToast('Note saved');
   } catch (err) {
-    showToast('Error saving note: ' + err.message, true);
+    showToast(isNetworkError(err)
+      ? "Network unavailable. Your note wasn't saved."
+      : 'Error saving note: ' + err.message, true);
   } finally {
     btn.disabled = false;
   }
@@ -4031,24 +4054,37 @@ function scheduleSave() {
   saveTimer = setTimeout(async () => {
     try {
       await saveToSupabase();
-      autosaveCount++;
-      if (autosaveCount % AUTOSAVE_BATCH_SIZE === 0) {
-        // Charge for the batch *after* the save succeeds, so a failed/short balance
-        // never blocks the user's course data from being saved.
-        const ok = await spendCredits(CREDIT_COSTS.autosaveBatch, 'Auto-save (10 saves)', 'autosave_batch');
-        if (!ok) {
-          // Insufficient credits — data is still saved, just surface the shortfall.
-          console.warn('Autosave batch charge failed: insufficient credits');
-        }
-      }
-      ind.textContent = 'Saved ✓';
-      ind.className = 'save-indicator saved';
-      setTimeout(() => { ind.className = 'save-indicator'; }, 1800);
     } catch (err) {
       ind.textContent = 'Save failed';
       ind.className = 'save-indicator saving';
       setTimeout(() => { ind.className = 'save-indicator'; }, 2500);
-      showToast('Save error: ' + err.message, true);
+      showToast(isNetworkError(err)
+        ? "Network unavailable. Your changes weren't saved."
+        : 'Save error: ' + err.message, true);
+      return;
+    }
+
+    ind.textContent = 'Saved ✓';
+    ind.className = 'save-indicator saved';
+    setTimeout(() => { ind.className = 'save-indicator'; }, 1800);
+
+    autosaveCount++;
+    if (autosaveCount % AUTOSAVE_BATCH_SIZE === 0) {
+      // Charge for the batch *after* the save succeeds, so a failed/short balance
+      // never blocks the user's course data from being saved.
+      try {
+        const ok = await spendCredits(CREDIT_COSTS.autosaveBatch, 'Auto-save (10 saves)', 'autosave_batch');
+        if (!ok) {
+          // Insufficient credits (or another handled case) — spendCredits already
+          // surfaced its own modal/toast, so nothing more to show here.
+          console.warn('Autosave batch charge failed: insufficient credits');
+        }
+      } catch (err) {
+        // The autosave itself already succeeded — only the credit charge failed.
+        showToast(isNetworkError(err)
+          ? "Changes saved. Credit charge couldn't be completed."
+          : 'Changes saved. Error processing credit charge: ' + err.message, true);
+      }
     }
   }, 900);
 }
