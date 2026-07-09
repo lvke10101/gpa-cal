@@ -16,6 +16,9 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :focus-visible { outline: 2px solid var(--gold) !important; outline-offset: 2px; border-radius: 4px; }
+  input:focus-visible, select:focus-visible, textarea:focus-visible { outline-offset: 0; }
+  ::selection { background: var(--gold); color: var(--on-gold); }
   :root {
     --bg: #0e0f14; --surface:#16181f; --card:#1c1f2a; --border:#2a2d3a; --border2:#353848;
     --gold:#d4a843; --gold2:#f0c96a; --green:#2d7a4f; --green2:#3da86c; --red:#c0392b; --red2:#e74c3c;
@@ -39,7 +42,7 @@
   html, body { height:100%; background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; font-size:15px; -webkit-font-smoothing:antialiased; }
   #auth-screen { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; background:var(--auth-gradient); }
   .auth-box { width:100%; max-width:400px; background:var(--surface); border:1px solid var(--border); border-radius:22px; padding:40px 28px 32px; box-shadow:0 0 60px rgba(212,168,67,0.07), var(--shadow); }
-  .auth-logo { font-family:'Playfair Display',serif; font-size:26px; color:var(--gold); margin-bottom:4px; }
+  .auth-logo { font-family:'Playfair Display',serif; font-size:26px; color:var(--gold); margin-bottom:4px; letter-spacing:-0.3px; }
   .auth-tagline { color:var(--text3); font-size:12px; margin-bottom:32px; }
   .auth-tabs { display:flex; background:var(--card); border-radius:10px; padding:4px; margin-bottom:24px; gap:4px; }
   .auth-tab { flex:1; padding:9px; text-align:center; font-size:13px; font-weight:500; border-radius:7px; cursor:pointer; color:var(--text3); transition:all 0.2s; border:none; background:none; font-family:inherit; }
@@ -59,13 +62,15 @@
   .dept-combo.open .dept-caret { transform:translateY(-50%) rotate(180deg); }
   .dept-panel { position:absolute; left:0; right:0; top:calc(100% + 6px); background:var(--card); border:1px solid var(--border2); border-radius:10px; box-shadow:var(--shadow); max-height:240px; overflow-y:auto; z-index:50; display:none; -webkit-overflow-scrolling:touch; }
   .dept-panel.open { display:block; }
-  .dept-option { padding:11px 14px; font-size:14px; color:var(--text); cursor:pointer; border-bottom:1px solid var(--border); }
+  .dept-option { padding:11px 14px; font-size:14px; color:var(--text); cursor:pointer; border-bottom:1px solid var(--border); -webkit-tap-highlight-color:transparent; }
+  .dept-option:active { background:rgba(212,168,67,0.18); }
   .dept-option:last-child { border-bottom:none; }
   .dept-option:hover, .dept-option.active { background:rgba(212,168,67,0.12); color:var(--gold2); }
   .dept-panel .dept-empty { padding:14px; font-size:13px; color:var(--text3); text-align:center; }
   .dept-panel::-webkit-scrollbar { width:6px; }
   .dept-panel::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
-  .btn-full { width:100%; background:var(--gold); color:var(--on-gold); border:none; padding:14px; border-radius:10px; font-weight:600; font-size:15px; cursor:pointer; font-family:inherit; transition:background 0.2s; margin-top:6px; }
+  .btn-full { width:100%; background:var(--gold); color:var(--on-gold); border:none; padding:14px; border-radius:10px; font-weight:600; font-size:15px; cursor:pointer; font-family:inherit; transition:background 0.2s; margin-top:6px; -webkit-tap-highlight-color:transparent; }
+  .btn-full:active { transform:scale(0.98); background:var(--gold2); transition:transform 0.08s; }
   .btn-full:hover { background:var(--gold2); }
   .btn-full:disabled { opacity:0.5; cursor:not-allowed; }
   .auth-switch { text-align:center; font-size:13px; color:var(--text3); margin-top:18px; }
@@ -84,8 +89,10 @@
   .fp-success { display:none; font-size:13.5px; color:var(--text2); line-height:1.6; }
   .fp-actions { display:flex; gap:10px; margin-top:16px; }
   .fp-actions .btn-full { margin:0; }
-  .fp-cancel-btn { flex:1; padding:12px; border-radius:10px; background:var(--card); border:1px solid var(--border); color:var(--text2); font-family:inherit; font-size:14px; font-weight:600; cursor:pointer; }
-  .fp-close-btn { width:100%; padding:12px; border-radius:10px; background:var(--card); border:1px solid var(--border); color:var(--text2); font-family:inherit; font-size:14px; font-weight:600; cursor:pointer; margin-top:16px; }
+  .fp-cancel-btn { flex:1; padding:12px; border-radius:10px; background:var(--card); border:1px solid var(--border); color:var(--text2); font-family:inherit; font-size:14px; font-weight:600; cursor:pointer; transition:background 0.2s; -webkit-tap-highlight-color:transparent; }
+  .fp-cancel-btn:active { transform:scale(0.97); background:var(--overlay-soft2); transition:transform 0.08s; }
+  .fp-close-btn { width:100%; padding:12px; border-radius:10px; background:var(--card); border:1px solid var(--border); color:var(--text2); font-family:inherit; font-size:14px; font-weight:600; cursor:pointer; margin-top:16px; transition:background 0.2s; -webkit-tap-highlight-color:transparent; }
+  .fp-close-btn:active { transform:scale(0.97); background:var(--overlay-soft2); transition:transform 0.08s; }
   .fp-attempts { text-align:center; font-size:12px; color:var(--text3); margin-top:12px; }
   .fp-attempts.zero { color:var(--red2); }
 
@@ -98,7 +105,8 @@
   #credit-history-screen { display:none; min-height:100vh; flex-direction:column; background:var(--bg); }
   #credit-history-screen header { justify-content:flex-start; gap:14px; align-items:center; }
   #credit-history-screen .edit-profile-header-title { flex:1; text-align:center; }
-  .ch-help-btn { width:34px; height:34px; border-radius:50%; border:none; background:none; color:var(--gold); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
+  .ch-help-btn { width:34px; height:34px; border-radius:50%; border:none; background:none; color:var(--gold); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:background 0.2s; -webkit-tap-highlight-color:transparent; }
+  .ch-help-btn:active { transform:scale(0.88); background:var(--overlay-soft2); transition:transform 0.08s; }
   .ch-help-btn svg { width:22px; height:22px; }
   .ch-content { padding:16px; padding-bottom:40px; }
   .ch-balance-card { display:flex; align-items:center; gap:16px; background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:18px 20px; margin-bottom:16px; }
@@ -142,9 +150,10 @@
   .ch-load-more-btn { width:100%; padding:12px; margin-bottom:22px; border:1px solid var(--border2); border-radius:12px; background:var(--surface); color:var(--gold); font-weight:600; font-size:14px; cursor:pointer; }
   #app { display:none; min-height:100vh; flex-direction:column; }
   header { background:var(--surface); border-bottom:1px solid var(--border); padding:0 16px; display:flex; align-items:center; gap:12px; height:54px; flex-shrink:0; position:sticky; top:0; z-index:100; }
-  .header-logo { font-family:'Playfair Display',serif; font-size:18px; color:var(--gold); }
+  .header-logo { font-family:'Playfair Display',serif; font-size:18px; color:var(--gold); letter-spacing:-0.2px; }
   header .spacer { flex:1; }
-  .header-user { position:relative; display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--border); border-radius:24px; padding:4px 18px 4px 7px; cursor:pointer; transition:border-color 0.2s; flex-shrink:0; }
+  .header-user { position:relative; display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--border); border-radius:24px; padding:4px 18px 4px 7px; cursor:pointer; transition:border-color 0.2s, background 0.15s; flex-shrink:0; -webkit-tap-highlight-color:transparent; }
+  .header-user:active { background:var(--overlay-soft2); }
   .header-user:hover { border-color:var(--gold); }
   .header-avatar { width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg, var(--gold), #a07820); display:flex; align-items:center; justify-content:center; font-weight:600; font-size:12px; color:var(--on-gold); overflow:hidden; flex-shrink:0; }
   .header-avatar img { width:100%; height:100%; object-fit:cover; }
@@ -160,7 +169,8 @@
   .header-balance.low .balance-amt { color:var(--red2); }
   .header-user-popover { position:absolute; top:calc(100% + 8px); right:0; min-width:188px; background:var(--card); border:1px solid var(--border2); border-radius:12px; box-shadow:var(--shadow); z-index:150; display:none; overflow:hidden; }
   .header-user-popover.open { display:block; }
-  .hu-pop-item { display:flex; align-items:center; gap:10px; padding:12px 14px; font-size:13.5px; color:var(--text); cursor:pointer; transition:background 0.15s; border-bottom:1px solid var(--border); }
+  .hu-pop-item { display:flex; align-items:center; gap:10px; padding:12px 14px; font-size:13.5px; color:var(--text); cursor:pointer; transition:background 0.15s; border-bottom:1px solid var(--border); -webkit-tap-highlight-color:transparent; }
+  .hu-pop-item:active:not(.static) { background:var(--overlay-soft2); }
   .hu-pop-item:last-child { border-bottom:none; cursor:default; }
   .hu-pop-item:hover:not(.static) { background:var(--overlay-soft2); }
   .hu-pop-item svg { width:16px; height:16px; flex-shrink:0; color:var(--text3); }
@@ -175,7 +185,8 @@
   #notif-screen { position:fixed; inset:0; z-index:400; background:var(--bg); display:flex; flex-direction:column; transform:translateX(100%); transition:transform 0.28s cubic-bezier(0.2,0.8,0.2,1); }
   #notif-screen.open { transform:translateX(0); }
   #notif-screen header { justify-content:flex-start; padding:14px 16px; border-bottom:1px solid var(--border); align-items:center; flex-shrink:0; gap:12px; }
-  .notif-back { display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; background:var(--card); border:1px solid var(--border); color:var(--text2); cursor:pointer; flex-shrink:0; }
+  .notif-back { display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; background:var(--card); border:1px solid var(--border); color:var(--text2); cursor:pointer; flex-shrink:0; transition:all 0.2s; -webkit-tap-highlight-color:transparent; }
+  .notif-back:active { transform:scale(0.88); background:var(--overlay-soft2); transition:transform 0.08s; }
   .notif-title { font-size:16px; font-weight:600; color:var(--text); }
   .notif-list { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
   .notif-item { display:flex; align-items:flex-start; gap:12px; padding:16px; border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.15s; }
@@ -234,29 +245,34 @@
   .cgpa-badge { flex-shrink:0; margin-left:auto; padding-left:16px; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:8px 16px; display:flex; flex-direction:column; align-items:center; cursor:pointer; user-select:none; -webkit-tap-highlight-color:transparent; transition:opacity 0.15s; }
   .cgpa-badge:active { opacity:0.6; }
   .cgpa-badge .label { font-size:10px; color:var(--text3); letter-spacing:0.7px; text-transform:uppercase; margin-bottom:1px; }
-  .cgpa-badge .val { font-family:'Playfair Display',serif; font-size:22px; color:var(--gold); line-height:1; }
+  .cgpa-badge .val { font-family:'Playfair Display',serif; font-size:22px; color:var(--gold); line-height:1; letter-spacing:-0.3px; }
   .cgpa-badge .cls { font-size:10px; color:var(--text2); margin-top:1px; }
   .year-groups { background:var(--surface); border-bottom:1px solid var(--border); padding:0 16px; display:flex; gap:6px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
   .year-groups::-webkit-scrollbar { display:none; }
-  .year-btn { padding:10px 14px; font-size:12px; font-weight:600; cursor:pointer; color:var(--text3); border-bottom:2px solid transparent; transition:all 0.2s; white-space:nowrap; background:none; border:none; border-bottom:2px solid transparent; font-family:inherit; }
+  .year-btn { padding:10px 14px; font-size:12px; font-weight:600; cursor:pointer; color:var(--text3); border-bottom:2px solid transparent; transition:all 0.2s; white-space:nowrap; background:none; border:none; border-bottom:2px solid transparent; font-family:inherit; -webkit-tap-highlight-color:transparent; }
+  .year-btn:active { background:var(--overlay-soft2); }
   .year-btn:hover { color:var(--text); }
   .year-btn.active { color:var(--gold); border-bottom-color:var(--gold); }
   .sem-tabs { background:var(--card); border-bottom:1px solid var(--border); padding:0 16px; display:flex; gap:4px; }
-  .sem-tab { flex:1; padding:10px 4px; text-align:center; font-size:12px; font-weight:500; cursor:pointer; color:var(--text3); border-bottom:2px solid transparent; transition:all 0.2s; background:none; border:none; border-bottom:2px solid transparent; font-family:inherit; white-space:nowrap; }
+  .sem-tab { flex:1; padding:10px 4px; text-align:center; font-size:12px; font-weight:500; cursor:pointer; color:var(--text3); border-bottom:2px solid transparent; transition:all 0.2s; background:none; border:none; border-bottom:2px solid transparent; font-family:inherit; white-space:nowrap; -webkit-tap-highlight-color:transparent; }
+  .sem-tab:active { background:var(--overlay-soft2); }
   .sem-tab:hover { color:var(--text); }
   .sem-tab.active { color:var(--gold); border-bottom-color:var(--gold); }
   .sem-tab .gpa-tag { display:block; font-family:'DM Mono',monospace; font-size:11px; color:var(--text3); margin-top:1px; }
   .sem-tab.active .gpa-tag { color:var(--gold); }
   .content { flex:1; padding:16px; max-width:900px; width:100%; margin:0 auto; }
   .semester-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:8px; }
-  .semester-title { font-family:'Playfair Display',serif; font-size:18px; color:var(--text); }
+  .semester-title { font-family:'Playfair Display',serif; font-size:18px; color:var(--text); letter-spacing:-0.2px; text-wrap:balance; }
   .semester-gpa-detail { font-size:12px; color:var(--text3); font-family:'DM Mono',monospace; margin-top:2px; }
-  .btn-add { background:var(--gold); color:var(--on-gold); border:none; padding:9px 14px; border-radius:10px; font-weight:600; font-size:13px; cursor:pointer; font-family:inherit; transition:all 0.2s; display:flex; align-items:center; gap:5px; flex-shrink:0; }
+  .btn-add { background:var(--gold); color:var(--on-gold); border:none; padding:9px 14px; border-radius:10px; font-weight:600; font-size:13px; cursor:pointer; font-family:inherit; transition:all 0.2s; display:flex; align-items:center; gap:5px; flex-shrink:0; -webkit-tap-highlight-color:transparent; }
+  .btn-add:active { transform:scale(0.96); background:var(--gold2); transition:transform 0.08s; }
   .btn-add:hover { background:var(--gold2); }
   .btn-add svg { width:13px; height:13px; }
-  .btn-upload { background:var(--card); color:var(--text2); border:1px solid var(--border); padding:6px 12px; border-radius:8px; font-size:11px; cursor:pointer; font-family:inherit; transition:all 0.2s; }
+  .btn-upload { background:var(--card); color:var(--text2); border:1px solid var(--border); padding:6px 12px; border-radius:8px; font-size:11px; cursor:pointer; font-family:inherit; transition:all 0.2s; -webkit-tap-highlight-color:transparent; }
+  .btn-upload:active { transform:scale(0.94); background:var(--overlay-soft2); transition:transform 0.08s; }
   .btn-upload:hover { border-color:var(--gold); color:var(--text); }
-  .btn-icon-upload { background:var(--card); color:var(--text2); border:1px solid var(--border); width:36px; height:36px; border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; flex-shrink:0; }
+  .btn-icon-upload { background:var(--card); color:var(--text2); border:1px solid var(--border); width:36px; height:36px; border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; flex-shrink:0; -webkit-tap-highlight-color:transparent; }
+  .btn-icon-upload:active { transform:scale(0.92); background:var(--overlay-soft2); transition:transform 0.08s; }
   .btn-icon-upload:hover { border-color:var(--gold); color:var(--gold); }
   .btn-icon-upload svg { width:16px; height:16px; }
   
@@ -293,7 +309,8 @@
   .grade-select:focus { border-color:var(--gold); }
   .grade-A { color:var(--A); } .grade-B { color:var(--B); } .grade-C { color:var(--C); } .grade-D { color:var(--D); } .grade-E { color:var(--E); } .grade-F { color:var(--F); }
   .gp-cell { font-family:'DM Mono',monospace; color:var(--text2); font-size:12px; }
-  .btn-del { background:none; border:none; color:var(--text3); cursor:pointer; font-size:16px; padding:6px 10px; border-radius:6px; transition:all 0.2s; display:flex; align-items:center; justify-content:center; }
+  .btn-del { background:none; border:none; color:var(--text3); cursor:pointer; font-size:16px; padding:6px 10px; border-radius:6px; transition:all 0.2s; display:flex; align-items:center; justify-content:center; -webkit-tap-highlight-color:transparent; }
+  .btn-del:active { transform:scale(0.88); background:rgba(192,57,43,0.18); transition:transform 0.08s; }
   .btn-del svg { width:18px; height:18px; }
   .btn-del:hover { color:var(--red2); background:rgba(192,57,43,0.1); }
   .cell-input:disabled, .grade-select:disabled { opacity:0.5; cursor:not-allowed; }
@@ -322,8 +339,9 @@
   .note-title { font-size:13px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:0.6px; }
   .note-textarea { width:100%; min-height:100px; background:var(--surface); border:1px solid var(--border); color:var(--text); border-radius:var(--radius); padding:14px; font-family:inherit; font-size:14px; outline:none; resize:vertical; transition:border-color 0.2s; }
   .note-textarea:focus { border-color:var(--gold); }
-  .btn-save-note { background:var(--card); color:var(--text2); border:1px solid var(--border); padding:8px 16px; border-radius:9px; font-weight:600; font-size:12px; cursor:pointer; font-family:inherit; transition:all 0.2s; }
+  .btn-save-note { background:var(--card); color:var(--text2); border:1px solid var(--border); padding:8px 16px; border-radius:9px; font-weight:600; font-size:12px; cursor:pointer; font-family:inherit; transition:all 0.2s; -webkit-tap-highlight-color:transparent; }
   .btn-save-note:hover { border-color:var(--gold); color:var(--gold); }
+  .btn-save-note:active { transform:scale(0.96); background:var(--gold); color:var(--on-gold); border-color:var(--gold); transition:all 0.08s; }
   .btn-save-note:disabled { opacity:0.5; cursor:not-allowed; }
 
   /* Profile screen */
@@ -392,7 +410,8 @@
   .pd-comment-actions { display:flex; align-items:center; gap:14px; padding-left:34px; margin-top:8px; }
   .pd-comment-reply { padding-left:34px; border-left:2px solid var(--border); margin-top:8px; }
   .pd-replies { margin-top:8px; }
-  .pd-show-more { display:block; width:100%; padding:14px; text-align:center; color:var(--gold); font-size:13.5px; font-weight:600; background:none; border:none; cursor:pointer; font-family:inherit; }
+  .pd-show-more { display:block; width:100%; padding:14px; text-align:center; color:var(--gold); font-size:13.5px; font-weight:600; background:none; border:none; cursor:pointer; font-family:inherit; transition:background 0.15s; -webkit-tap-highlight-color:transparent; }
+  .pd-show-more:active { background:var(--overlay-soft2); }
   .pd-show-more:hover { color:var(--gold2); }
   .pd-verified-badge { color:var(--blue); flex-shrink:0; }
   .pd-comment-more-wrap { position:relative; margin-left:4px; flex-shrink:0; }
@@ -421,11 +440,12 @@
   .cp-cost-input { width:70px; background:var(--card); border:1px solid var(--border); border-radius:8px; padding:7px 10px; color:var(--text); font-family:'DM Mono',monospace; text-align:center; }
   .cp-submit-btn { margin-top:28px; background:var(--gold); color:var(--on-gold); border:none; border-radius:12px; padding:14px; font-size:15px; font-weight:700; cursor:pointer; }
   .cp-submit-btn:disabled { opacity:0.5; }
-  .profile-back { background:var(--card); border:1px solid var(--border); color:var(--text); width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:border-color 0.2s; }
+  .profile-back { background:var(--card); border:1px solid var(--border); color:var(--text); width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:border-color 0.2s; -webkit-tap-highlight-color:transparent; }
+  .profile-back:active { transform:scale(0.88); background:var(--overlay-soft2); transition:transform 0.08s; }
   .profile-back:hover { border-color:var(--gold); }
   .profile-back svg { width:16px; height:16px; }
   .profile-content { flex:1; max-width:480px; width:100%; margin:0 auto; padding:20px 16px 40px; }
-  .profile-page-title { font-family:'Playfair Display',serif; font-size:24px; color:var(--text); margin-bottom:18px; }
+  .profile-page-title { font-family:'Playfair Display',serif; font-size:24px; color:var(--text); margin-bottom:18px; letter-spacing:-0.3px; }
   .profile-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:28px 20px 22px; display:flex; flex-direction:column; align-items:center; text-align:center; margin-bottom:20px; }
   .profile-avatar { width:92px; height:92px; border-radius:50%; background:linear-gradient(135deg, var(--gold), #a07820); display:flex; align-items:center; justify-content:center; font-weight:600; font-size:32px; color:var(--on-gold); margin-bottom:14px; overflow:hidden; border:3px solid var(--gold2); box-shadow:0 0 0 2px var(--surface); }
   .profile-avatar img { width:100%; height:100%; object-fit:cover; }
@@ -433,11 +453,13 @@
   .profile-email { font-size:13px; color:var(--text3); margin-top:3px; }
   .profile-meta { font-size:12px; color:var(--text3); margin-top:6px; }
   .profile-level { font-size:12px; color:var(--text3); margin-top:2px; }
-  .btn-edit-profile { margin-top:18px; background:var(--gold); color:var(--on-gold); border:none; padding:11px 24px; border-radius:24px; font-weight:600; font-size:13px; cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:7px; transition:background 0.2s; }
+  .btn-edit-profile { margin-top:18px; background:var(--gold); color:var(--on-gold); border:none; padding:11px 24px; border-radius:24px; font-weight:600; font-size:13px; cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:7px; transition:background 0.2s; -webkit-tap-highlight-color:transparent; }
+  .btn-edit-profile:active { transform:scale(0.96); background:var(--gold2); transition:transform 0.08s; }
   .btn-edit-profile:hover { background:var(--gold2); }
   .btn-edit-profile svg { width:14px; height:14px; }
   .profile-menu { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:16px; overflow:hidden; }
-  .profile-item { width:100%; display:flex; align-items:center; gap:14px; padding:15px 16px; background:none; border:none; border-bottom:1px solid var(--border); color:var(--text); font-family:inherit; font-size:14px; cursor:pointer; text-align:left; }
+  .profile-item { width:100%; display:flex; align-items:center; gap:14px; padding:15px 16px; background:none; border:none; border-bottom:1px solid var(--border); color:var(--text); font-family:inherit; font-size:14px; cursor:pointer; text-align:left; transition:background 0.15s; -webkit-tap-highlight-color:transparent; }
+  .profile-item:active { background:var(--overlay-soft2); }
   .profile-item:last-child { border-bottom:none; }
   .profile-item:hover { background:var(--overlay-soft); }
   .profile-item-icon { width:26px; height:26px; display:flex; align-items:center; justify-content:center; color:var(--text2); flex-shrink:0; }
@@ -448,7 +470,8 @@
   .profile-item-label { flex:1; }
   .profile-item-arrow { color:var(--text3); display:flex; align-items:center; flex-shrink:0; }
   .profile-item-arrow svg { width:16px; height:16px; }
-  .profile-logout { width:100%; background:none; border:1px solid var(--border); color:var(--red2); padding:13px; border-radius:10px; font-weight:600; font-size:13px; cursor:pointer; font-family:inherit; margin-top:6px; transition:all 0.2s; }
+  .profile-logout { width:100%; background:none; border:1px solid var(--border); color:var(--red2); padding:13px; border-radius:10px; font-weight:600; font-size:13px; cursor:pointer; font-family:inherit; margin-top:6px; transition:all 0.2s; -webkit-tap-highlight-color:transparent; }
+  .profile-logout:active { transform:scale(0.97); background:rgba(192,57,43,0.12); transition:transform 0.08s; }
   .profile-logout:hover { border-color:var(--red2); background:rgba(192,57,43,0.08); }
   .profile-footer-bar { margin-top:28px; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px 16px; display:flex; flex-direction:column; gap:12px; }
   .profile-footer-top { display:flex; align-items:center; justify-content:space-between; gap:12px; }
@@ -464,7 +487,7 @@
   /* Edit profile screen */
   #edit-profile-screen { display:none; min-height:100vh; flex-direction:column; background:var(--bg); }
   #edit-profile-screen header { justify-content:flex-start; gap:14px; }
-  .edit-profile-header-title { font-family:'Playfair Display',serif; font-size:16px; color:var(--text); }
+  .edit-profile-header-title { font-family:'Playfair Display',serif; font-size:16px; color:var(--text); letter-spacing:-0.1px; }
   #profile-screen header { justify-content:flex-start; gap:14px; align-items:center; }
   #profile-screen .edit-profile-header-title { flex:1; text-align:center; }
   #profile-screen .profile-header-spacer { width:34px; flex-shrink:0; }
@@ -502,7 +525,7 @@
   /* FAQ screen */
   #faq-screen { display:none; min-height:100vh; flex-direction:column; background:var(--bg); }
   #faq-screen header { justify-content:flex-start; gap:14px; }
-  .faq-header-title { font-family:'Playfair Display',serif; font-size:16px; color:var(--text); flex:1; }
+  .faq-header-title { font-family:'Playfair Display',serif; font-size:16px; color:var(--text); flex:1; letter-spacing:-0.1px; }
   .faq-search-icon { color:var(--text3); width:18px; height:18px; flex-shrink:0; }
   .faq-list { display:flex; flex-direction:column; }
   .faq-item { border-bottom:1px solid var(--border); }
@@ -675,21 +698,21 @@
         <div class="header-user-text">
           <div class="header-user-row1">
             <span class="header-username" id="header-name"></span>
-            <svg class="header-user-chevron" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            <svg class="header-user-chevron" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
           <div class="header-balance" id="header-balance"><span>Balance:</span> <span class="credit-icon-inline">C</span><span class="balance-amt" id="header-balance-amt">—</span></div>
         </div>
         <div class="header-user-popover" id="header-user-popover">
           <div class="hu-pop-item" onclick="event.stopPropagation(); showProfile();">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
             <span>Profile</span>
           </div>
           <div class="hu-pop-item" onclick="event.stopPropagation(); showBookmarks();">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
             <span>Bookmarks</span>
           </div>
           <div class="hu-pop-item" id="hu-pop-new-post" style="display:none;" onclick="event.stopPropagation(); openPostTypeSheet();">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
             <span>New Post</span>
           </div>
           <div class="hu-pop-item static">
@@ -699,7 +722,7 @@
         </div>
       </div>
       <div class="header-bell" title="Notifications" onclick="openNotifications()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 3.2-1 5.4-2 7h16c-1-1.6-2-3.8-2-7"/><path d="M9.5 19a2.5 2.5 0 0 0 5 0"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 3.2-1 5.4-2 7h16c-1-1.6-2-3.8-2-7"/><path d="M9.5 19a2.5 2.5 0 0 0 5 0"/></svg>
         <span class="header-bell-badge" id="header-bell-badge" hidden>0</span>
       </div>
     </div>
@@ -708,7 +731,7 @@
   <div class="nav-pill-row">
     <div class="nav-pill active" id="pill-semester" onclick="switchNewsTab('semester')">
       <div class="nav-pill-main">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 8l10 5 10-5-10-5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 8l10 5 10-5-10-5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>
         <span>My Semester</span>
       </div>
     </div>
@@ -717,7 +740,7 @@
     </div>
     <div class="nav-pill" id="pill-news" onclick="switchNewsTab('news')">
       <div class="nav-pill-main">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="15" rx="2"/><line x1="7" y1="9" x2="11" y2="9"/><line x1="7" y1="13" x2="17" y2="13"/><line x1="7" y1="16" x2="17" y2="16"/><line x1="14" y1="9" x2="17" y2="9"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="15" rx="2"/><line x1="7" y1="9" x2="11" y2="9"/><line x1="7" y1="13" x2="17" y2="13"/><line x1="7" y1="16" x2="17" y2="16"/><line x1="14" y1="9" x2="17" y2="9"/></svg>
         <span>News Feed</span>
         <span class="nav-pill-badge" id="news-pill-badge" style="display:none;">0</span>
       </div>
@@ -751,12 +774,12 @@
         </div>
         <div style="display:flex; align-items:center; gap:8px;">
           <button class="btn-icon-upload" title="Upload courses" onclick="openCatalogPicker()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
               <path d="M12 4v12"/><path d="M7 11l5 5 5-5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>
             </svg>
           </button>
           <button class="btn-add" id="btn-add-course" onclick="addCourse()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
               <rect x="4" y="4" width="4.5" height="16"/>
               <rect x="9.5" y="4" width="4.5" height="16"/>
               <rect x="15.5" y="5" width="4.5" height="16" transform="rotate(12 17.75 13)"/>
@@ -805,7 +828,7 @@
       <div class="note-section">
         <div class="note-header">
           <div class="note-title">Semester Note</div>
-          <button class="btn-save-note" id="save-note-btn" onclick="saveNote()">Save Note (1C)</button>
+          <button class="btn-save-note" id="save-note-btn" onclick="saveNote()">Save Note</button>
         </div>
         <textarea class="note-textarea" id="note-textarea" placeholder="Jot down anything about this semester — reminders, reflections, plans…"></textarea>
       </div>
@@ -815,7 +838,7 @@
   <div id="tab-news" style="display:none;">
     <div class="cs-wrap">
       <div class="cs-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="15" rx="2"/><line x1="7" y1="9" x2="11" y2="9"/><line x1="7" y1="13" x2="17" y2="13"/><line x1="7" y1="16" x2="17" y2="16"/><line x1="14" y1="9" x2="17" y2="9"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="15" rx="2"/><line x1="7" y1="9" x2="11" y2="9"/><line x1="7" y1="13" x2="17" y2="13"/><line x1="7" y1="16" x2="17" y2="16"/><line x1="14" y1="9" x2="17" y2="9"/></svg>
       </div>
       <div class="cs-title">Coming Soon</div>
       <div class="cs-sub">The News Feed is being rebuilt. Check back later.</div>
@@ -828,7 +851,7 @@
 <div id="profile-screen">
   <header>
     <button class="profile-back" onclick="hideProfile()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
     </button>
     <div class="edit-profile-header-title">Profile</div>
     <span class="profile-header-spacer"></span>
@@ -841,7 +864,7 @@
       <div class="profile-meta" id="profile-meta">—</div>
       <div class="profile-level" id="profile-level"></div>
       <button class="btn-edit-profile" onclick="showEditProfile()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
         Edit Profile
       </button>
     </div>
@@ -849,55 +872,55 @@
     <div class="profile-menu">
       <button class="profile-item">
         <span class="profile-item-icon icon-gold">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 3c2.5 2.5 4 5.5 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.5-4-9s1.5-6.5 4-9z"/><path d="M3 12h18"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="9"/><path d="M12 3c2.5 2.5 4 5.5 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.5-4-9s1.5-6.5 4-9z"/><path d="M3 12h18"/></svg>
         </span>
         <span class="profile-item-label">Language</span>
-        <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+        <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
       <button class="profile-item" onclick="showCreditHistory()">
         <span class="profile-item-icon icon-gold">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
         </span>
         <span class="profile-item-label">Credit History</span>
-        <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+        <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
       <button class="profile-item" onclick="showAppearance()">
         <span class="profile-item-icon icon-gold">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2a10 10 0 1 0 0 20c1 0 2-.6 2-1.8 0-.5-.2-1-.5-1.4-.3-.4-.5-.9-.5-1.4 0-1 1-1.9 2-1.9h2a4.1 4.1 0 0 0 4-4.5C21 5.9 17 2 12 2z"/><circle cx="6.7" cy="11.5" r="1.1"/><circle cx="9.3" cy="7" r="1.1"/><circle cx="14.7" cy="7" r="1.1"/><circle cx="17.3" cy="11.5" r="1.1"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 2a10 10 0 1 0 0 20c1 0 2-.6 2-1.8 0-.5-.2-1-.5-1.4-.3-.4-.5-.9-.5-1.4 0-1 1-1.9 2-1.9h2a4.1 4.1 0 0 0 4-4.5C21 5.9 17 2 12 2z"/><circle cx="6.7" cy="11.5" r="1.1"/><circle cx="9.3" cy="7" r="1.1"/><circle cx="14.7" cy="7" r="1.1"/><circle cx="17.3" cy="11.5" r="1.1"/></svg>
         </span>
         <span class="profile-item-label">Appearance</span>
-        <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+        <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
     </div>
 
     <div class="profile-menu">
       <button class="profile-item">
         <span class="profile-item-icon icon-mono">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 3v6c0 4.5-3 7.5-8 9-5-1.5-8-4.5-8-9V6z"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 3l8 3v6c0 4.5-3 7.5-8 9-5-1.5-8-4.5-8-9V6z"/></svg>
         </span>
         <span class="profile-item-label">Application Security</span>
-        <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+        <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
       <button class="profile-item">
         <span class="profile-item-icon icon-mono">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
         </span>
         <span class="profile-item-label">Manage Devices</span>
-        <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+        <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
       <button class="profile-item" onclick="showChangePassword()">
         <span class="profile-item-icon icon-mono">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M7.5 11V7.5a4.5 4.5 0 0 1 9 0V11"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M7.5 11V7.5a4.5 4.5 0 0 1 9 0V11"/></svg>
         </span>
         <span class="profile-item-label">Change Password</span>
-        <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+        <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
       <button class="profile-item" onclick="showFAQ()">
         <span class="profile-item-icon icon-mono">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.35-1 .8-1 1.7v.5"/><line x1="12" y1="17" x2="12" y2="17.1"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.35-1 .8-1 1.7v.5"/><line x1="12" y1="17" x2="12" y2="17.1"/></svg>
         </span>
         <span class="profile-item-label">FAQ</span>
-        <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+        <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
     </div>
 
@@ -908,13 +931,13 @@
         <span class="profile-footer-wordmark">GRADEVAULT</span>
         <div class="profile-footer-social">
           <span class="footer-social-icon ornamental" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 9h2V6h-2c-1.66 0-3 1.34-3 3v2H9v3h2v6h3v-6h2.2l.8-3H14V9z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M14 9h2V6h-2c-1.66 0-3 1.34-3 3v2H9v3h2v6h3v-6h2.2l.8-3H14V9z"/></svg>
           </span>
           <span class="footer-social-icon ornamental" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 5.8c-.77.34-1.6.57-2.46.67a4.3 4.3 0 0 0 1.88-2.37 8.6 8.6 0 0 1-2.72 1.04 4.28 4.28 0 0 0-7.29 3.9A12.13 12.13 0 0 1 3 4.9a4.27 4.27 0 0 0 1.32 5.71 4.25 4.25 0 0 1-1.94-.54 4.28 4.28 0 0 0 3.43 4.25 4.3 4.3 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98A8.6 8.6 0 0 1 2 18.95a12.1 12.1 0 0 0 6.56 1.92c7.87 0 12.18-6.52 12.18-12.18 0-.19 0-.37-.01-.55A8.7 8.7 0 0 0 22 5.8z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M22 5.8c-.77.34-1.6.57-2.46.67a4.3 4.3 0 0 0 1.88-2.37 8.6 8.6 0 0 1-2.72 1.04 4.28 4.28 0 0 0-7.29 3.9A12.13 12.13 0 0 1 3 4.9a4.27 4.27 0 0 0 1.32 5.71 4.25 4.25 0 0 1-1.94-.54 4.28 4.28 0 0 0 3.43 4.25 4.3 4.3 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98A8.6 8.6 0 0 1 2 18.95a12.1 12.1 0 0 0 6.56 1.92c7.87 0 12.18-6.52 12.18-12.18 0-.19 0-.37-.01-.55A8.7 8.7 0 0 0 22 5.8z"/></svg>
           </span>
-          <a class="footer-social-icon live" href="https://wa.me/2349019252594" target="_blank" rel="noopener" aria-label="Contact us on WhatsApp">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.15-1.7-.85-2-.95-.27-.1-.46-.15-.66.15-.2.3-.75.95-.92 1.15-.17.2-.34.22-.63.07-.3-.15-1.25-.46-2.38-1.46-.88-.78-1.47-1.75-1.64-2.05-.17-.3-.02-.46.13-.61.15-.15.34-.4.5-.6.17-.2.22-.34.34-.56.1-.22.05-.4-.05-.56-.1-.15-.6-1.45-.83-1.98-.2-.5-.42-.43-.58-.44h-.5c-.17 0-.46.07-.7.34-.25.27-.95.93-.95 2.27 0 1.35.98 2.65 1.12 2.84.15.2 1.9 2.9 4.6 3.95 2.7 1.05 2.7.7 3.18.65.5-.05 1.6-.65 1.83-1.28.22-.63.22-1.17.15-1.28-.07-.1-.27-.17-.57-.32z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.85.5 3.6 1.4 5.1L2 22l5.1-1.34A9.93 9.93 0 0 0 12 22c5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18.1c-1.6 0-3.1-.43-4.4-1.2l-.32-.18-3.27.86.87-3.18-.2-.33A8.1 8.1 0 1 1 12 20.1z"/></svg>
+          <a class="footer-social-icon live" href="https://wa.me/2349019252594" target="_blank" rel="noopener" aria-label="Contact customer care">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3v5Z"/><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3v5Z"/></svg>
           </a>
         </div>
       </div>
@@ -927,7 +950,7 @@
 <div id="bookmarks-screen">
   <header>
     <button class="profile-back" onclick="hideBookmarks()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
     </button>
     <span style="font-size:16px;font-weight:600;color:var(--text);margin-left:8px;">Bookmarks</span>
   </header>
@@ -958,7 +981,7 @@
 <div id="compose-screen">
   <header>
     <button class="profile-back" onclick="hideCompose()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
     </button>
     <span style="font-size:16px;font-weight:600;color:var(--text);margin-left:8px;" id="cp-header-label">New Post</span>
   </header>
@@ -967,7 +990,7 @@
     <div class="cp-news-only">
     <label class="cp-label">Cover image <span class="cp-label-sub">(optional)</span></label>
     <label id="cp-image-pick-btn" style="display:flex;align-items:center;gap:10px;background:var(--card);border:1px dashed var(--border2);border-radius:10px;padding:12px 14px;cursor:pointer;color:var(--text2);font-size:14px;">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
       <span id="cp-image-pick-label">Choose image…</span>
       <input type="file" id="cp-image-file" accept="image/*" style="display:none;" onchange="cpHandleImageFile(this)">
     </label>
@@ -1022,7 +1045,7 @@
 <div id="post-detail-screen">
   <header>
     <button class="profile-back" onclick="closePost()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
     </button>
     <span style="font-size:16px;font-weight:600;color:var(--text);margin-left:8px;" id="pd-header-label">Post</span>
     <div class="pd-more-wrap" style="margin-left:auto;position:relative;">
@@ -1031,15 +1054,15 @@
       </button>
       <div class="pd-menu" id="pd-menu">
         <button class="pd-menu-item" id="pd-menu-bm" onclick="pdToggleBookmark(); closePostMenu();">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
           <span id="pd-menu-bm-label">Bookmark</span>
         </button>
         <button class="pd-menu-item" onclick="pdShare(); closePostMenu();">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
           <span>Share</span>
         </button>
         <button class="pd-menu-item pd-menu-delete" id="pd-menu-delete" onclick="pdDeletePost(); closePostMenu();" style="display:none;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
           <span>Delete</span>
         </button>
       </div>
@@ -1054,7 +1077,7 @@
 <div id="notif-screen">
   <header>
     <button class="notif-back" onclick="closeNotifications()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
     </button>
     <span class="notif-title">Notifications</span>
   </header>
@@ -1070,7 +1093,7 @@
 <div id="edit-profile-screen">
   <header>
     <button class="profile-back" onclick="hideEditProfile()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
     </button>
     <div class="edit-profile-header-title">Edit profile</div>
   </header>
@@ -1078,7 +1101,7 @@
     <div class="edit-avatar-wrap" onclick="openAvatarPicker()">
       <div class="profile-avatar" id="edit-avatar"></div>
       <span class="edit-avatar-pencil" onclick="openAvatarPicker()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
       </span>
     </div>
 
@@ -1114,7 +1137,7 @@
 <div id="change-password-screen">
   <header>
     <button class="profile-back" onclick="hideChangePassword()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
     </button>
     <div class="edit-profile-header-title">Change Password</div>
   </header>
@@ -1137,7 +1160,7 @@
 <div id="credit-history-screen">
   <header>
     <button class="profile-back" onclick="hideCreditHistory()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
     </button>
     <div class="edit-profile-header-title">Credit History</div>
     <button class="ch-help-btn" onclick="showToast('Credits are spent to access, and earned by contributing.')">
@@ -1147,7 +1170,7 @@
   <div class="ch-content">
     <div class="ch-balance-card">
       <span class="ch-coin-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><ellipse cx="12" cy="7" rx="7" ry="3"/><path d="M5 7v10c0 1.66 3.13 3 7 3s7-1.34 7-3V7"/><path d="M5 12c0 1.66 3.13 3 7 3s7-1.34 7-3"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><ellipse cx="12" cy="7" rx="7" ry="3"/><path d="M5 7v10c0 1.66 3.13 3 7 3s7-1.34 7-3V7"/><path d="M5 12c0 1.66 3.13 3 7 3s7-1.34 7-3"/></svg>
       </span>
       <div class="ch-balance-text">
         <div class="ch-balance-label">Current Balance</div>
@@ -1157,7 +1180,7 @@
 
     <div class="ch-search-row">
       <div class="ch-search-box">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input type="text" id="ch-search-input" placeholder="Search actions..." oninput="filterCreditHistory()"/>
       </div>
     </div>
@@ -1167,11 +1190,11 @@
       <button class="ch-chip" data-filter="spent" onclick="setCreditHistoryChip('spent', this)"><span class="ch-chip-red">↓</span> Spent</button>
       <button class="ch-chip" data-filter="topup" onclick="setCreditHistoryChip('topup', this)"><span class="ch-chip-green">↑</span> Top-up</button>
       <button class="ch-chip" data-filter="week" onclick="setCreditHistoryChip('week', this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>
         This Week
       </button>
       <button class="ch-chip" data-filter="month" onclick="setCreditHistoryChip('month', this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>
         This Month
       </button>
     </div>
@@ -1187,10 +1210,10 @@
 <div id="faq-screen">
   <header>
     <button class="profile-back" onclick="hideFAQ()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
     </button>
     <div class="faq-header-title">FAQ's</div>
-    <svg class="faq-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <svg class="faq-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
   </header>
   <div class="profile-content">
     <div class="faq-list" id="faq-list"></div>
@@ -1202,7 +1225,7 @@
 <div id="appearance-screen">
   <header>
     <button class="profile-back" onclick="hideAppearance()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
     </button>
   </header>
   <div class="profile-content">
@@ -1240,7 +1263,7 @@
     </div>
 
     <div class="appearance-note">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
       <span>You can change this setting any time in the app.</span>
     </div>
   </div>
@@ -1252,7 +1275,7 @@
     <div class="avatar-picker-head">
       <span>Choose an avatar</span>
       <button class="avatar-picker-close" onclick="closeAvatarPicker()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
     <div class="avatar-picker-grid" id="avatar-picker-grid">
@@ -1267,7 +1290,7 @@
     <div class="avatar-picker-head">
       <span>Import courses</span>
       <button class="avatar-picker-close" onclick="closeCatalogPicker()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
     <div class="catalog-picker-meta" id="catalog-picker-meta">—</div>
@@ -1931,7 +1954,7 @@ const CREDIT_REASON_LABELS = {
   admin_grant:    'Admin credit grant',
   purchase:       'Credit purchase',
   admin_topup:    'Top-up',
-  admin_bonus:    'Signup bonus'
+  admin_bonus:    'Bonus'
 };
 
 // Per-reason icon + accent color, using lucide's icon paths (stroke-based, 24x24).
@@ -1948,18 +1971,18 @@ const CREDIT_ICON_MAP = {
   admin_grant:    { color: 'green', svg: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>' },
   purchase:       { color: 'green', svg: '<path d="M12 19V5"/><path d="m5 12 7-7 7 7"/>' },
   admin_topup:    { color: 'green', svg: '<path d="M12 19V5"/><path d="m5 12 7-7 7 7"/>' },
-  admin_bonus:    { color: 'green', svg: '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8"/><path d="M16.5 8a2.5 2.5 0 0 0 0-5C13 3 12 8 12 8"/>' }
+  admin_bonus:    { color: 'green', svg: '<circle cx="12" cy="12" r="9"/><path d="M12 8v8"/><path d="M8 12h8"/>' }
 };
 
 function creditHistoryIconSVG(tx) {
   const entry = CREDIT_ICON_MAP[tx.reason];
   if (entry) {
-    return { color: entry.color, markup: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${entry.svg}</svg>` };
+    return { color: entry.color, markup: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">${entry.svg}</svg>` };
   }
   const isCredit = tx.delta > 0;
   const markup = isCredit
-    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>'
-    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>';
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>';
   return { color: isCredit ? 'green' : 'gold', markup };
 }
 
@@ -2116,6 +2139,7 @@ function notifText(n) {
   if (n.type === 'announcement') return `<span class="notif-badge-ann">Announcement</span><b>${notifAnnouncementTitle(n)}</b>`;
   if (n.type === 'credit_topup') return `<span class="notif-badge-ann">Top-up</span>`;
   if (n.type === 'credit_bonus') return `<span class="notif-badge-ann">Bonus</span>`;
+  if (n.type === 'credit_signup_bonus') return `<span class="notif-badge-ann">Signup Bonus</span>`;
   return `<b>${name}</b> sent you a notification`;
 }
 
@@ -2158,7 +2182,7 @@ function renderNotifications() {
     <div class="notif-item ${n.is_read ? 'read' : 'unread'}" onclick="handleNotifTap('${n.id}', ${n.post_id ? `'${n.post_id}'` : 'null'})">
       <div class="notif-dot"></div>
       <div class="notif-body">
-        <div class="notif-text">${notifText(n)}${n.body_preview && n.type !== 'credit_topup' && n.type !== 'credit_bonus' ? `: “${esc(n.body_preview)}”` : n.body_preview && (n.type === 'credit_topup' || n.type === 'credit_bonus') ? `: ${esc(n.body_preview)}` : ''}</div>
+        <div class="notif-text">${notifText(n)}${n.body_preview && n.type !== 'credit_topup' && n.type !== 'credit_bonus' && n.type !== 'credit_signup_bonus' ? `: “${esc(n.body_preview)}”` : n.body_preview && (n.type === 'credit_topup' || n.type === 'credit_bonus' || n.type === 'credit_signup_bonus') ? `: ${esc(n.body_preview)}` : ''}</div>
         <div class="notif-time">${timeAgo(n.created_at)}</div>
       </div>
     </div>`;
@@ -2403,11 +2427,11 @@ function renderPostCard(p) {
     : '';
 
   const verifiedBadge = author && author.verified
-    ? `<svg class="nf-verified-badge" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 2.1 3.1-.5 1 3 2.9 1.4-.9 3.1.9 3.1-2.9 1.4-1 3-3.1-.5L12 22l-2.4-2.1-3.1.5-1-3-2.9-1.4.9-3.1-.9-3.1 2.9-1.4 1-3 3.1.5z"/><path d="M9 12l2 2 4-4" stroke="#0e0f14" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+    ? `<svg class="nf-verified-badge" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 2.1 3.1-.5 1 3 2.9 1.4-.9 3.1.9 3.1-2.9 1.4-1 3-3.1-.5L12 22l-2.4-2.1-3.1.5-1-3-2.9-1.4.9-3.1-.9-3.1 2.9-1.4 1-3 3.1.5z"/><path d="M9 12l2 2 4-4" stroke="#0e0f14" stroke-width="1.75" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`
     : '';
 
   const lockHtml = p.is_premium
-    ? `<span class="nf-premium-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="1"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>${p.credit_cost}C</span>`
+    ? `<span class="nf-premium-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="5" y="11" width="14" height="9" rx="1"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>${p.credit_cost}C</span>`
     : '';
 
   return `
@@ -2427,20 +2451,20 @@ function renderPostCard(p) {
         </div>
         <div class="nf-reactions">
           <span class="nf-reaction ${p.myReaction === 'like' ? 'active' : ''}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/></svg>
             ${p.likeCount}
           </span>
           <span class="nf-reaction ${p.myReaction === 'dislike' ? 'active' : ''}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/></svg>
             ${p.dislikeCount}
           </span>
           <span class="nf-reaction">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             ${p.commentCount}
           </span>
           ${lockHtml}
           <span class="nf-bookmark-btn ${p.bookmarked ? 'active' : ''}" onclick="event.stopPropagation(); toggleBookmark('${p.id}', this);">
-            <svg viewBox="0 0 24 24" fill="${p.bookmarked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            <svg viewBox="0 0 24 24" fill="${p.bookmarked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.75"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
           </span>
         </div>
       </div>`;
@@ -2533,11 +2557,11 @@ function renderPostDetail(p) {
     </div>
     <div class="pd-reactions-bar">
       <button class="pd-react-btn ${p.myReaction === 'like' ? 'active' : ''}" id="pd-like-btn" onclick="pdReact('like')">
-        <svg viewBox="0 0 24 24" fill="${p.myReaction === 'like' ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+        <svg viewBox="0 0 24 24" fill="${p.myReaction === 'like' ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.75"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
         <span id="pd-like-count">${p.likeCount || 0}</span>
       </button>
       <button class="pd-react-btn ${p.myReaction === 'dislike' ? 'active' : ''}" id="pd-dislike-btn" onclick="pdReact('dislike')">
-        <svg viewBox="0 0 24 24" fill="${p.myReaction === 'dislike' ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>
+        <svg viewBox="0 0 24 24" fill="${p.myReaction === 'dislike' ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.75"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>
         <span id="pd-dislike-count">${p.dislikeCount || 0}</span>
       </button>
     </div>
@@ -2804,11 +2828,11 @@ function renderComments(postId, rows, restricted, canComment) {
          </svg>`
       : '';
 
-    const upSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>`;
-    const downSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>`;
-    const replySvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>`;
+    const upSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="16" height="16"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>`;
+    const downSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="16" height="16"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>`;
+    const replySvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="16" height="16"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>`;
     const moreSvg = `<svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>`;
-    const trashSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`;
+    const trashSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="15" height="15"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`;
 
     const childrenHtml = (replyMap[c.id] || []).map(r => commentHtml(r, true)).join('');
 
@@ -2869,7 +2893,7 @@ function renderComments(postId, rows, restricted, canComment) {
          <textarea class="pd-comment-input" id="pd-comment-input" placeholder="Write a comment…" rows="1"
            oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
          <button class="pd-comment-send" id="pd-comment-send" onclick="submitComment('${postId}')" aria-label="Post comment">
-           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
          </button>
        </div>
        <div class="pd-comment-cost">Posting a comment costs 1 credit.</div>`
@@ -2929,7 +2953,7 @@ async function submitComment(postId, parentId) {
     }
     await loadComments(postId);
   } catch (err) {
-    if (sendBtn) { sendBtn.disabled = false; sendBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>'; }
+    if (sendBtn) { sendBtn.disabled = false; sendBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>'; }
     const msg = err.message || '';
     if (msg.includes('insufficient')) showToast('Not enough credits to comment (need 1C).', true);
     else showToast('Could not post comment: ' + (msg || 'unknown error'), true);
@@ -2978,7 +3002,7 @@ function showReplyBox(commentId, postId) {
         oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
       <button class="pd-comment-send"
         onclick="submitComment('${postId}', '${commentId}')" aria-label="Post reply">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>
       </button>
     </div>`;
   document.getElementById(`reply-input-${commentId}`)?.focus();
@@ -3901,7 +3925,7 @@ function renderTable() {
       </td>
       <td class="gp-cell" style="text-align:center">${contrib === '—' ? '—' : contrib}</td>
       <td><button class="btn-del" onclick="deleteCourse(${i})">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
           <path d="M5 7h14"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
           <path d="M7 7l1 13a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2l1-13"/>
           <line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
