@@ -20,7 +20,7 @@
   "homepage": "https://github.com/lvke10101/gpa-cal#readme",
   "dependencies": {
     "@capacitor/android": "^8.4.1",
-    "@capacitor/app": "^8.4.1",
+    "@capacitor/app": "^7.0.1",
     "@capacitor/cli": "^8.4.1",
     "@capacitor/core": "^8.4.1"
   }
