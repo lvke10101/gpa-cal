@@ -96,6 +96,40 @@
   .fp-attempts { text-align:center; font-size:12px; color:var(--text3); margin-top:12px; }
   .fp-attempts.zero { color:var(--red2); }
 
+  /* Insufficient credits modal */
+  .ic-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:300; align-items:center; justify-content:center; padding:20px; }
+  .ic-overlay.open { display:flex; }
+  .ic-sheet { background:var(--surface); border:1px solid var(--border); border-radius:18px; width:100%; max-width:400px; padding:22px 20px; max-height:90vh; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .ic-head { display:flex; gap:14px; align-items:flex-start; margin-bottom:16px; }
+  .ic-icon { flex-shrink:0; width:44px; height:44px; border-radius:50%; border:1.5px solid var(--gold); display:flex; align-items:center; justify-content:center; color:var(--gold); }
+  .ic-title { font-size:17px; font-weight:700; color:var(--text); margin-bottom:4px; }
+  .ic-subtitle { font-size:13px; color:var(--text2); line-height:1.5; }
+  .ic-subtitle b { color:var(--gold2); font-weight:700; }
+  .ic-divider { height:1px; background:var(--border); margin:16px 0; }
+  .ic-wa-row { display:flex; gap:12px; align-items:center; margin-bottom:18px; }
+  .ic-wa-icon { flex-shrink:0; width:38px; height:38px; border-radius:50%; background:rgba(45,122,79,0.15); display:flex; align-items:center; justify-content:center; color:var(--green2); }
+  .ic-wa-row-title { font-size:14px; font-weight:700; color:var(--text); }
+  .ic-wa-row-sub { font-size:12px; color:var(--text3); margin-top:1px; }
+  .ic-field-row { display:flex; gap:12px; margin-bottom:14px; }
+  .ic-field { flex:1; min-width:0; }
+  .ic-field label { display:block; font-size:11px; font-weight:600; color:var(--text3); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:6px; }
+  .ic-email-box { display:flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px 12px; color:var(--text2); font-size:13.5px; overflow:hidden; }
+  .ic-email-box span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ic-email-box svg { flex-shrink:0; color:var(--text3); }
+  .ic-stepper { display:flex; align-items:center; justify-content:space-between; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:9px 12px; }
+  .ic-stepper button { background:none; border:none; color:var(--gold); font-size:18px; font-weight:700; cursor:pointer; padding:4px 8px; line-height:1; font-family:inherit; -webkit-tap-highlight-color:transparent; }
+  .ic-stepper button:disabled { color:var(--text3); cursor:default; }
+  .ic-stepper-val { font-size:15px; font-weight:700; color:var(--text); }
+  .ic-presets { display:flex; gap:8px; margin-bottom:16px; }
+  .ic-preset { flex:1; text-align:center; padding:10px 4px; border-radius:9px; border:1px solid var(--border2); background:none; color:var(--gold2); font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; transition:background 0.15s,border-color 0.15s; -webkit-tap-highlight-color:transparent; }
+  .ic-preset:active { transform:scale(0.96); }
+  .ic-preset.active { background:var(--gold); border-color:var(--gold); color:var(--on-gold); }
+  .ic-send-btn { width:100%; display:flex; align-items:center; justify-content:center; gap:9px; background:var(--green2); color:#fff; border:none; padding:14px; border-radius:11px; font-family:inherit; font-size:14.5px; font-weight:700; cursor:pointer; transition:background 0.2s; -webkit-tap-highlight-color:transparent; }
+  .ic-send-btn:hover { background:var(--green); }
+  .ic-send-btn:active { transform:scale(0.98); transition:transform 0.08s; }
+  .ic-note { display:flex; gap:7px; align-items:flex-start; justify-content:center; text-align:center; font-size:11.5px; color:var(--text3); line-height:1.5; margin-top:12px; }
+  .ic-note svg { flex-shrink:0; margin-top:1px; }
+
   /* Change password screen */
   #change-password-screen { display:none; min-height:100vh; min-height:100dvh; flex-direction:column; background:var(--bg); }
   #change-password-screen header { justify-content:flex-start; gap:14px; }
@@ -544,13 +578,13 @@
   .faq-search-icon { color:var(--text3); width:18px; height:18px; flex-shrink:0; }
   .faq-list { display:flex; flex-direction:column; }
   .faq-item { border-bottom:1px solid var(--border); }
-  .faq-item:first-child { border-top:3px solid var(--gold); }
+  .faq-item[data-featured="true"] { border-top:3px solid var(--gold); }
   .faq-q { width:100%; display:flex; align-items:center; gap:14px; padding:16px 2px; background:none; border:none; color:var(--text); font-family:inherit; font-size:14px; font-weight:500; text-align:left; cursor:pointer; }
   .faq-q-icon { flex-shrink:0; width:20px; height:20px; border-radius:50%; border:1.5px solid var(--gold); color:var(--gold); display:flex; align-items:center; justify-content:center; font-size:14px; line-height:1; transition:transform 0.25s, background 0.25s, color 0.25s; }
   .faq-item.open .faq-q-icon { background:var(--gold); color:var(--on-gold); transform:rotate(180deg); }
   .faq-q-text { flex:1; }
   .faq-a-wrap { max-height:0; overflow:hidden; transition:max-height 0.3s ease; }
-  .faq-item.open .faq-a-wrap { max-height:240px; }
+
   .faq-a { padding:0 2px 18px 36px; font-size:13px; line-height:1.55; color:var(--text2); border-left:2px solid var(--border2); margin-left:8px; }
   .faq-footer-note { text-align:center; font-size:12px; color:var(--text3); margin-top:24px; padding:0 8px; line-height:1.5; }
 
@@ -699,6 +733,71 @@
       <div class="fp-success" id="fp-success-text" style="display:block;"></div>
       <button class="fp-close-btn" onclick="closeForgotPassword()">Close</button>
     </div>
+  </div>
+</div>
+
+<!-- ══ INSUFFICIENT CREDITS MODAL ════════════════════════════ -->
+<div class="ic-overlay" id="ic-overlay">
+  <div class="ic-sheet">
+    <div class="ic-head">
+      <div class="ic-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>
+      </div>
+      <div>
+        <div class="ic-title">Insufficient Credits</div>
+        <div class="ic-subtitle">You don't have enough credits to perform this action: <b id="ic-action-label">this action</b>.</div>
+      </div>
+    </div>
+
+    <div class="ic-divider"></div>
+
+    <div class="ic-wa-row">
+      <div class="ic-wa-icon">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2Zm5.8 14.13c-.24.68-1.4 1.3-1.93 1.36-.5.06-1.02.27-3.42-.72-2.88-1.19-4.73-4.1-4.87-4.29-.14-.19-1.17-1.56-1.17-2.98s.75-2.11 1.02-2.4c.26-.29.57-.36.76-.36h.55c.18 0 .42-.03.64.5.24.57.81 1.98.88 2.12.07.14.11.31.02.5-.09.19-.14.31-.28.48-.14.17-.29.37-.42.5-.14.14-.28.29-.12.57.16.28.71 1.18 1.53 1.92 1.05.94 1.94 1.24 2.22 1.38.28.14.44.12.61-.07.16-.19.7-.82.89-1.1.19-.28.38-.23.63-.14.26.09 1.65.78 1.93.92.28.14.47.21.54.33.07.12.07.68-.17 1.35Z"/></svg>
+      </div>
+      <div>
+        <div class="ic-wa-row-title">Chat on WhatsApp</div>
+        <div class="ic-wa-row-sub">We'll connect you with our support team instantly.</div>
+      </div>
+    </div>
+
+    <div class="ic-field-row">
+      <div class="ic-field">
+        <label>Email</label>
+        <div class="ic-email-box">
+          <span id="ic-email-display">—</span>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+      </div>
+      <div class="ic-field">
+        <label>How many credits?</label>
+        <div class="ic-stepper">
+          <button type="button" id="ic-dec" onclick="icAdjustAmount(-50)">&minus;</button>
+          <span class="ic-stepper-val" id="ic-amount">200</span>
+          <button type="button" id="ic-inc" onclick="icAdjustAmount(50)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="ic-presets" id="ic-presets">
+      <button type="button" class="ic-preset" data-amt="50" onclick="icSetAmount(50)">50</button>
+      <button type="button" class="ic-preset" data-amt="100" onclick="icSetAmount(100)">100</button>
+      <button type="button" class="ic-preset active" data-amt="200" onclick="icSetAmount(200)">200</button>
+      <button type="button" class="ic-preset" data-amt="500" onclick="icSetAmount(500)">500</button>
+      <button type="button" class="ic-preset" data-amt="1000" onclick="icSetAmount(1000)">1000</button>
+    </div>
+
+    <button class="ic-send-btn" onclick="icSendWhatsApp()">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2Zm5.8 14.13c-.24.68-1.4 1.3-1.93 1.36-.5.06-1.02.27-3.42-.72-2.88-1.19-4.73-4.1-4.87-4.29-.14-.19-1.17-1.56-1.17-2.98s.75-2.11 1.02-2.4c.26-.29.57-.36.76-.36h.55c.18 0 .42-.03.64.5.24.57.81 1.98.88 2.12.07.14.11.31.02.5-.09.19-.14.31-.28.48-.14.17-.29.37-.42.5-.14.14-.28.29-.12.57.16.28.71 1.18 1.53 1.92 1.05.94 1.94 1.24 2.22 1.38.28.14.44.12.61-.07.16-.19.7-.82.89-1.1.19-.28.38-.23.63-.14.26.09 1.65.78 1.93.92.28.14.47.21.54.33.07.12.07.68-.17 1.35Z"/></svg>
+      <span>Send via WhatsApp</span>
+    </button>
+
+    <div class="ic-note">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <span>Your message will be prepared with the details so our team can assist you faster.</span>
+    </div>
+
+    <button class="fp-close-btn" onclick="closeInsufficientCreditsModal()">Close</button>
   </div>
 </div>
 
@@ -1227,8 +1326,11 @@
     <button class="profile-back" onclick="hideFAQ()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
     </button>
-    <div class="faq-header-title">FAQ's</div>
-    <svg class="faq-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <div class="faq-header-title" id="faq-header-title">FAQ's</div>
+    <input class="faq-search-input" id="faq-search-input" type="text" placeholder="Search FAQs..." oninput="filterFAQ(this.value)" style="display:none; flex:1; background:none; border:none; border-bottom:1px solid var(--border2); color:var(--text); font-family:inherit; font-size:14px; padding:4px 2px; outline:none;">
+    <button class="faq-search-icon" onclick="toggleFAQSearch()" style="background:none; border:none; padding:0; cursor:pointer; display:flex;" aria-label="Search FAQs">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </button>
   </header>
   <div class="profile-content">
     <div class="faq-list" id="faq-list"></div>
@@ -1403,6 +1505,37 @@ let authMode = 'login';
 // ── DOM refs ────────────────────────────────────────────────
 const authScreen  = document.getElementById('auth-screen');
 const app         = document.getElementById('app');
+
+// ── Android hardware back button ─────────────────────────────
+// Nested full-screen views (profile, bookmarks, compose, edit-profile,
+// faq, credit-history, appearance) push their own hide function onto
+// this stack when opened. Hardware back pops and calls the top one
+// instead of falling through to app-exit/previous-tab behavior. Empty
+// stack falls back to exiting the app.
+const backScreenStack = [];
+
+function pushBackHandler(hideFn) {
+  if (backScreenStack[backScreenStack.length - 1] !== hideFn) backScreenStack.push(hideFn);
+}
+
+function popBackHandler(hideFn) {
+  const idx = backScreenStack.lastIndexOf(hideFn);
+  if (idx !== -1) backScreenStack.splice(idx, 1);
+}
+
+function initBackButton() {
+  if (!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform())) return;
+  const AppPlugin = window.Capacitor.Plugins && window.Capacitor.Plugins.App;
+  if (!AppPlugin) return;
+  AppPlugin.addListener('backButton', () => {
+    if (backScreenStack.length) {
+      const hideFn = backScreenStack[backScreenStack.length - 1];
+      hideFn();
+    } else {
+      AppPlugin.exitApp();
+    }
+  });
+}
 const authError   = document.getElementById('auth-error');
 const authEmail   = document.getElementById('auth-email');
 const authPassword = document.getElementById('auth-password');
@@ -1873,7 +2006,7 @@ async function spendCredits(cost, actionLabel, reason, referenceId = null) {
   if (!currentUser) return false;
   if (userCredits < cost) {
     // Fast local check just for snappy UI feedback — not relied on for security.
-    showToast('Insufficient credits', true);
+    openInsufficientCreditsModal(actionLabel);
     return false;
   }
   const { data, error } = await sb.rpc('spend_credits', {
@@ -1882,9 +2015,9 @@ async function spendCredits(cost, actionLabel, reason, referenceId = null) {
     p_reference_id: referenceId
   });
   if (error) {
-    if (error.message && error.message.includes('Insufficient credits')) {
+    if (error.message && error.message.toLowerCase().includes('insufficient credits')) {
       await loadCredits();
-      showToast('Insufficient credits', true);
+      openInsufficientCreditsModal(actionLabel);
     } else {
       showToast('Error processing credits: ' + error.message, true);
     }
@@ -1893,6 +2026,61 @@ async function spendCredits(cost, actionLabel, reason, referenceId = null) {
   userCredits = data;
   renderCredits();
   return true;
+}
+
+// ── Insufficient credits modal ────────────────────────────────
+const IC_WHATSAPP_NUMBER = '2349019252594'; // same support line used elsewhere in the app
+let icAmount = 200;
+const IC_PRESETS = [50, 100, 200, 500, 1000];
+
+function icUserShortId() {
+  // Prefer the short UUID prefix; fall back to email if somehow unavailable.
+  if (currentUser && currentUser.id) return currentUser.id.slice(0, 8);
+  if (currentUser && currentUser.email) return currentUser.email;
+  return 'unknown';
+}
+
+function openInsufficientCreditsModal(actionLabel) {
+  const label = actionLabel || 'this action';
+  document.getElementById('ic-action-label').textContent = label;
+  document.getElementById('ic-overlay').dataset.action = label;
+  const emailEl = document.getElementById('ic-email-display');
+  emailEl.textContent = (currentUser && currentUser.email) || '—';
+  icAmount = 200;
+  icRenderAmount();
+  document.getElementById('ic-overlay').classList.add('open');
+}
+
+function closeInsufficientCreditsModal() {
+  document.getElementById('ic-overlay').classList.remove('open');
+}
+
+function icRenderAmount() {
+  document.getElementById('ic-amount').textContent = icAmount;
+  document.querySelectorAll('#ic-presets .ic-preset').forEach(btn => {
+    btn.classList.toggle('active', Number(btn.dataset.amt) === icAmount);
+  });
+  document.getElementById('ic-dec').disabled = icAmount <= 50;
+}
+
+function icSetAmount(amt) {
+  icAmount = amt;
+  icRenderAmount();
+}
+
+function icAdjustAmount(delta) {
+  icAmount = Math.max(50, icAmount + delta);
+  icRenderAmount();
+}
+
+function icSendWhatsApp() {
+  const action = document.getElementById('ic-overlay').dataset.action || 'this action';
+  const shortId = icUserShortId();
+  const email = (currentUser && currentUser.email) || 'not signed in';
+  const text = `Hi GradeVault support, I ran out of credits trying to: ${action}. `
+    + `My user ID is ${shortId} (${email}). I'd like to top up ${icAmount} credits.`;
+  const url = `https://wa.me/${IC_WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank', 'noopener');
 }
 
 // ── Credit History: realtime + pagination ────────────────────
@@ -2736,7 +2924,7 @@ async function unlockPost(postId, cost) {
   } catch (err) {
     if (btn) { btn.disabled = false; btn.textContent = `Unlock for ${cost}C`; }
     const msg = err.message || '';
-    if (msg.includes('insufficient')) showToast(`Not enough credits — you need ${cost}C.`, true);
+    if (msg.toLowerCase().includes('insufficient credits')) openInsufficientCreditsModal('Unlocking a post');
     else showToast('Unlock failed: ' + (msg || 'unknown error'), true);
   }
 }
@@ -2970,7 +3158,7 @@ async function submitComment(postId, parentId) {
   } catch (err) {
     if (sendBtn) { sendBtn.disabled = false; sendBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>'; }
     const msg = err.message || '';
-    if (msg.includes('insufficient')) showToast('Not enough credits to comment (need 1C).', true);
+    if (msg.toLowerCase().includes('insufficient credits')) openInsufficientCreditsModal('Posting a comment');
     else showToast('Could not post comment: ' + (msg || 'unknown error'), true);
   }
 }
@@ -3090,9 +3278,11 @@ function showProfile() {
   document.getElementById('profile-screen').style.display = 'flex';
   const copyEl = document.getElementById('footer-copyright');
   if (copyEl) copyEl.textContent = `© ${new Date().getFullYear()} GradeVault. All rights reserved.`;
+  pushBackHandler(hideProfile);
 }
 
 function hideProfile() {
+  popBackHandler(hideProfile);
   document.getElementById('profile-screen').style.display = 'none';
   app.style.display = 'flex';
 }
@@ -3109,9 +3299,11 @@ function showBookmarks() {
   } else {
     renderBookmarksList();
   }
+  pushBackHandler(hideBookmarks);
 }
 
 function hideBookmarks() {
+  popBackHandler(hideBookmarks);
   document.getElementById('bookmarks-screen').style.display = 'none';
   app.style.display = 'flex';
 }
@@ -3191,9 +3383,11 @@ function showCompose(type) {
   renderTagPicker();
   app.style.display = 'none';
   document.getElementById('compose-screen').style.display = 'flex';
+  pushBackHandler(hideCompose);
 }
 
 function hideCompose() {
+  popBackHandler(hideCompose);
   document.getElementById('compose-screen').style.display = 'none';
   app.style.display = 'flex';
 }
@@ -3388,6 +3582,7 @@ function showEditProfile() {
   document.getElementById('edit-email').value = currentUser.email;
   document.getElementById('profile-screen').style.display = 'none';
   document.getElementById('edit-profile-screen').style.display = 'flex';
+  pushBackHandler(hideEditProfile);
 }
 
 function renderEditAvatar() {
@@ -3442,6 +3637,7 @@ function closeAvatarPicker() {
 }
 
 function hideEditProfile() {
+  popBackHandler(hideEditProfile);
   document.getElementById('edit-profile-screen').style.display = 'none';
   document.getElementById('profile-screen').style.display = 'flex';
 }
@@ -3450,7 +3646,8 @@ function hideEditProfile() {
 const FAQ_ITEMS = [
   {
     q: 'Are credits charged when I save profile changes?',
-    a: 'Yes. Saving profile changes (username, full name, level, or avatar) costs 5 credits per save.'
+    a: 'Yes. Saving profile changes (username, full name, level, or avatar) costs 5 credits per save.',
+    featured: true
   },
   {
     q: 'Are credits charged while I edit my courses?',
@@ -3486,11 +3683,23 @@ const FAQ_ITEMS = [
   }
 ];
 
-function renderFAQ() {
+function renderFAQ(query) {
   const list = document.getElementById('faq-list');
-  list.innerHTML = FAQ_ITEMS.map((item, i) => `
-    <div class="faq-item" id="faq-item-${i}">
-      <button class="faq-q" onclick="toggleFAQ(${i})">
+  const q = (query || '').trim().toLowerCase();
+  const items = q
+    ? FAQ_ITEMS.filter(item => item.q.toLowerCase().includes(q) || item.a.toLowerCase().includes(q))
+    : FAQ_ITEMS;
+
+  if (items.length === 0) {
+    list.innerHTML = `<div class="faq-empty" style="padding:32px 8px; text-align:center; color:var(--text3); font-size:13px;">No FAQs match "${query}".</div>`;
+    return;
+  }
+
+  list.innerHTML = items.map((item) => {
+    const i = FAQ_ITEMS.indexOf(item);
+    return `
+    <div class="faq-item" id="faq-item-${i}" ${item.featured ? 'data-featured="true"' : ''}>
+      <button class="faq-q" onclick="toggleFAQ(${i})" aria-expanded="false">
         <span class="faq-q-icon">+</span>
         <span class="faq-q-text">${item.q}</span>
       </button>
@@ -3498,7 +3707,12 @@ function renderFAQ() {
         <div class="faq-a">${item.a}</div>
       </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
+}
+
+function filterFAQ(query) {
+  renderFAQ(query);
 }
 
 function toggleFAQ(i) {
@@ -3508,10 +3722,29 @@ function toggleFAQ(i) {
   document.querySelectorAll('.faq-item.open').forEach(o => {
     o.classList.remove('open');
     o.querySelector('.faq-q-icon').textContent = '+';
+    o.querySelector('.faq-q').setAttribute('aria-expanded', 'false');
+    o.querySelector('.faq-a-wrap').style.maxHeight = '0px';
   });
   if (!wasOpen) {
     el.classList.add('open');
     el.querySelector('.faq-q-icon').textContent = '−';
+    el.querySelector('.faq-q').setAttribute('aria-expanded', 'true');
+    const wrap = el.querySelector('.faq-a-wrap');
+    wrap.style.maxHeight = wrap.scrollHeight + 'px';
+  }
+}
+
+function toggleFAQSearch() {
+  const input = document.getElementById('faq-search-input');
+  const title = document.getElementById('faq-header-title');
+  const opening = input.style.display === 'none';
+  input.style.display = opening ? 'block' : 'none';
+  title.style.display = opening ? 'none' : 'block';
+  if (opening) {
+    input.focus();
+  } else {
+    input.value = '';
+    renderFAQ();
   }
 }
 
@@ -3519,11 +3752,19 @@ function showFAQ() {
   renderFAQ();
   document.getElementById('profile-screen').style.display = 'none';
   document.getElementById('faq-screen').style.display = 'flex';
+  pushBackHandler(hideFAQ);
 }
 
 function hideFAQ() {
+  popBackHandler(hideFAQ);
   document.getElementById('faq-screen').style.display = 'none';
   document.getElementById('profile-screen').style.display = 'flex';
+  const input = document.getElementById('faq-search-input');
+  if (input) {
+    input.value = '';
+    input.style.display = 'none';
+    document.getElementById('faq-header-title').style.display = 'block';
+  }
 }
 
 // ── Credit History ─────────────────────────────────────────
@@ -3538,9 +3779,11 @@ function showCreditHistory() {
   loadCreditHistory(true);
   // No unsubscribe on close — realtime channel stays open app-wide
   // so header balance keeps updating regardless of screen.
+  pushBackHandler(hideCreditHistory);
 }
 
 function hideCreditHistory() {
+  popBackHandler(hideCreditHistory);
   document.getElementById('credit-history-screen').style.display = 'none';
   document.getElementById('profile-screen').style.display = 'flex';
 }
@@ -3569,9 +3812,11 @@ function showAppearance() {
   applyTheme(getStoredTheme());
   document.getElementById('profile-screen').style.display = 'none';
   document.getElementById('appearance-screen').style.display = 'flex';
+  pushBackHandler(hideAppearance);
 }
 
 function hideAppearance() {
+  popBackHandler(hideAppearance);
   document.getElementById('appearance-screen').style.display = 'none';
   document.getElementById('profile-screen').style.display = 'flex';
 }
@@ -4162,6 +4407,7 @@ initScrollFade();
 // ── Init ─────────────────────────────────────────────────────
 applyTheme(getStoredTheme());
 showAuthTab('login');
+initBackButton();
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && currentUser) stampActivity();
 });
