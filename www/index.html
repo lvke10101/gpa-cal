@@ -568,6 +568,29 @@
   .avatar-picker-item.selected { border-color:var(--gold); }
 
   /* Catalog import picker (reuses avatar-picker-overlay/sheet/head/close) */
+  .onboard-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:300; align-items:center; justify-content:center; padding:20px; }
+  .onboard-overlay.open { display:flex; }
+  .onboard-sheet { background:var(--surface); border:1px solid var(--border); border-radius:20px; width:100%; max-width:420px; max-height:90vh; overflow-y:auto; padding:28px 22px 24px; text-align:center; }
+  .onboard-icon { width:64px; height:64px; margin:0 auto 16px; border-radius:50%; background:var(--card); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:28px; }
+  .onboard-title { font-size:20px; font-weight:700; margin-bottom:8px; }
+  .onboard-subtitle { font-size:13px; color:var(--text2); margin-bottom:22px; line-height:1.4; }
+  .onboard-sheet .auth-field { text-align:left; margin-bottom:14px; }
+  .onboard-lock-note { font-size:12px; color:var(--text3); margin:4px 0 18px; }
+  .confirm-sheet { max-width:360px; }
+  .confirm-warn-icon { width:56px; height:56px; margin:0 auto 14px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--gold); }
+  .confirm-warn-icon svg { width:40px; height:40px; }
+  .confirm-btn-row { display:flex; gap:10px; margin-top:20px; }
+  .confirm-btn-row button { flex:1; border:none; padding:14px; border-radius:10px; font-weight:600; font-size:15px; cursor:pointer; font-family:inherit; -webkit-tap-highlight-color:transparent; }
+  .btn-confirm-no { background:var(--card); color:var(--text); border:1px solid var(--border) !important; }
+  .btn-confirm-yes { background:var(--gold); color:var(--on-gold); }
+  .confirm-success-icon { width:56px; height:56px; margin:0 auto 14px; border-radius:50%; border:2px solid var(--green2); display:flex; align-items:center; justify-content:center; color:var(--green2); }
+  .confirm-success-icon svg { width:28px; height:28px; }
+  .confirm-info-box { display:flex; gap:12px; align-items:flex-start; text-align:left; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px; margin-top:18px; }
+  .confirm-info-icon { width:34px; height:34px; flex-shrink:0; border-radius:50%; border:1.5px solid var(--green2); color:var(--green2); display:flex; align-items:center; justify-content:center; }
+  .confirm-info-icon svg { width:17px; height:17px; }
+  .confirm-info-text { font-size:13px; color:var(--text2); line-height:1.4; }
+  .confirm-info-text strong { display:block; color:var(--text); font-size:13.5px; margin-bottom:2px; }
+  .link-btn { background:none; border:none; color:var(--gold); text-decoration:underline; font-size:12px; padding:0; cursor:pointer; }
   .catalog-picker-meta { font-size:12px; color:var(--text3); margin:-8px 0 14px; }
   .catalog-picker-info { font-size:13px; color:var(--text2); background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px 14px; margin-bottom:14px; }
 
@@ -1220,7 +1243,7 @@
     </div>
 
     <div class="edit-field">
-      <label>User Name</label>
+      <label>Nick Name</label>
       <input type="text" id="edit-username" maxlength="32"/>
     </div>
     <div class="edit-field">
@@ -1239,11 +1262,52 @@
       </select>
     </div>
     <div class="edit-field">
+      <label>Year of Admission</label>
+      <select id="edit-admission-year"><option value="">Select year</option></select>
+    </div>
+    <div class="edit-field">
       <label>E-Mail ID</label>
       <input type="email" id="edit-email" disabled/>
     </div>
 
     <button class="btn-full" id="save-profile-btn" onclick="saveProfileEdits()" style="margin-top:8px;">Save Changes</button>
+  </div>
+</div>
+
+<!-- ══ YEAR CHANGE CONFIRM ══════════════════════════════════ -->
+<div id="year-change-confirm-overlay" class="onboard-overlay">
+  <div class="onboard-sheet confirm-sheet">
+    <div class="confirm-warn-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </div>
+    <div class="onboard-title">Change Admission Year?</div>
+    <div class="onboard-subtitle">Changing your year of admission will <strong>delete your imported courses for every semester.</strong> Notes are kept.</div>
+    <div class="onboard-subtitle" style="margin-top:-14px;">Are you sure you want to continue?</div>
+    <div class="confirm-btn-row">
+      <button class="btn-confirm-no" onclick="cancelYearChangeConfirm()">No</button>
+      <button class="btn-confirm-yes" onclick="confirmYearChangeAndSave()">Yes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ YEAR CHANGE — WIPE CONFIRMED ═════════════════════════ -->
+<div id="wipe-confirmed-overlay" class="onboard-overlay">
+  <div class="onboard-sheet confirm-sheet">
+    <div class="confirm-success-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="onboard-title">Changes Confirmed</div>
+    <div class="onboard-subtitle">Your year of admission has been updated. Your imported courses have been <strong>permanently deleted.</strong> Your notes were kept.</div>
+    <div class="confirm-info-box">
+      <div class="confirm-info-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      </div>
+      <div class="confirm-info-text">
+        <strong>Your courses have been cleared.</strong>
+        <span>You can start fresh with your new academic year.</span>
+      </div>
+    </div>
+    <button class="btn-full" onclick="closeWipeConfirmed()" style="margin-top:18px;">OK</button>
   </div>
 </div>
 
@@ -1416,11 +1480,47 @@
       <label>Year</label>
       <select id="catalog-year-select"></select>
     </div>
+    <div class="catalog-picker-info" id="catalog-year-fallback-note" style="display:none">
+      <span></span>
+    </div>
     <div class="auth-field" id="catalog-sem-field" style="display:none">
       <label>Semester</label>
       <select id="catalog-sem-select"></select>
     </div>
     <button class="btn-full" id="catalog-import-btn" onclick="confirmCatalogImport()" disabled>Import Courses</button>
+  </div>
+</div>
+
+<!-- ══ ONBOARDING (mandatory, non-dismissible) ═══════════════ -->
+<div id="onboard-overlay" class="onboard-overlay">
+  <div class="onboard-sheet">
+    <div class="onboard-icon">👋</div>
+    <div class="onboard-title">Welcome to GradeVault!</div>
+    <div class="onboard-subtitle">Let's set up your profile so we can personalize your experience.</div>
+
+    <div class="auth-field">
+      <label>What should we call you?</label>
+      <input type="text" id="onboard-username" maxlength="32" placeholder="Enter your nickname"/>
+    </div>
+    <div class="auth-field">
+      <label>What's your current level?</label>
+      <select id="onboard-level">
+        <option value="">Select your level</option>
+        <option value="1">100 Level</option>
+        <option value="2">200 Level</option>
+        <option value="3">300 Level</option>
+        <option value="4">400 Level</option>
+        <option value="5">500 Level</option>
+      </select>
+    </div>
+    <div class="auth-field">
+      <label>When was your year of admission into FUTO?</label>
+      <select id="onboard-year"><option value="">Select year</option></select>
+    </div>
+    <div id="onboard-error" class="auth-error"></div>
+    <div class="onboard-lock-note">🔒 You can change these later in your profile settings.</div>
+
+    <button class="btn-full" id="onboard-continue-btn" onclick="saveOnboarding()">Continue</button>
   </div>
 </div>
 
@@ -1970,6 +2070,7 @@ async function loadUserData() {
   userData.username = userData.username || '';
   userData.fullName = userData.full_name || '';
   userData.level = userData.level || null;
+  userData.admissionYear = userData.admission_year || null;
   userData.role = userData.role || 'student';
   userData.verified = !!userData.verified;
   userData.avatarId = userData.avatar_id || null;
@@ -2516,6 +2617,64 @@ function launchApp() {
   // loadPosts() disabled — News Feed on hold.
   loadNotifications();
   startNotifPolling();
+  maybeShowOnboarding();
+}
+
+// ── Onboarding (mandatory first-run: nickname, level, admission year) ──
+function maybeShowOnboarding() {
+  if (!userData) return;
+  if (userData.level && userData.admissionYear) return;
+  const yearSelect = document.getElementById('onboard-year');
+  if (yearSelect.options.length <= 1) {
+    const now = new Date().getFullYear();
+    for (let y = now; y >= now - 15; y--) {
+      const opt = document.createElement('option');
+      opt.value = String(y);
+      opt.textContent = String(y);
+      yearSelect.appendChild(opt);
+    }
+  }
+  document.getElementById('onboard-username').value = userData.username || '';
+  document.getElementById('onboard-level').value = userData.level ? String(userData.level) : '';
+  document.getElementById('onboard-year').value = userData.admissionYear ? String(userData.admissionYear) : '';
+  document.getElementById('onboard-error').textContent = '';
+  document.getElementById('onboard-overlay').classList.add('open');
+  // Intentionally no pushBackHandler: hardware back falls through to
+  // app-exit behavior instead of dismissing this mandatory screen.
+}
+
+async function saveOnboarding() {
+  const errEl = document.getElementById('onboard-error');
+  errEl.textContent = '';
+  const username = document.getElementById('onboard-username').value.trim();
+  const levelRaw = document.getElementById('onboard-level').value;
+  const yearRaw = document.getElementById('onboard-year').value;
+
+  if (!username) { errEl.textContent = 'Enter a nickname.'; return; }
+  if (!levelRaw) { errEl.textContent = 'Select your level.'; return; }
+  if (!yearRaw) { errEl.textContent = 'Select your year of admission.'; return; }
+
+  const btn = document.getElementById('onboard-continue-btn');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+  try {
+    userData.username = username;
+    userData.level = parseInt(levelRaw, 10);
+    userData.admissionYear = parseInt(yearRaw, 10);
+    // No spendCredits call — mandatory first-run setup is never charged.
+    await saveToSupabase();
+    document.getElementById('header-name').textContent = userData.username;
+    setAvatarEl(document.getElementById('header-av'), userData.avatarUrl, userData.username.charAt(0).toUpperCase());
+    document.getElementById('onboard-overlay').classList.remove('open');
+    showToast('Profile set up');
+  } catch (err) {
+    errEl.textContent = isNetworkError(err)
+      ? "Network unavailable. Couldn't save — try again."
+      : 'Error saving: ' + err.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Continue';
+  }
 }
 
 // ── News Feed tab switching ──────────────────────────────────
@@ -3594,6 +3753,17 @@ function showEditProfile() {
   document.getElementById('edit-username').value = username;
   document.getElementById('edit-fullname').value = fullName;
   document.getElementById('edit-level').value = (userData && userData.level) ? String(userData.level) : '';
+  const yearSelect = document.getElementById('edit-admission-year');
+  if (yearSelect.options.length <= 1) {
+    const now = new Date().getFullYear();
+    for (let y = now; y >= now - 15; y--) {
+      const opt = document.createElement('option');
+      opt.value = String(y);
+      opt.textContent = String(y);
+      yearSelect.appendChild(opt);
+    }
+  }
+  yearSelect.value = (userData && userData.admissionYear) ? String(userData.admissionYear) : '';
   document.getElementById('edit-email').value = currentUser.email;
   document.getElementById('profile-screen').style.display = 'none';
   document.getElementById('edit-profile-screen').style.display = 'flex';
@@ -3836,31 +4006,83 @@ function hideAppearance() {
   document.getElementById('profile-screen').style.display = 'flex';
 }
 
-async function saveProfileEdits() {
+function saveProfileEdits() {
+  const admissionYearRaw = document.getElementById('edit-admission-year').value;
+  const newYear = admissionYearRaw ? parseInt(admissionYearRaw, 10) : null;
+  const yearChanged = userData.admissionYear && newYear && newYear !== userData.admissionYear;
+
+  if (yearChanged) {
+    document.getElementById('year-change-confirm-overlay').classList.add('open');
+    return;
+  }
+  doSaveProfileEdits();
+}
+
+function cancelYearChangeConfirm() {
+  document.getElementById('year-change-confirm-overlay').classList.remove('open');
+  document.getElementById('edit-admission-year').value = userData.admissionYear ? String(userData.admissionYear) : '';
+}
+
+let pendingWipeSave = false;
+
+function confirmYearChangeAndSave() {
+  document.getElementById('year-change-confirm-overlay').classList.remove('open');
+  pendingWipeSave = true;
+  doSaveProfileEdits();
+}
+
+function closeWipeConfirmed() {
+  document.getElementById('wipe-confirmed-overlay').classList.remove('open');
+  hideEditProfile();
+  showProfile();
+}
+
+async function doSaveProfileEdits() {
   const username = document.getElementById('edit-username').value.trim();
   const fullName = document.getElementById('edit-fullname').value.trim();
   const levelRaw = document.getElementById('edit-level').value;
+  const admissionYearRaw = document.getElementById('edit-admission-year').value;
   const fallbackName = currentUser.email.split('@')[0];
   const btn = document.getElementById('save-profile-btn');
+  let semestersBackup = null;
 
   btn.disabled = true;
   btn.textContent = 'Saving…';
   try {
     const ok = await spendCredits(CREDIT_COSTS.editProfile, 'Saving profile changes', 'profile_save');
-    if (!ok) return;
+    if (!ok) { pendingWipeSave = false; return; }
 
     userData.username = username || fallbackName;
     userData.fullName = fullName;
     userData.level = levelRaw ? parseInt(levelRaw, 10) : null;
+    userData.admissionYear = admissionYearRaw ? parseInt(admissionYearRaw, 10) : null;
+
+    // Wipe is applied only now — right before the write that persists it —
+    // never earlier. If saveToSupabase() throws below, the catch block
+    // restores semestersBackup, so a failed save never leaves the UI
+    // showing data as gone when the DB still has it.
+    if (pendingWipeSave) {
+      semestersBackup = userData.semesters;
+      const wiped = {};
+      SEMS.forEach(s => { wiped[s] = []; });
+      userData.semesters = wiped;
+    }
 
     await saveToSupabase();
     // Username only affects the header pill display — not the login email.
     document.getElementById('header-name').textContent = userData.username;
     setAvatarEl(document.getElementById('header-av'), userData.avatarUrl, userData.username.charAt(0).toUpperCase());
-    showToast('Profile updated');
-    hideEditProfile();
-    showProfile();
+    if (pendingWipeSave) {
+      pendingWipeSave = false;
+      document.getElementById('wipe-confirmed-overlay').classList.add('open');
+    } else {
+      showToast('Profile updated');
+      hideEditProfile();
+      showProfile();
+    }
   } catch (err) {
+    if (semestersBackup) userData.semesters = semestersBackup;
+    pendingWipeSave = false;
     showToast(isNetworkError(err)
       ? "Network unavailable. Your profile wasn't saved."
       : 'Error saving profile: ' + err.message, true);
@@ -3931,8 +4153,42 @@ async function openCatalogPicker() {
 
   const years = [...new Set(catalogRows.map(r => r.year))].sort((a, b) => b - a);
   const yearSelect = document.getElementById('catalog-year-select');
-  yearSelect.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
+  const expectedYear = userData.admissionYear ? (userData.admissionYear + level - 1) : null;
+  const hasExpected = expectedYear !== null && years.includes(expectedYear);
+
+  const fallbackNote = document.getElementById('catalog-year-fallback-note');
+  const fallbackText = fallbackNote.querySelector('span');
+
+  if (!userData.admissionYear) {
+    // No admission year on file — can't determine the correct catalog at all. Block import.
+    document.getElementById('catalog-year-field').style.display = 'none';
+    document.getElementById('catalog-sem-field').style.display = 'none';
+    fallbackNote.style.display = 'block';
+    fallbackText.textContent = 'Set your year of admission in your profile before importing courses.';
+    document.getElementById('catalog-import-btn').disabled = true;
+    document.getElementById('catalog-picker-info').style.display = 'none';
+    return;
+  }
+
+  if (!hasExpected) {
+    // Correct-year catalog doesn't exist yet. No substitute year offered — block import.
+    document.getElementById('catalog-year-field').style.display = 'none';
+    document.getElementById('catalog-sem-field').style.display = 'none';
+    fallbackNote.style.display = 'block';
+    fallbackText.textContent = `Catalog for your year (${expectedYear}) isn't available yet. Check back later.`;
+    document.getElementById('catalog-import-btn').disabled = true;
+    document.getElementById('catalog-picker-info').style.display = 'none';
+    return;
+  }
+
+  // Correct-year catalog exists — lock to it, no manual override.
+  yearSelect.innerHTML = `<option value="${expectedYear}">${expectedYear} (your year)</option>`;
+  yearSelect.value = String(expectedYear);
+  yearSelect.disabled = true;
   yearSelect.onchange = populateCatalogSemesters;
+  document.getElementById('catalog-year-field').style.display = 'block';
+  document.getElementById('catalog-sem-field').style.display = 'block';
+  fallbackNote.style.display = 'none';
   populateCatalogSemesters();
 }
 
@@ -4014,6 +4270,7 @@ async function saveToSupabase() {
       username: userData.username || '',
       full_name: userData.fullName || '',
       level: userData.level || null,
+      admission_year: userData.admissionYear || null,
       avatar_id: userData.avatarId || null
     });
   if (error) throw error;
