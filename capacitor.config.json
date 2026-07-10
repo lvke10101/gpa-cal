@@ -1,5 +1,14 @@
 {
   "appId": "com.lvke10101.gradevault",
   "appName": "GradeVault",
-  "webDir": "www"
+  "webDir": "www",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 600,
+      "launchAutoHide": false,
+      "backgroundColor": "#F8EADA",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": false
+    }
+  }
 }
