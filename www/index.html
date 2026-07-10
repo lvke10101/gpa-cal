@@ -130,6 +130,57 @@
   .ic-note { display:flex; gap:7px; align-items:flex-start; justify-content:center; text-align:center; font-size:11.5px; color:var(--text3); line-height:1.5; margin-top:12px; }
   .ic-note svg { flex-shrink:0; margin-top:1px; }
 
+  .topup-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:300; align-items:center; justify-content:center; padding:20px; }
+  .topup-overlay.open { display:flex; }
+  .topup-sheet { position:relative; background:var(--surface); border:1px solid var(--border); border-radius:18px; width:100%; max-width:440px; padding:24px 20px 22px; max-height:90vh; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .topup-close { position:absolute; top:16px; right:16px; width:30px; height:30px; border-radius:50%; border:1px solid var(--border); background:var(--card); color:var(--text2); display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .topup-head { display:flex; gap:14px; align-items:flex-start; margin-bottom:18px; padding-right:34px; }
+  .topup-icon { flex-shrink:0; width:46px; height:46px; border-radius:50%; border:1.5px solid var(--gold); display:flex; align-items:center; justify-content:center; color:var(--gold); }
+  .topup-title { font-size:18px; font-weight:700; color:var(--text); margin-bottom:3px; }
+  .topup-subtitle { font-size:13px; color:var(--text2); line-height:1.4; }
+  .topup-balance-card { display:flex; align-items:center; background:linear-gradient(90deg, rgba(224,166,38,0.14), rgba(224,166,38,0.04)); border:1px solid var(--border2); border-radius:14px; padding:16px; margin-bottom:20px; }
+  .topup-balance-label { font-size:12px; color:var(--text2); margin-bottom:4px; }
+  .topup-balance-value { font-size:22px; font-weight:700; color:var(--gold); display:flex; align-items:center; gap:6px; }
+  .topup-balance-divider { width:1px; align-self:stretch; background:var(--border2); margin:0 16px; }
+  .topup-never-expire-title { display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700; color:var(--gold); }
+  .topup-never-expire-sub { font-size:11.5px; color:var(--text3); margin-top:2px; margin-left:19px; }
+  .topup-step-label { font-size:13.5px; font-weight:700; color:var(--text); margin-bottom:10px; }
+  .topup-email-box { display:flex; align-items:center; gap:9px; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px 14px; margin-bottom:8px; }
+  .topup-email-box svg:first-child { flex-shrink:0; color:var(--text3); }
+  .topup-email-box svg:last-child { flex-shrink:0; color:var(--text3); }
+  .topup-email-box input { flex:1; min-width:0; background:none; border:none; outline:none; color:var(--text); font-family:inherit; font-size:13.5px; }
+  .topup-email-box input::placeholder { color:var(--text3); }
+  .topup-hint { display:flex; gap:6px; align-items:flex-start; font-size:11.5px; color:var(--text3); line-height:1.4; margin-bottom:20px; }
+  .topup-hint svg { flex-shrink:0; margin-top:1px; }
+  .topup-preset-grid { display:flex; gap:8px; margin-bottom:14px; }
+  .topup-preset { position:relative; flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; padding:14px 4px 12px; border-radius:12px; border:1px solid var(--border2); background:var(--card); color:var(--text); font-family:inherit; font-size:14px; font-weight:700; cursor:pointer; transition:background 0.15s,border-color 0.15s; -webkit-tap-highlight-color:transparent; }
+  .topup-preset .credit-icon-inline { width:16px; height:16px; font-size:9.5px; }
+  .topup-preset:active { transform:scale(0.96); }
+  .topup-preset.active { background:var(--gold); border-color:var(--gold); color:var(--on-gold); }
+  .topup-preset.active .credit-icon-inline { background:var(--on-gold); color:var(--gold); }
+  .topup-popular-badge { position:absolute; top:-10px; left:50%; transform:translateX(-50%); background:var(--gold); color:var(--on-gold); font-size:8.5px; font-weight:700; letter-spacing:0.4px; padding:3px 7px; border-radius:6px; white-space:nowrap; }
+  .topup-or-divider { display:flex; align-items:center; gap:12px; margin:16px 0; font-size:11px; color:var(--text3); }
+  .topup-or-divider::before, .topup-or-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+  .topup-custom-row { display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px 14px; margin-bottom:18px; }
+  .topup-custom-row input { flex:1; min-width:0; background:none; border:none; outline:none; color:var(--text); font-family:inherit; font-size:13.5px; }
+  .topup-custom-row input::placeholder { color:var(--text3); }
+  .topup-custom-amt { display:flex; align-items:center; gap:5px; font-family:'DM Mono',monospace; font-weight:600; color:var(--gold); font-size:14px; flex-shrink:0; }
+  .topup-quickadd-label { font-size:12px; color:var(--text3); margin-bottom:8px; }
+  .topup-quickadd-row { display:flex; gap:8px; margin-bottom:20px; }
+  .topup-quickadd-row button { flex:1; padding:9px 4px; border-radius:9px; border:1px solid var(--border2); background:none; color:var(--gold2); font-family:inherit; font-size:12.5px; font-weight:600; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .topup-quickadd-row button:active { background:var(--overlay-soft2); }
+  .topup-payment-row { display:flex; align-items:center; gap:12px; background:var(--card); border:1px solid var(--gold); border-radius:12px; padding:14px; margin-bottom:12px; }
+  .topup-wa-icon { flex-shrink:0; color:var(--green2); }
+  .topup-payment-text { flex:1; min-width:0; font-size:14px; font-weight:700; color:var(--text); }
+  .topup-payment-sub { font-size:11.5px; font-weight:400; color:var(--text3); margin-top:1px; }
+  .topup-radio { flex-shrink:0; width:18px; height:18px; border-radius:50%; border:2px solid var(--border2); }
+  .topup-radio.active { border-color:var(--gold); background:radial-gradient(circle, var(--gold) 0 42%, transparent 44%); }
+  .topup-secure-note { display:flex; gap:6px; align-items:flex-start; justify-content:center; text-align:center; font-size:11px; color:var(--text3); line-height:1.4; margin-bottom:18px; }
+  .topup-secure-note svg { flex-shrink:0; margin-top:1px; }
+  .topup-continue-btn { width:100%; display:flex; align-items:center; justify-content:center; gap:9px; background:var(--green2); color:#fff; border:none; padding:14px; border-radius:11px; font-family:inherit; font-size:14.5px; font-weight:700; cursor:pointer; transition:background 0.2s; -webkit-tap-highlight-color:transparent; }
+  .topup-continue-btn:hover { background:var(--green); }
+  .topup-continue-btn:active { transform:scale(0.98); transition:transform 0.08s; }
+
   /* Change password screen */
   #change-password-screen { display:none; min-height:100vh; min-height:100dvh; flex-direction:column; background:var(--bg); }
   #change-password-screen header { justify-content:flex-start; gap:14px; }
@@ -209,6 +260,14 @@
   .hu-pop-item:hover:not(.static) { background:var(--overlay-soft2); }
   .hu-pop-item svg { width:16px; height:16px; flex-shrink:0; color:var(--text3); }
   .hu-pop-balance-amt { margin-left:auto; font-family:'DM Mono',monospace; color:var(--gold); font-weight:600; }
+  .header-user-popover { min-width:240px; }
+  .hu-pop-topup { align-items:flex-start; background:linear-gradient(90deg, rgba(224,166,38,0.16), rgba(224,166,38,0.03)); }
+  .hu-pop-topup:hover, .hu-pop-topup:active { background:linear-gradient(90deg, rgba(224,166,38,0.24), rgba(224,166,38,0.06)) !important; }
+  .hu-pop-topup svg:first-child { color:var(--gold); margin-top:1px; }
+  .hu-pop-topup-text { display:flex; flex-direction:column; gap:2px; }
+  .hu-pop-topup-text span:first-child { font-size:14px; font-weight:600; color:var(--text); }
+  .hu-pop-topup-sub { font-size:11.5px; color:var(--text3); line-height:1.3; }
+  .hu-pop-topup-chev { margin-left:auto; align-self:center; color:var(--gold); flex-shrink:0; }
   .logout-icon { color:var(--text3); font-size:11px; }
   .header-bell { position:relative; display:flex; align-items:center; justify-content:center; width:42px; height:42px; border-radius:50%; background:var(--card); border:1px solid var(--border); color:var(--text2); cursor:pointer; flex-shrink:0; }
   .header-bell svg { width:19px; height:19px; }
@@ -824,6 +883,93 @@
   </div>
 </div>
 
+<!-- ══ TOP-UP CREDITS MODAL ══════════════════════════════════ -->
+<div class="topup-overlay" id="topup-overlay">
+  <div class="topup-sheet">
+    <button class="topup-close" onclick="closeTopupModal()" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="topup-head">
+      <div class="topup-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Z"/><path d="M16 5H6a2 2 0 0 0-2 2"/><circle cx="16" cy="13" r="1.3" fill="currentColor" stroke="none"/><path d="M21 11h-3a1.5 1.5 0 0 0 0 3h3"/></svg>
+      </div>
+      <div>
+        <div class="topup-title">Top-up Credits</div>
+        <div class="topup-subtitle">Add credits to unlock premium features</div>
+      </div>
+    </div>
+
+    <div class="topup-balance-card">
+      <div>
+        <div class="topup-balance-label">Current Balance</div>
+        <div class="topup-balance-value"><span class="credit-icon-inline">C</span> <span id="topup-balance-value">0</span></div>
+      </div>
+      <div class="topup-balance-divider"></div>
+      <div class="topup-never-expire">
+        <div class="topup-never-expire-title">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 5.8L20 9l-6.1 1.2L12 16l-1.9-5.8L4 9l6.1-1.2z"/></svg>
+          Credits never expire
+        </div>
+        <div class="topup-never-expire-sub">Use anytime, anywhere.</div>
+      </div>
+    </div>
+
+    <div class="topup-step-label">1. Enter your email</div>
+    <div class="topup-email-box">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
+      <input type="email" id="topup-email" placeholder="you@example.com"/>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <div class="topup-hint">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <span>We'll send your receipt and important updates here.</span>
+    </div>
+
+    <div class="topup-step-label">2. Choose amount</div>
+    <div class="topup-preset-grid" id="topup-preset-grid">
+      <button type="button" class="topup-preset" data-amt="50" onclick="topupSelectPreset(50)">50<span class="credit-icon-inline">C</span></button>
+      <button type="button" class="topup-preset" data-amt="100" onclick="topupSelectPreset(100)">100<span class="credit-icon-inline">C</span></button>
+      <button type="button" class="topup-preset popular active" data-amt="200" onclick="topupSelectPreset(200)"><span class="topup-popular-badge">POPULAR</span>200<span class="credit-icon-inline">C</span></button>
+      <button type="button" class="topup-preset" data-amt="500" onclick="topupSelectPreset(500)">500<span class="credit-icon-inline">C</span></button>
+      <button type="button" class="topup-preset" data-amt="1000" onclick="topupSelectPreset(1000)">1000<span class="credit-icon-inline">C</span></button>
+    </div>
+
+    <div class="topup-or-divider"><span>OR</span></div>
+
+    <div class="topup-custom-row">
+      <input type="text" inputmode="numeric" id="topup-custom-input" placeholder="Enter custom amount"/>
+      <div class="topup-custom-amt"><span class="credit-icon-inline">C</span> <span id="topup-custom-display">0</span></div>
+    </div>
+
+    <div class="topup-quickadd-label">Quick add</div>
+    <div class="topup-quickadd-row">
+      <button type="button" onclick="topupQuickAdd(10)">+10</button>
+      <button type="button" onclick="topupQuickAdd(20)">+20</button>
+      <button type="button" onclick="topupQuickAdd(50)">+50</button>
+      <button type="button" onclick="topupQuickAdd(100)">+100</button>
+    </div>
+
+    <div class="topup-step-label">3. Choose payment method</div>
+    <div class="topup-payment-row">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="topup-wa-icon"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2Zm5.8 14.13c-.24.68-1.4 1.3-1.93 1.36-.5.06-1.02.27-3.42-.72-2.88-1.19-4.73-4.1-4.87-4.29-.14-.19-1.17-1.56-1.17-2.98s.75-2.11 1.02-2.4c.26-.29.57-.36.76-.36h.55c.18 0 .42-.03.64.5.24.57.81 1.98.88 2.12.07.14.11.31.02.5-.09.19-.14.31-.28.48-.14.17-.29.37-.42.5-.14.14-.28.29-.12.57.16.28.71 1.18 1.53 1.92 1.05.94 1.94 1.24 2.22 1.38.28.14.44.12.61-.07.16-.19.7-.82.89-1.1.19-.28.38-.23.63-.14.26.09 1.65.78 1.93.92.28.14.47.21.54.33.07.12.07.68-.17 1.35Z"/></svg>
+      <div class="topup-payment-text">
+        <div>WhatsApp</div>
+        <div class="topup-payment-sub">Fast and secure payment via WhatsApp</div>
+      </div>
+      <div class="topup-radio active"></div>
+    </div>
+    <div class="topup-secure-note">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <span>Your payment information is secure and encrypted.</span>
+    </div>
+
+    <button class="topup-continue-btn" onclick="topupSendWhatsApp()">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2Zm5.8 14.13c-.24.68-1.4 1.3-1.93 1.36-.5.06-1.02.27-3.42-.72-2.88-1.19-4.73-4.1-4.87-4.29-.14-.19-1.17-1.56-1.17-2.98s.75-2.11 1.02-2.4c.26-.29.57-.36.76-.36h.55c.18 0 .42-.03.64.5.24.57.81 1.98.88 2.12.07.14.11.31.02.5-.09.19-.14.31-.28.48-.14.17-.29.37-.42.5-.14.14-.28.29-.12.57.16.28.71 1.18 1.53 1.92 1.05.94 1.94 1.24 2.22 1.38.28.14.44.12.61-.07.16-.19.7-.82.89-1.1.19-.28.38-.23.63-.14.26.09 1.65.78 1.93.92.28.14.47.21.54.33.07.12.07.68-.17 1.35Z"/></svg>
+      <span>Continue on WhatsApp</span>
+    </button>
+  </div>
+</div>
+
 <!-- ══ MAIN APP ══════════════════════════════════════════════ -->
 <div id="app">
   <header>
@@ -852,9 +998,13 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
             <span>New Post</span>
           </div>
-          <div class="hu-pop-item static">
-            <span>Credit balance</span>
-            <span class="hu-pop-balance-amt" id="hu-pop-balance-amt">—</span>
+          <div class="hu-pop-item hu-pop-topup" onclick="event.stopPropagation(); openTopupModal();">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Z"/><path d="M16 5H6a2 2 0 0 0-2 2"/><circle cx="16" cy="13" r="1.5" fill="currentColor" stroke="none"/></svg>
+            <div class="hu-pop-topup-text">
+              <span>Top-up</span>
+              <span class="hu-pop-topup-sub">Add credits to unlock premium features</span>
+            </div>
+            <svg class="hu-pop-topup-chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </div>
         </div>
       </div>
@@ -2104,7 +2254,9 @@ function renderCredits() {
   const headerBal = document.getElementById('header-balance');
   const popAmt = document.getElementById('hu-pop-balance-amt');
   const chBal = document.getElementById('ch-balance-value');
+  const topupBal = document.getElementById('topup-balance-value');
   if (chBal) chBal.textContent = userCredits;
+  if (topupBal) topupBal.textContent = userCredits;
   if (!headerAmt || !headerBal) return;
   headerAmt.textContent = userCredits;
   headerBal.classList.toggle('low', userCredits <= 2);
@@ -2195,6 +2347,63 @@ function icSendWhatsApp() {
   const email = (currentUser && currentUser.email) || 'not signed in';
   const text = `Hi GradeVault support, I ran out of credits trying to: ${action}. `
     + `My user ID is ${shortId} (${email}). I'd like to top up ${icAmount} credits.`;
+  const url = `https://wa.me/${IC_WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank', 'noopener');
+}
+
+// ── Top-up Credits modal (proactive, opened from the header menu) ──
+let topupAmount = 200;
+
+function openTopupModal() {
+  document.getElementById('header-user-popover')?.classList.remove('open');
+  document.getElementById('topup-email').value = (currentUser && currentUser.email) || '';
+  document.getElementById('topup-balance-value').textContent = userCredits;
+  topupAmount = 200;
+  document.getElementById('topup-custom-input').value = '';
+  topupRender();
+  document.getElementById('topup-overlay').classList.add('open');
+}
+
+function closeTopupModal() {
+  document.getElementById('topup-overlay').classList.remove('open');
+}
+
+function topupRender() {
+  document.querySelectorAll('#topup-preset-grid .topup-preset').forEach(btn => {
+    btn.classList.toggle('active', Number(btn.dataset.amt) === topupAmount);
+  });
+  document.getElementById('topup-custom-display').textContent = topupAmount;
+}
+
+function topupSelectPreset(amt) {
+  topupAmount = amt;
+  document.getElementById('topup-custom-input').value = '';
+  topupRender();
+}
+
+function topupQuickAdd(delta) {
+  const input = document.getElementById('topup-custom-input');
+  const current = parseInt(input.value, 10) || 0;
+  const next = current + delta;
+  input.value = String(next);
+  topupAmount = next;
+  topupRender();
+}
+
+document.getElementById('topup-custom-input')?.addEventListener('input', (e) => {
+  const digits = e.target.value.replace(/[^0-9]/g, '');
+  e.target.value = digits;
+  topupAmount = digits ? parseInt(digits, 10) : 0;
+  topupRender();
+});
+
+function topupSendWhatsApp() {
+  const email = document.getElementById('topup-email').value.trim() || (currentUser && currentUser.email) || 'not signed in';
+  const shortId = icUserShortId();
+  const amt = topupAmount || 0;
+  if (amt <= 0) { showToast('Choose an amount to top up', true); return; }
+  const text = `Hi GradeVault support, I'd like to top up ${amt} credits. `
+    + `My user ID is ${shortId} (${email}).`;
   const url = `https://wa.me/${IC_WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
   window.open(url, '_blank', 'noopener');
 }
