@@ -1808,7 +1808,13 @@ function initPushListeners() {
   if (!PushPlugin) return;
   PushPlugin.addListener('registration', (token) => {
     console.info('Push registration token:', token.value);
-    // TODO: upsert into public.device_tokens once that table exists.
+    if (!currentUser) return; // token can arrive before login on first install
+    sb.from('device_tokens')
+      .upsert(
+        { user_id: currentUser.id, fcm_token: token.value, platform: 'android', updated_at: new Date().toISOString() },
+        { onConflict: 'user_id,fcm_token' }
+      )
+      .then(({ error }) => { if (error) console.error('Token upsert failed:', error.message); });
   });
   PushPlugin.addListener('registrationError', (err) => {
     console.error('Push registration failed:', err.error);
