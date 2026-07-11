@@ -23,7 +23,7 @@
     "@capacitor/app": "^7.0.1",
     "@capacitor/cli": "^8.4.1",
     "@capacitor/core": "^8.4.1",
-    "@capacitor/splash-screen": "^7.0.1"
+    "@capacitor/splash-screen": "^7.0.5"
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5"
