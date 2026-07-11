@@ -1773,18 +1773,6 @@ function popBackHandler(hideFn) {
   if (idx !== -1) backScreenStack.splice(idx, 1);
 }
 
-// ── Native splash screen ─────────────────────────────────────
-// Splash stays visible (launchAutoHide:false in capacitor.config.json)
-// until explicitly hidden here, after checkSession() resolves — covers
-// both the Supabase session check and initial user-data load, so the
-// splash never drops onto a blank frame before auth/app UI is ready.
-function hideSplashScreen() {
-  if (!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform())) return;
-  const SplashScreenPlugin = window.Capacitor.Plugins && window.Capacitor.Plugins.SplashScreen;
-  if (!SplashScreenPlugin) return;
-  SplashScreenPlugin.hide({ fadeOutDuration: 200 }).catch(() => {});
-}
-
 function initBackButton() {
   if (!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform())) return;
   const AppPlugin = window.Capacitor.Plugins && window.Capacitor.Plugins.App;
@@ -1798,6 +1786,73 @@ function initBackButton() {
     }
   });
 }
+// ── Push notifications (Android) ──────────────────────────────
+// Listeners are registered once at boot (mirrors initBackButton()).
+// Channel creation + permission request happen per-launchApp() call via
+// requestPushPermission(), gated so the OS prompt fires at most once per
+// install and never during first-run onboarding (would stack two modal
+// prompts on a brand-new account).
+// NOTE: token registration is logged only — syncing it to a device_tokens
+// table and actually sending pushes is separate follow-up work, not part
+// of this step.
+function loadPushAskedPref() {
+  try { return localStorage.getItem('gv_push_asked') === '1'; } catch { return false; }
+}
+function savePushAskedPref() {
+  try { localStorage.setItem('gv_push_asked', '1'); } catch {}
+}
+
+function initPushListeners() {
+  if (!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform())) return;
+  const PushPlugin = window.Capacitor.Plugins && window.Capacitor.Plugins.PushNotifications;
+  if (!PushPlugin) return;
+  PushPlugin.addListener('registration', (token) => {
+    console.info('Push registration token:', token.value);
+    // TODO: upsert into public.device_tokens once that table exists.
+  });
+  PushPlugin.addListener('registrationError', (err) => {
+    console.error('Push registration failed:', err.error);
+  });
+}
+
+async function requestPushPermission() {
+  if (!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform())) return;
+  const PushPlugin = window.Capacitor.Plugins && window.Capacitor.Plugins.PushNotifications;
+  if (!PushPlugin) return;
+
+  try {
+    await PushPlugin.createChannel({
+      id: 'default',
+      name: 'GradeVault',
+      description: 'Credits, replies, and announcements',
+      importance: 4,
+      visibility: 1
+    });
+  } catch (e) {
+    console.error('createChannel failed:', e);
+  }
+
+  // Don't prompt mid-onboarding — let that modal finish first; retried on
+  // the next launchApp() call once level/admissionYear are set.
+  if (userData && !(userData.level && userData.admissionYear)) return;
+  if (loadPushAskedPref()) return;
+
+  try {
+    const status = await PushPlugin.checkPermissions();
+    if (status.receive === 'prompt') {
+      await PushPlugin.requestPermissions();
+    }
+    savePushAskedPref();
+
+    const finalStatus = await PushPlugin.checkPermissions();
+    if (finalStatus.receive === 'granted') {
+      await PushPlugin.register();
+    }
+  } catch (e) {
+    console.error('Push permission/registration failed:', e);
+  }
+}
+
 const authError   = document.getElementById('auth-error');
 const authEmail   = document.getElementById('auth-email');
 const authPassword = document.getElementById('auth-password');
@@ -2839,6 +2894,7 @@ function launchApp() {
   loadNotifications();
   startNotifPolling();
   maybeShowOnboarding();
+  requestPushPermission();
 }
 
 // ── Onboarding (mandatory first-run: nickname, level, admission year) ──
@@ -4922,6 +4978,7 @@ initScrollFade();
 applyTheme(getStoredTheme());
 showAuthTab('login');
 initBackButton();
+initPushListeners();
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && currentUser) stampActivity();
 });
@@ -4932,7 +4989,7 @@ document.addEventListener('click', (e) => {
   if (!e.target.closest('.pd-comment-more-wrap')) closeAllCommentMenus();
 }, { passive: true });
 
-checkSession().finally(hideSplashScreen);
+checkSession();
 </script>
 </body>
 </html>
