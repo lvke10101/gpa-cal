@@ -19,6 +19,7 @@ const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const FCM_PROJECT_ID = Deno.env.get('FCM_PROJECT_ID')!
 const FCM_CLIENT_EMAIL = Deno.env.get('FCM_CLIENT_EMAIL')!
 const FCM_PRIVATE_KEY = Deno.env.get('FCM_PRIVATE_KEY')!.replace(/\\n/g, '\n')
+const WEBHOOK_SECRET = Deno.env.get('PUSH_WEBHOOK_SECRET')!
 
 function buildTitleAndBody(row: NotificationRow): { title: string; body: string } {
   const preview = row.body_preview || '';
@@ -55,6 +56,10 @@ async function getAccessToken(): Promise<string> {
 }
 
 Deno.serve(async (req) => {
+  if (req.headers.get('x-webhook-secret') !== WEBHOOK_SECRET) {
+    return new Response('Unauthorized', { status: 401 })
+  }
+
   try {
     const payload: WebhookPayload = await req.json()
     const row = payload.record
