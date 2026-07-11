@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "859842932426",
+    "project_id": "gradevault-8d474",
+    "storage_bucket": "gradevault-8d474.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:859842932426:android:e24f8948bcc2a298954e33",
+        "android_client_info": {
+          "package_name": "com.lvke10101.gradevault"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXxe0txiwbCY5W1F5vwCucfdjQxvuHq4A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
