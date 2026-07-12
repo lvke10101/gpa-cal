@@ -3990,6 +3990,30 @@ async function submitPost() {
     if (error) throw error;
 
     if (isAnnouncement && inserted) {
+      // This RPC fans out to every user's notifications in one shot — it
+      // gets the same pre-flight scrutiny as a money-path action, not just
+      // the page-load-time cache check that gated opening the composer.
+      const { data: sessionCheck, error: sessionErr } = await sb.auth.getUser();
+      if (sessionErr || !sessionCheck?.user) {
+        showToast('Post created, but your session could not be re-verified — broadcast was not sent. Log in again and retry.', true);
+        newsLoaded = false;
+        hideCompose();
+        await loadPosts();
+        return;
+      }
+      const { data: freshProfile, error: roleErr } = await sb
+        .from('gpa_data')
+        .select('role')
+        .eq('id', sessionCheck.user.id)
+        .single();
+      if (roleErr || freshProfile?.role !== 'admin') {
+        showToast('Post created, but admin status could not be confirmed — broadcast was not sent.', true);
+        newsLoaded = false;
+        hideCompose();
+        await loadPosts();
+        return;
+      }
+
       const { error: broadcastErr } = await sb.rpc('broadcast_announcement', {
         p_post_id: inserted.id,
         p_title: title,
