@@ -3968,7 +3968,16 @@ async function submitPost() {
         p_title: title,
         p_body: body
       });
-      if (broadcastErr) console.error('Announcement broadcast failed', broadcastErr);
+      if (broadcastErr) {
+        // Post row exists but nobody was notified — this is NOT the same
+        // outcome as a full publish. Never fold this into the success toast.
+        console.error('Announcement broadcast failed', broadcastErr);
+        showToast('Post created, but the broadcast failed — no one was notified.', true);
+        newsLoaded = false;
+        hideCompose();
+        await loadPosts();
+        return;
+      }
     }
 
     showToast(isAnnouncement ? 'Announcement published.' : 'Post published.');
