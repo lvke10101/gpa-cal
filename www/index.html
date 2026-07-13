@@ -420,6 +420,86 @@
   .totals-row .total-gpa { color:var(--gold); font-size:14px; }
   .empty-state { padding:48px 16px; text-align:center; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); }
   .empty-state .icon { font-size:36px; margin-bottom:10px; opacity:0.3; }
+
+  /* ── View toggle (Table / Slide) ─────────────────────────── */
+  .view-toggle-group { display:flex; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:3px; gap:2px; flex-shrink:0; }
+  .view-toggle-btn { background:none; border:none; color:var(--text3); padding:7px 9px; border-radius:7px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; -webkit-tap-highlight-color:transparent; }
+  .view-toggle-btn svg { width:16px; height:16px; }
+  .view-toggle-btn.active { background:var(--gold); color:var(--on-gold); }
+  .view-toggle-btn:disabled { opacity:0.4; cursor:not-allowed; }
+
+  /* ── Slide view ───────────────────────────────────────────── */
+  .slide-view-wrap { position:relative; min-height:400px; padding-bottom:8px; touch-action:pan-y; }
+  .slide-stack { position:relative; min-height:388px; }
+  .slide-card { position:absolute; inset:0; background:var(--surface); border:1px solid var(--border2); border-radius:18px; padding:26px 22px 20px; box-shadow:var(--shadow); transition:transform 0.15s, opacity 0.15s; }
+  .slide-card.ghost-1 { transform:translateY(10px) scale(0.97); opacity:0.7; z-index:1; pointer-events:none; }
+  .slide-card.ghost-2 { transform:translateY(18px) scale(0.94); opacity:0.4; z-index:0; pointer-events:none; }
+  .slide-card.top { z-index:2; }
+  .slide-card.top.dragging { transition:none; }
+  .slide-del-btn { position:absolute; top:18px; right:18px; width:34px; height:34px; border-radius:50%; border:1.5px solid var(--gold); background:none; color:var(--gold); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.15s; -webkit-tap-highlight-color:transparent; }
+  .slide-del-btn svg { width:16px; height:16px; }
+  .slide-del-btn:active { transform:scale(0.9); background:rgba(192,57,43,0.12); border-color:var(--red2); color:var(--red2); }
+  .slide-del-btn:disabled { opacity:0.35; cursor:not-allowed; pointer-events:none; }
+  .slide-field { margin-bottom:16px; }
+  .slide-field:last-of-type { margin-bottom:0; }
+  .slide-field label { display:block; font-size:11px; font-weight:600; color:var(--gold); text-transform:none; margin-bottom:4px; }
+  .slide-input { width:calc(100% - 40px); background:transparent; border:none; border-bottom:1.5px solid var(--border2); color:var(--text); font-family:inherit; font-size:17px; padding:4px 2px; outline:none; transition:border-color 0.15s; }
+  .slide-input:focus { border-color:var(--gold); }
+  .slide-input.invalid { border-color:var(--red2); }
+  .slide-row-2 { display:flex; gap:28px; }
+  .slide-row-2 .slide-field { flex:1; }
+  .slide-stepper { display:flex; align-items:center; gap:8px; }
+  .slide-stepper-input { width:56px; text-align:center; background:var(--card); border:1.5px solid var(--border2); border-radius:8px; padding:8px 4px; font-family:'DM Mono',monospace; font-size:15px; color:var(--text); }
+  .slide-stepper-input.invalid { border-color:var(--red2); }
+  .slide-stepper-arrows { display:flex; flex-direction:column; }
+  .slide-stepper-arrows button { background:var(--card); border:1.5px solid var(--border2); color:var(--text3); width:22px; height:17px; display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .slide-stepper-arrows button:first-child { border-radius:6px 6px 0 0; border-bottom:none; }
+  .slide-stepper-arrows button:last-child { border-radius:0 0 6px 6px; }
+  .slide-stepper-arrows button:active { background:var(--gold); color:var(--on-gold); }
+  .slide-stepper-arrows svg { width:9px; height:9px; }
+  .slide-next-row { display:flex; justify-content:flex-end; margin-top:22px; }
+  .slide-next-btn { background:var(--gold); color:var(--on-gold); border:none; padding:11px 20px; border-radius:11px; font-weight:600; font-size:14px; cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:6px; -webkit-tap-highlight-color:transparent; transition:all 0.15s; }
+  .slide-next-btn:active { transform:scale(0.96); }
+  .slide-next-btn svg { width:15px; height:15px; }
+  .slide-dots { display:flex; justify-content:center; align-items:center; gap:7px; margin-top:14px; }
+  .slide-dot { width:7px; height:7px; border-radius:50%; background:var(--border2); border:none; padding:0; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:all 0.15s; }
+  .slide-dot.active { background:var(--gold); width:18px; border-radius:4px; }
+  .slide-swipe-hint { text-align:center; font-size:11px; color:var(--text3); margin-top:10px; opacity:0.7; }
+
+  /* ── GradeVault generic centered modal (review / calculating / result) ── */
+  .gv-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:220; align-items:center; justify-content:center; padding:20px; }
+  .gv-modal-overlay.open { display:flex; }
+  .gv-modal-card { position:relative; width:100%; max-width:400px; background:var(--surface); border:1px solid var(--border); border-radius:22px; padding:34px 26px 28px; text-align:center; box-shadow:var(--shadow); }
+  .gv-modal-close { position:absolute; top:16px; right:16px; width:32px; height:32px; border-radius:50%; border:none; background:var(--card); color:var(--text3); display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .gv-modal-close svg { width:15px; height:15px; }
+  .gv-modal-pen { position:absolute; top:16px; right:16px; width:34px; height:34px; border-radius:50%; border:1.5px solid var(--gold); background:none; color:var(--gold); display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:all 0.15s; }
+  .gv-modal-pen:active { transform:scale(0.9); background:rgba(212,168,67,0.12); }
+  .gv-modal-pen svg { width:15px; height:15px; }
+  .gv-modal-icon-circle { width:76px; height:76px; border-radius:50%; background:rgba(212,168,67,0.12); display:flex; align-items:center; justify-content:center; margin:0 auto 18px; color:var(--gold); }
+  .gv-modal-icon-circle svg { width:36px; height:36px; }
+  .gv-modal-title { font-family:'Playfair Display',serif; font-size:22px; color:var(--text); margin-bottom:14px; }
+  .gv-modal-text { font-size:14px; color:var(--text2); line-height:1.5; margin-bottom:22px; }
+  .gv-modal-actions { display:flex; gap:10px; }
+  .gv-modal-actions button { flex:1; padding:13px; border-radius:12px; font-family:inherit; font-weight:600; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; -webkit-tap-highlight-color:transparent; transition:all 0.15s; }
+  .gv-modal-actions button svg { width:14px; height:14px; }
+  .btn-gv-outline { background:none; border:1.5px solid var(--gold); color:var(--gold); }
+  .btn-gv-outline:active { background:rgba(212,168,67,0.1); }
+  .btn-gv-solid { background:var(--gold); border:none; color:var(--on-gold); }
+  .btn-gv-solid:active { background:var(--gold2); }
+  .calc-spinner-wrap { width:88px; height:88px; margin:0 auto 20px; position:relative; }
+  .calc-spinner-ring { position:absolute; inset:0; border-radius:50%; border:4px solid var(--border); border-top-color:var(--gold); animation:gv-spin 0.9s linear infinite; }
+  .calc-spinner-icon { position:absolute; inset:14px; border-radius:50%; background:var(--card); display:flex; align-items:center; justify-content:center; color:var(--gold); }
+  .calc-spinner-icon svg { width:30px; height:30px; }
+  @keyframes gv-spin { to { transform:rotate(360deg); } }
+  .gv-result-box { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px; margin-bottom:18px; }
+  .gv-result-label { font-size:12px; color:var(--text3); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px; }
+  .gv-result-value { font-family:'Playfair Display',serif; font-size:44px; color:var(--gold); line-height:1; margin-bottom:10px; }
+  .gv-result-badge { display:inline-flex; align-items:center; gap:5px; background:rgba(212,168,67,0.14); color:var(--gold2); font-size:12px; font-weight:600; padding:5px 12px; border-radius:20px; }
+  .gv-result-footer { display:flex; align-items:center; gap:12px; text-align:left; padding-top:14px; border-top:1px solid var(--border); }
+  .gv-result-arrow { width:34px; height:34px; border-radius:50%; background:rgba(212,168,67,0.12); color:var(--gold); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .gv-result-arrow svg { width:16px; height:16px; }
+  .gv-result-line1 { font-size:13px; font-weight:600; color:var(--text); }
+  .gv-result-line2 { font-size:13px; color:var(--text3); margin-top:2px; }
   .empty-state p { color:var(--text3); font-size:13px; }
   .class-first { color:var(--green2); } .class-second-upper { color:#5dade2; } .class-second-lower { color:var(--gold); } .class-third { color:#e59866; } .class-pass { color:var(--text3); }
   .save-indicator { position:fixed; bottom:16px; right:16px; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:8px 14px; font-size:12px; color:var(--text3); opacity:0; transition:opacity 0.3s; pointer-events:none; z-index:200; }
@@ -1070,6 +1150,14 @@
           <div class="semester-gpa-detail" id="sem-gpa-detail"></div>
         </div>
         <div style="display:flex; align-items:center; gap:8px;">
+          <div class="view-toggle-group" id="view-toggle-group">
+            <button class="view-toggle-btn" id="btn-view-table" title="Table view" onclick="setViewMode('table')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="10" x2="9" y2="20"/></svg>
+            </button>
+            <button class="view-toggle-btn" id="btn-view-slide" title="Slide view" onclick="setViewMode('slide')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="14" height="16" rx="2"/><rect x="2" y="8" width="14" height="16" rx="2" fill="var(--surface)"/></svg>
+            </button>
+          </div>
           <button class="btn-icon-upload" title="Upload courses" onclick="openCatalogPicker()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
               <path d="M12 4v12"/><path d="M7 11l5 5 5-5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>
@@ -1118,6 +1206,16 @@
         </table>
       </div>
       <div class="empty-state" id="empty-state-standalone" style="display:none;">
+        <div class="icon">📚</div>
+        <p>No courses yet. Tap <strong>Add Course</strong> to get started.</p>
+      </div>
+
+      <div class="slide-view-wrap" id="slide-view-wrap" style="display:none;">
+        <div class="slide-stack" id="slide-stack"></div>
+        <div class="slide-dots" id="slide-dots"></div>
+        <div class="slide-swipe-hint">Swipe or use the dots to move between courses</div>
+      </div>
+      <div class="empty-state" id="empty-state-slide" style="display:none;">
         <div class="icon">📚</div>
         <p>No courses yet. Tap <strong>Add Course</strong> to get started.</p>
       </div>
@@ -1661,6 +1759,70 @@
   </div>
 </div>
 
+<!-- ══ REVIEW ENTRIES MODAL ═══════════════════════════════════ -->
+<div class="gv-modal-overlay" id="review-modal-overlay">
+  <div class="gv-modal-card">
+    <button class="gv-modal-close" onclick="closeReviewModal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="gv-modal-icon-circle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v2h6V3"/><polyline points="9 11 11 13 15 9"/><polyline points="9 15 11 17 15 13"/></svg>
+    </div>
+    <div class="gv-modal-title">Review Your Entries</div>
+    <div class="gv-modal-text">Have you entered all your courses and grades? You can still go back to make changes before calculating your GPA.</div>
+    <div class="gv-modal-actions">
+      <button class="btn-gv-outline" onclick="closeReviewModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Go Back
+      </button>
+      <button class="btn-gv-solid" onclick="startCalculating()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="11" x2="10" y2="11"/><line x1="14" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="10" y2="15"/><line x1="14" y1="15" x2="16" y2="15"/></svg>
+        Calculate GPA
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CALCULATING MODAL ══════════════════════════════════════ -->
+<div class="gv-modal-overlay" id="calc-modal-overlay">
+  <div class="gv-modal-card">
+    <div class="calc-spinner-wrap">
+      <div class="calc-spinner-ring"></div>
+      <div class="calc-spinner-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="11" x2="10" y2="11"/><line x1="14" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="10" y2="15"/><line x1="14" y1="15" x2="16" y2="15"/></svg>
+      </div>
+    </div>
+    <div class="gv-modal-title">Calculating…</div>
+    <div class="gv-modal-text" style="margin-bottom:0;">Please wait while we calculate your GPA.</div>
+  </div>
+</div>
+
+<!-- ══ RESULT MODAL ═══════════════════════════════════════════ -->
+<div class="gv-modal-overlay" id="result-modal-overlay">
+  <div class="gv-modal-card">
+    <button class="gv-modal-pen" onclick="editFromResult()" title="Edit entries">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+    </button>
+    <div class="gv-modal-icon-circle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z"/><path d="M8.5 13 7 21l5-2.5L17 21l-1.5-8"/></svg>
+    </div>
+    <div class="gv-result-box">
+      <div class="gv-result-label">Your GPA</div>
+      <div class="gv-result-value" id="result-gpa-value">—</div>
+      <div class="gv-result-badge" id="result-gpa-badge">Good Effort! ★</div>
+    </div>
+    <div class="gv-result-footer">
+      <div class="gv-result-arrow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+      </div>
+      <div>
+        <div class="gv-result-line1">There's always room to improve.</div>
+        <div class="gv-result-line2" id="result-motivation">Keep pushing forward.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ══ ONBOARDING (mandatory, non-dismissible) ═══════════════ -->
 <div id="onboard-overlay" class="onboard-overlay">
   <div class="onboard-sheet">
@@ -1745,7 +1907,7 @@ let gpaHidden = loadGpaHiddenPref();
 function toggleGpaPrivacy() {
   gpaHidden = !gpaHidden;
   saveGpaHiddenPref(gpaHidden);
-  renderTable();
+  renderCourses();
   updateStats();
 }
 
@@ -4587,9 +4749,13 @@ async function confirmCatalogImport() {
   const ok = await spendCredits(CREDIT_COSTS.upload, 'Importing courses', 'course_import');
   if (!ok) return;
 
-  userData.semesters[currentSem] = row.courses.map(c => ({
+  userData.semesters[currentSem] = row.courses.slice(0, MAX_COURSES_PER_SEM).map(c => ({
     code: c.code || '', title: c.title || '', units: c.units || '', grade: ''
   }));
+  currentSlideIdx = 0;
+  if (row.courses.length > MAX_COURSES_PER_SEM) {
+    showToast(`Only the first ${MAX_COURSES_PER_SEM} courses were imported (semester limit).`, true);
+  }
 
   try {
     await saveToSupabase();
@@ -4601,7 +4767,7 @@ async function confirmCatalogImport() {
   }
   closeCatalogPicker();
   showToast(`Imported ${row.courses.length} course(s)!`);
-  renderTable();
+  renderCourses();
 }
 
 // ── Supabase save ────────────────────────────────────────────
@@ -4733,6 +4899,7 @@ function switchYear(idx, firstLoad=false) {
 
 function switchSem(sem) {
   currentSem = sem;
+  currentSlideIdx = 0;
   const yearIdx = YEARS.findIndex(y => y.sems.includes(sem));
   if (yearIdx !== -1 && yearIdx !== currentYear) {
     switchYear(yearIdx, false);
@@ -4743,7 +4910,7 @@ function switchSem(sem) {
   );
   document.getElementById('sem-title').textContent = SEM_NAMES[sem];
   resetLockForSem();
-  renderTable();
+  renderCourses();
   updateStats();
   loadNoteForSem();
 }
@@ -4768,6 +4935,7 @@ function applyCourseLock() {
     .forEach(el => { el.disabled = courseLocked; });
   const wrap = document.querySelector('.course-table-wrap');
   if (wrap) wrap.classList.toggle('locked', courseLocked);
+  if (typeof renderSlideView === 'function') renderSlideView();
 }
 
 function onLockToggle(checked) {
@@ -4779,6 +4947,54 @@ function onLockToggle(checked) {
 function resetLockForSem() {
   courseLocked = true;
   updateLockUI();
+}
+
+// ── View mode (table / slide) ────────────────────────────────
+const MAX_COURSES_PER_SEM = 20;
+function loadViewModePref() {
+  try { return localStorage.getItem('gv_view_mode') === 'slide' ? 'slide' : 'table'; } catch { return 'table'; }
+}
+function saveViewModePref(mode) {
+  try { localStorage.setItem('gv_view_mode', mode); } catch {}
+}
+let viewMode = loadViewModePref();
+let currentSlideIdx = 0;
+
+function setViewMode(mode) {
+  if (mode === viewMode) return;
+  viewMode = mode;
+  saveViewModePref(mode);
+  const courses = userData.semesters[currentSem] || [];
+  currentSlideIdx = Math.min(currentSlideIdx, Math.max(0, courses.length - 1));
+  renderCourses();
+}
+
+function updateViewToggleUI() {
+  const tBtn = document.getElementById('btn-view-table');
+  const sBtn = document.getElementById('btn-view-slide');
+  if (tBtn) tBtn.classList.toggle('active', viewMode === 'table');
+  if (sBtn) sBtn.classList.toggle('active', viewMode === 'slide');
+}
+
+function applyViewModeVisibility() {
+  const courses = userData.semesters[currentSem] || [];
+  const tableWrap = document.getElementById('course-table-wrap');
+  const tableEmpty = document.getElementById('empty-state-standalone');
+  const slideWrap = document.getElementById('slide-view-wrap');
+  const slideEmpty = document.getElementById('empty-state-slide');
+  const isTable = viewMode === 'table';
+  const hasCourses = courses.length > 0;
+  tableWrap.style.display = (isTable && hasCourses) ? 'block' : 'none';
+  tableEmpty.style.display = (isTable && !hasCourses) ? 'block' : 'none';
+  slideWrap.style.display = (!isTable && hasCourses) ? 'block' : 'none';
+  slideEmpty.style.display = (!isTable && !hasCourses) ? 'block' : 'none';
+  updateViewToggleUI();
+}
+
+function renderCourses() {
+  renderTable();
+  renderSlideView();
+  applyViewModeVisibility();
 }
 
 // ── Table rendering ──────────────────────────────────────────
@@ -4859,26 +5075,284 @@ function renderTotals(courses) {
     gpaHidden ? '' : (gpa !== null ? `TGP ${tgp} ÷ TNU ${tnu} = ${fmt(gpa)}` : '');
 }
 
+// ── Slide view rendering ─────────────────────────────────────
+function isCourseComplete(c) {
+  return !!(c && c.code && c.code.trim() && c.title && c.title.trim()
+    && parseFloat(c.units) > 0 && c.grade);
+}
+
+function gradeStep(grade, delta) {
+  const order = ['', 'A', 'B', 'C', 'D', 'E', 'F'];
+  let idx = order.indexOf(grade || '');
+  if (idx === -1) idx = 0;
+  idx = Math.min(order.length - 1, Math.max(0, idx + delta));
+  // Skip the blank option when moving forward once a grade is set
+  if (idx === 0 && delta > 0) idx = 1;
+  return order[idx];
+}
+
+function renderSlideView() {
+  const courses = userData.semesters[currentSem] || [];
+  const stack = document.getElementById('slide-stack');
+  const dots  = document.getElementById('slide-dots');
+  if (!courses.length) { stack.innerHTML = ''; dots.innerHTML = ''; return; }
+
+  currentSlideIdx = Math.min(currentSlideIdx, courses.length - 1);
+  const i = currentSlideIdx;
+  const c = courses[i];
+  const isLast = i === courses.length - 1;
+  const canDelete = !courseLocked && courses.length > 0;
+
+  const ghostCount = Math.min(2, courses.length - 1 - i);
+  let ghosts = '';
+  for (let g = 0; g < ghostCount; g++) {
+    ghosts += `<div class="slide-card ghost-${g+1}"></div>`;
+  }
+
+  stack.innerHTML = `
+    ${ghosts}
+    <div class="slide-card top">
+      <button class="slide-del-btn" onclick="deleteCourse(${i})" ${canDelete ? '' : 'disabled'} title="Delete this course">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 7h14"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
+          <path d="M7 7l1 13a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2l1-13"/>
+          <line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
+        </svg>
+      </button>
+      <div class="slide-field">
+        <label>Course Title:</label>
+        <input class="slide-input" id="slide-input-title" value="${esc(c.title)}" placeholder="e.g. MATHEMATICS"
+          ${courseLocked ? 'disabled' : ''}
+          oninput="updateField(${i},'title',this.value); this.classList.remove('invalid')"/>
+      </div>
+      <div class="slide-field">
+        <label>Code:</label>
+        <input class="slide-input" id="slide-input-code" value="${esc(c.code)}" placeholder="e.g. MTH 101"
+          ${courseLocked ? 'disabled' : ''}
+          oninput="updateField(${i},'code',this.value); this.classList.remove('invalid')"/>
+      </div>
+      <div class="slide-row-2">
+        <div class="slide-field">
+          <label>Units:</label>
+          <div class="slide-stepper">
+            <input class="slide-stepper-input" id="slide-input-units" type="number" min="1" max="6"
+              value="${c.units || ''}" placeholder="2" ${courseLocked ? 'disabled' : ''}
+              oninput="updateField(${i},'units',this.value); this.classList.remove('invalid')"/>
+            <div class="slide-stepper-arrows">
+              <button type="button" onclick="adjustSlideUnits(${i},1)" ${courseLocked ? 'disabled' : ''}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>
+              </button>
+              <button type="button" onclick="adjustSlideUnits(${i},-1)" ${courseLocked ? 'disabled' : ''}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="slide-field">
+          <label>Grade:</label>
+          <div class="slide-stepper">
+            <input class="slide-stepper-input" id="slide-input-grade" value="${c.grade || ''}" readonly
+              placeholder="—" ${courseLocked ? 'disabled' : ''}/>
+            <div class="slide-stepper-arrows">
+              <button type="button" onclick="adjustSlideGrade(${i},1)" ${courseLocked ? 'disabled' : ''}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>
+              </button>
+              <button type="button" onclick="adjustSlideGrade(${i},-1)" ${courseLocked ? 'disabled' : ''}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-next-row">
+        <button class="slide-next-btn" ${courseLocked ? 'disabled' : ''} onclick="${isLast ? 'attemptDone()' : `goToSlide(${i + 1})`}">
+          ${isLast ? 'Done' : 'Next'}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>`;
+
+  dots.innerHTML = courses.map((_, di) =>
+    `<button class="slide-dot ${di === i ? 'active' : ''}" onclick="goToSlide(${di})" title="Course ${di + 1}"></button>`
+  ).join('');
+}
+
+function goToSlide(i) {
+  const courses = userData.semesters[currentSem] || [];
+  if (!courses.length) return;
+  currentSlideIdx = Math.min(Math.max(0, i), courses.length - 1);
+  renderSlideView();
+}
+
+function adjustSlideUnits(i, delta) {
+  if (courseLocked) return;
+  const c = userData.semesters[currentSem][i];
+  const cur = parseFloat(c.units) || 0;
+  const next = Math.min(6, Math.max(1, cur + delta));
+  updateField(i, 'units', String(next));
+  renderSlideView();
+}
+
+function adjustSlideGrade(i, delta) {
+  if (courseLocked) return;
+  const c = userData.semesters[currentSem][i];
+  updateField(i, 'grade', gradeStep(c.grade, delta));
+  renderSlideView();
+}
+
+function markSlideInvalid(i) {
+  const courses = userData.semesters[currentSem] || [];
+  const c = courses[i];
+  if (!c) return;
+  const fields = [
+    ['slide-input-title', c.title && c.title.trim()],
+    ['slide-input-code', c.code && c.code.trim()],
+    ['slide-input-units', parseFloat(c.units) > 0],
+    ['slide-input-grade', !!c.grade]
+  ];
+  fields.forEach(([id, ok]) => {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('invalid', !ok);
+  });
+}
+
+function attemptDone() {
+  const courses = userData.semesters[currentSem] || [];
+  const firstIncomplete = courses.findIndex(c => !isCourseComplete(c));
+  if (firstIncomplete !== -1) {
+    goToSlide(firstIncomplete);
+    markSlideInvalid(firstIncomplete);
+    showToast('Fill in every field for all courses before finishing.', true);
+    return;
+  }
+  openReviewModal();
+}
+
+// ── Slide swipe navigation ────────────────────────────────────
+// Left/right swipe moves between existing course slides. It never creates a
+// new slide or triggers Done — only the explicit button does that — so a
+// swipe can't accidentally skip the completeness check.
+(function initSlideSwipe() {
+  const wrap = document.getElementById('slide-view-wrap');
+  if (!wrap) return;
+  const SWIPE_THRESHOLD = 45; // px
+  let startX = 0, startY = 0, tracking = false;
+
+  function onStart(x, y, target) {
+    // Don't hijack interaction with inputs, steppers, delete button, or dots.
+    if (target.closest('input, button, select, textarea')) { tracking = false; return; }
+    startX = x; startY = y; tracking = true;
+  }
+  function onEnd(x, y) {
+    if (!tracking) return;
+    tracking = false;
+    const dx = x - startX, dy = y - startY;
+    if (Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dx) < Math.abs(dy)) return;
+    const courses = userData.semesters[currentSem] || [];
+    if (!courses.length) return;
+    if (dx < 0 && currentSlideIdx < courses.length - 1) {
+      goToSlide(currentSlideIdx + 1);
+    } else if (dx > 0 && currentSlideIdx > 0) {
+      goToSlide(currentSlideIdx - 1);
+    }
+  }
+
+  wrap.addEventListener('touchstart', e => {
+    const t = e.touches[0];
+    onStart(t.clientX, t.clientY, e.target);
+  }, { passive: true });
+  wrap.addEventListener('touchend', e => {
+    const t = e.changedTouches[0];
+    onEnd(t.clientX, t.clientY);
+  }, { passive: true });
+
+  // Mouse fallback for desktop/browser testing.
+  wrap.addEventListener('mousedown', e => onStart(e.clientX, e.clientY, e.target));
+  wrap.addEventListener('mouseup', e => onEnd(e.clientX, e.clientY));
+})();
+
+// ── Review / Calculating / Result modals ─────────────────────
+function openReviewModal() {
+  document.getElementById('review-modal-overlay').classList.add('open');
+}
+function closeReviewModal() {
+  document.getElementById('review-modal-overlay').classList.remove('open');
+}
+function openCalculatingModal() {
+  document.getElementById('calc-modal-overlay').classList.add('open');
+}
+function closeCalculatingModal() {
+  document.getElementById('calc-modal-overlay').classList.remove('open');
+}
+function openResultModal() {
+  populateResultModal();
+  document.getElementById('result-modal-overlay').classList.add('open');
+}
+function closeResultModal() {
+  document.getElementById('result-modal-overlay').classList.remove('open');
+}
+
+function populateResultModal() {
+  const courses = userData.semesters[currentSem] || [];
+  const { gpa } = calcSemGPA(courses);
+  document.getElementById('result-gpa-value').textContent = gpaHidden ? '***' : fmt(gpa);
+  // Badge + motivational copy are static placeholders for now (per product decision,
+  // to be revisited once the messaging logic is defined).
+}
+
+function startCalculating() {
+  closeReviewModal();
+  openCalculatingModal();
+  setTimeout(() => {
+    closeCalculatingModal();
+    openResultModal();
+  }, 1400);
+}
+
+function editFromResult() {
+  closeResultModal();
+  if (viewMode !== 'slide') {
+    viewMode = 'slide';
+    saveViewModePref('slide');
+  }
+  goToSlide(0);
+  renderCourses();
+}
+
 // ── Course actions ──────────────────────────────────────────
 async function addCourse() {
   if (courseLocked) return;
+  const courses = userData.semesters[currentSem];
+  if (courses.length >= MAX_COURSES_PER_SEM) {
+    showToast(`You've reached the ${MAX_COURSES_PER_SEM}-course limit for this semester.`, true);
+    return;
+  }
   const ok = await spendCredits(CREDIT_COSTS.addCourse, 'Adding a course', 'course_add');
   if (!ok) return;
-  const courses = userData.semesters[currentSem];
   courses.push({ code:'', title:'', units:'', grade:'' });
-  renderTable();
+  currentSlideIdx = courses.length - 1;
+  renderCourses();
   updateStats();
   scheduleSave();
-  setTimeout(() => {
-    const inputs = document.querySelectorAll('#course-tbody tr:last-child input:first-child');
-    if (inputs.length) inputs[0].focus();
-  }, 50);
+  if (viewMode === 'slide') {
+    setTimeout(() => {
+      const input = document.querySelector('#slide-stack .slide-card.top .slide-input');
+      if (input) input.focus();
+    }, 50);
+  } else {
+    setTimeout(() => {
+      const inputs = document.querySelectorAll('#course-tbody tr:last-child input:first-child');
+      if (inputs.length) inputs[0].focus();
+    }, 50);
+  }
 }
 
 function deleteCourse(i) {
   if (courseLocked) return;
   userData.semesters[currentSem].splice(i, 1);
-  renderTable();
+  const courses = userData.semesters[currentSem];
+  currentSlideIdx = Math.min(currentSlideIdx, Math.max(0, courses.length - 1));
+  renderCourses();
   updateStats();
   scheduleSave();
 }
