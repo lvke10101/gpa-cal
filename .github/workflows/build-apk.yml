@@ -39,6 +39,11 @@ jobs:
         working-directory: android/app
         run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release.keystore
 
+        
+      - name: Print SHA256 fingerprint
+        working-directory: android/app
+        run: keytool -list -v -keystore release.keystore -storepass "${{ secrets.KEYSTORE_PASSWORD }}" -alias "${{ secrets.KEY_ALIAS }}"
+
       - name: Decode google-services.json
         working-directory: android/app
         run: echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 -d > google-services.json
