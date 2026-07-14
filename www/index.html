@@ -12,7 +12,7 @@
   })();
 </script>
 <title>GradeVault — Student Utility App</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -296,9 +296,49 @@
   .notif-text b { font-weight:600; }
   .notif-time { font-size:12.5px; color:var(--text3); margin-top:3px; }
   .notif-empty { padding:60px 20px; text-align:center; color:var(--text3); font-size:14px; }
-  #compose-screen.cp-mode-announcement .cp-news-only { display:none; }
+  .notif-empty-state { display:flex; flex-direction:column; align-items:center; text-align:center; padding:120px 32px 40px; }
+  .notif-empty-icon { font-size:56px; line-height:1; margin-bottom:22px; }
+  .notif-empty-title { font-size:17px; font-weight:700; color:var(--text); margin-bottom:8px; }
+  .notif-empty-sub { font-size:14px; line-height:1.45; color:var(--text3); max-width:280px; }
+  .notif-more-btn { display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; background:var(--card); border:1px solid var(--border); color:var(--text2); cursor:pointer; flex-shrink:0; transition:all 0.2s; -webkit-tap-highlight-color:transparent; }
+  .notif-more-btn:active { transform:scale(0.88); background:var(--overlay-soft2); transition:transform 0.08s; }
+  #notif-screen .notif-title { flex:1; text-align:center; }
+
+  /* ── Notification options sheet ───────────────────────────── */
+  #notif-options-sheet { position:fixed; inset:0; z-index:500; display:none; align-items:flex-end; justify-content:center; background:rgba(0,0,0,0.45); }
+  #notif-options-sheet.open { display:flex; }
+  .no-panel { width:100%; max-width:480px; background:var(--card); border-radius:16px 16px 0 0; padding:10px 16px 28px; padding-bottom:calc(28px + env(safe-area-inset-bottom)); }
+  .no-handle { width:36px; height:4px; border-radius:2px; background:var(--border2); margin:8px auto 14px; }
+  .no-option { display:flex; align-items:center; gap:12px; padding:10px; border-radius:10px; cursor:pointer; }
+  .no-option:active { background:var(--overlay-soft2); }
+  .no-option.disabled { opacity:0.45; cursor:not-allowed; }
+  .no-icon { display:flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:10px; background:var(--overlay-soft2); color:var(--text2); flex-shrink:0; }
+  .no-icon svg { width:17px; height:17px; }
+  .no-label { flex:1; font-size:15px; font-weight:600; color:var(--text); }
+  .no-chevron { color:var(--text3); flex-shrink:0; }
+  .no-chevron svg { width:18px; height:18px; }
+
+  /* Report comment — bottom sheet with reason pills */
+  #report-sheet { position:fixed; inset:0; z-index:500; display:none; align-items:flex-end; justify-content:center; background:rgba(0,0,0,0.45); }
+  #report-sheet.open { display:flex; }
+  .report-panel { width:100%; max-width:480px; background:var(--card); border-radius:16px 16px 0 0; padding:10px 18px 28px; padding-bottom:calc(28px + env(safe-area-inset-bottom)); }
+  .report-title { font-size:15px; font-weight:700; color:var(--text); margin:6px 2px 14px; }
+  .report-pills { display:flex; flex-wrap:wrap; gap:8px; }
+  .report-pill { padding:9px 16px; border-radius:999px; border:1px solid var(--border2); background:var(--overlay-soft2); color:var(--text2); font-size:13.5px; font-weight:600; font-family:inherit; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:transform 0.1s, background 0.15s, color 0.15s, border-color 0.15s; }
+  .report-pill:active { transform:scale(0.95); }
+  .report-pill.selected { background:var(--gold); border-color:var(--gold); color:#1a1400; }
+  .report-pill:disabled { opacity:0.5; cursor:not-allowed; }
+  .report-other-wrap { display:none; margin-top:14px; }
+  .report-other-wrap.open { display:block; }
+  .report-other-input { width:100%; min-height:72px; background:var(--surface); border:1px solid var(--border2); border-radius:10px; padding:10px 12px; color:var(--text); font-family:inherit; font-size:14px; resize:none; outline:none; }
+  .report-other-submit { margin-top:10px; width:100%; padding:12px; border-radius:10px; background:var(--gold); border:none; color:#1a1400; font-weight:700; font-size:14px; font-family:inherit; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .report-other-submit:disabled { opacity:0.5; cursor:not-allowed; }
+  .report-other-submit:active:not(:disabled) { transform:scale(0.98); }
+  #compose-screen.cp-mode-simple .cp-news-only { display:none; }
   .notif-item.announcement { cursor:pointer; }
   .notif-badge-ann { display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:0.03em; text-transform:uppercase; color:var(--gold); border:1px solid var(--gold); border-radius:4px; padding:1px 5px; margin-right:6px; vertical-align:middle; }
+  .notif-badge-warn { color:#e5484d; border-color:#e5484d; }
+  .notif-item.warning { border-left:2px solid #e5484d; }
   .notif-ann-box { overflow:hidden; height:0; transition:height 0.25s ease; }
   .notif-ann-box-inner { padding-top:10px; font-size:13.5px; line-height:1.5; color:var(--text2); white-space:pre-wrap; }
   .notif-ann-title { font-weight:600; color:var(--text); margin-bottom:4px; }
@@ -314,9 +354,6 @@
   .pts-option.disabled { opacity:0.45; cursor:not-allowed; }
   .pts-option-label { font-size:15px; font-weight:600; color:var(--text); }
   .pts-option-sub { font-size:12.5px; color:var(--text3); margin-top:2px; }
-  .notif-footer { flex-shrink:0; padding:14px 16px; border-top:1px solid var(--border); text-align:center; }
-  .notif-mark-all { background:none; border:none; color:var(--gold); font-weight:600; font-size:14px; font-family:inherit; cursor:pointer; padding:6px; }
-  .notif-mark-all:disabled { opacity:0.4; cursor:not-allowed; }
 
   /* Nav pill row (My Semester · News Feed) */
   .nav-pill-row { background:var(--surface); border-bottom:1px solid var(--border); padding:14px 16px; display:flex; align-items:center; justify-content:center; gap:12px; }
@@ -421,50 +458,75 @@
   .empty-state { padding:48px 16px; text-align:center; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); }
   .empty-state .icon { font-size:36px; margin-bottom:10px; opacity:0.3; }
 
-  /* ── View toggle (Table / Slide) ─────────────────────────── */
-  .view-toggle-group { display:flex; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:3px; gap:2px; flex-shrink:0; }
-  .view-toggle-btn { background:none; border:none; color:var(--text3); padding:7px 9px; border-radius:7px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; -webkit-tap-highlight-color:transparent; }
-  .view-toggle-btn svg { width:16px; height:16px; }
-  .view-toggle-btn.active { background:var(--gold); color:var(--on-gold); }
-  .view-toggle-btn:disabled { opacity:0.4; cursor:not-allowed; }
+  /* ── Slide view — swipeable course cards (dark gold / Poppins) ── */
+  .slide-view-wrap {
+    position:relative; min-height:420px; padding-bottom:8px;
+    --sc-bg1:#171310; --sc-bg2:#100d0b; --sc-bg3:#0a0807;
+    --sc-gold:#e0b054; --sc-gold-dim:#8c703a; --sc-line:rgba(224,176,84,0.35);
+    --sc-txt-hi:#f3ede2; --sc-txt-lo:#c9c2b4; --sc-red:#e2685a;
+  }
+  .slide-stack { position:relative; min-height:404px; perspective:1200px; -webkit-tap-highlight-color:transparent; }
+  .slide-card {
+    position:absolute; inset:0; border-radius:24px; padding:26px 24px 22px;
+    display:flex; flex-direction:column; color:var(--sc-txt-hi);
+    background:var(--sc-bg1); border:1.5px solid var(--sc-line);
+    box-shadow:0 24px 56px -18px rgba(0,0,0,0.6);
+    user-select:none; cursor:grab; will-change:transform, opacity;
+    transition:transform .45s cubic-bezier(.22,1,.36,1), opacity .45s cubic-bezier(.22,1,.36,1);
+  }
+  .slide-card.dragging { transition:none; cursor:grabbing; }
+  .slide-card.ghost-1 { background:var(--sc-bg2); transform:translate(10px,14px) scale(0.95) rotate(-1.3deg); opacity:0.7; z-index:1; pointer-events:none; touch-action:none; }
+  .slide-card.ghost-2 { background:var(--sc-bg3); transform:translate(20px,28px) scale(0.9) rotate(1.6deg); opacity:0.4; z-index:0; pointer-events:none; touch-action:none; }
+  .slide-card.top { z-index:2; touch-action:pan-y; }
 
-  /* ── Slide view ───────────────────────────────────────────── */
-  .slide-view-wrap { position:relative; min-height:400px; padding-bottom:8px; touch-action:pan-y; }
-  .slide-stack { position:relative; min-height:388px; }
-  .slide-card { position:absolute; inset:0; background:var(--surface); border:1px solid var(--border2); border-radius:18px; padding:26px 22px 20px; box-shadow:var(--shadow); transition:transform 0.15s, opacity 0.15s; }
-  .slide-card.ghost-1 { transform:translateY(10px) scale(0.97); opacity:0.7; z-index:1; pointer-events:none; }
-  .slide-card.ghost-2 { transform:translateY(18px) scale(0.94); opacity:0.4; z-index:0; pointer-events:none; }
-  .slide-card.top { z-index:2; }
-  .slide-card.top.dragging { transition:none; }
-  .slide-del-btn { position:absolute; top:18px; right:18px; width:34px; height:34px; border-radius:50%; border:1.5px solid var(--gold); background:none; color:var(--gold); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.15s; -webkit-tap-highlight-color:transparent; }
-  .slide-del-btn svg { width:16px; height:16px; }
-  .slide-del-btn:active { transform:scale(0.9); background:rgba(192,57,43,0.12); border-color:var(--red2); color:var(--red2); }
+  .slide-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:18px; gap:12px; }
+  .slide-del-btn { width:38px; height:38px; flex-shrink:0; border-radius:50%; border:1.5px solid var(--sc-gold); background:none; color:var(--sc-gold); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.15s; -webkit-tap-highlight-color:transparent; }
+  .slide-del-btn svg { width:18px; height:18px; stroke-width:2.4; }
+  .slide-del-btn:hover, .slide-del-btn:active { transform:scale(0.94); background:rgba(226,104,90,0.14); border-color:var(--sc-red); color:var(--sc-red); }
   .slide-del-btn:disabled { opacity:0.35; cursor:not-allowed; pointer-events:none; }
-  .slide-field { margin-bottom:16px; }
+
+  .slide-field { margin-bottom:18px; }
   .slide-field:last-of-type { margin-bottom:0; }
-  .slide-field label { display:block; font-size:11px; font-weight:600; color:var(--gold); text-transform:none; margin-bottom:4px; }
-  .slide-input { width:calc(100% - 40px); background:transparent; border:none; border-bottom:1.5px solid var(--border2); color:var(--text); font-family:inherit; font-size:17px; padding:4px 2px; outline:none; transition:border-color 0.15s; }
-  .slide-input:focus { border-color:var(--gold); }
-  .slide-input.invalid { border-color:var(--red2); }
-  .slide-row-2 { display:flex; gap:28px; }
+  .slide-field label { display:block; font-family:'Poppins',sans-serif; font-size:12.5px; font-weight:600; color:var(--sc-gold); letter-spacing:.01em; margin-bottom:7px; }
+  .slide-input { width:100%; background:transparent; border:none; border-bottom:1.5px solid var(--sc-line); color:var(--sc-txt-hi); font-family:'Poppins',sans-serif; font-size:21px; font-weight:600; padding:2px 2px 8px; outline:none; transition:border-color 0.2s; }
+  .slide-input::placeholder { color:var(--sc-txt-lo); opacity:.5; }
+  .slide-input:focus { border-color:var(--sc-gold); }
+  .slide-input.invalid { border-color:var(--sc-red); }
+  .slide-field.code .slide-input { font-size:17px; }
+
+  .slide-row-2 { display:flex; gap:24px; margin-bottom:6px; }
   .slide-row-2 .slide-field { flex:1; }
-  .slide-stepper { display:flex; align-items:center; gap:8px; }
-  .slide-stepper-input { width:56px; text-align:center; background:var(--card); border:1.5px solid var(--border2); border-radius:8px; padding:8px 4px; font-family:'DM Mono',monospace; font-size:15px; color:var(--text); }
-  .slide-stepper-input.invalid { border-color:var(--red2); }
-  .slide-stepper-arrows { display:flex; flex-direction:column; }
-  .slide-stepper-arrows button { background:var(--card); border:1.5px solid var(--border2); color:var(--text3); width:22px; height:17px; display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent; }
-  .slide-stepper-arrows button:first-child { border-radius:6px 6px 0 0; border-bottom:none; }
-  .slide-stepper-arrows button:last-child { border-radius:0 0 6px 6px; }
-  .slide-stepper-arrows button:active { background:var(--gold); color:var(--on-gold); }
-  .slide-stepper-arrows svg { width:9px; height:9px; }
-  .slide-next-row { display:flex; justify-content:flex-end; margin-top:22px; }
-  .slide-next-btn { background:var(--gold); color:var(--on-gold); border:none; padding:11px 20px; border-radius:11px; font-weight:600; font-size:14px; cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:6px; -webkit-tap-highlight-color:transparent; transition:all 0.15s; }
-  .slide-next-btn:active { transform:scale(0.96); }
-  .slide-next-btn svg { width:15px; height:15px; }
-  .slide-dots { display:flex; justify-content:center; align-items:center; gap:7px; margin-top:14px; }
-  .slide-dot { width:7px; height:7px; border-radius:50%; background:var(--border2); border:none; padding:0; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:all 0.15s; }
-  .slide-dot.active { background:var(--gold); width:18px; border-radius:4px; }
-  .slide-swipe-hint { text-align:center; font-size:11px; color:var(--text3); margin-top:10px; opacity:0.7; }
+  .slide-stepper { display:flex; align-items:center; height:44px; gap:1px; }
+  .slide-stepper-arrows { flex-shrink:0; width:18px; height:100%; background:none; border:none; padding:0; color:var(--sc-gold-dim); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:color 0.15s, transform 0.15s; -webkit-tap-highlight-color:transparent; }
+  .slide-stepper-arrows:hover { color:var(--sc-gold); }
+  .slide-stepper-arrows:active { transform:scale(0.8); }
+  .slide-stepper-arrows:disabled { opacity:0.3; pointer-events:none; }
+  .slide-stepper-arrows svg { width:10px; height:10px; stroke:currentColor; stroke-width:2.4; fill:none; }
+  .stepper-core { flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .stepper-value { font-family:'Poppins',sans-serif; font-size:19px; font-weight:600; color:var(--sc-txt-hi); line-height:1; }
+  .stepper-value.invalid { color:var(--sc-red); }
+  .stepper-track { position:relative; width:100%; height:2px; border-radius:2px; background:var(--sc-line); }
+  .stepper-fill { position:absolute; top:0; left:0; height:100%; border-radius:2px; background:var(--sc-gold-dim); }
+  .stepper-dot { position:absolute; top:50%; width:6px; height:6px; border-radius:50%; background:var(--sc-gold); box-shadow:0 0 6px rgba(224,176,84,.65); transform:translate(-50%,-50%); }
+
+  .slide-spacer { flex:1; }
+  .slide-next-row { display:flex; justify-content:flex-end; align-items:center; margin-top:18px; }
+  .slide-next-btn { background:linear-gradient(135deg, #f0c876, var(--sc-gold) 60%, #c8963f); border:none; border-radius:12px; padding:12px 20px; display:flex; align-items:center; gap:8px; font-family:'Poppins',sans-serif; font-size:13.5px; font-weight:700; letter-spacing:.05em; color:#231c12; cursor:pointer; transition:filter 0.2s, transform 0.15s; -webkit-tap-highlight-color:transparent; }
+  .slide-next-btn:hover { filter:brightness(1.08); }
+  .slide-next-btn:active { transform:scale(0.97); }
+  .slide-next-btn:disabled { opacity:0.4; cursor:not-allowed; filter:none; }
+  .slide-next-btn svg { width:14px; height:14px; stroke:#231c12; stroke-width:3; fill:none; }
+
+  .slide-dots { display:flex; justify-content:center; align-items:center; gap:6px; margin-top:14px; }
+  .slide-dot { width:5px; height:5px; border-radius:50%; background:var(--sc-gold-dim); opacity:.6; border:none; padding:0; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:all 0.2s; }
+  .slide-dot.active { background:var(--sc-gold); opacity:1; width:14px; border-radius:3px; }
+
+  @media (max-width:480px) {
+    .slide-card { padding:22px 18px 18px; }
+    .slide-input { font-size:18px; }
+    .slide-field.code .slide-input { font-size:15px; }
+    .slide-row-2 { gap:18px; }
+  }
 
   /* ── GradeVault generic centered modal (review / calculating / result) ── */
   .gv-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:220; align-items:center; justify-content:center; padding:20px; }
@@ -495,7 +557,25 @@
   .gv-result-label { font-size:12px; color:var(--text3); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px; }
   .gv-result-value { font-family:'Playfair Display',serif; font-size:44px; color:var(--gold); line-height:1; margin-bottom:10px; }
   .gv-result-badge { display:inline-flex; align-items:center; gap:5px; background:rgba(212,168,67,0.14); color:var(--gold2); font-size:12px; font-weight:600; padding:5px 12px; border-radius:20px; }
+  .gv-result-badge.gv-result-badge-grad { background:linear-gradient(90deg,#5b5bd6,#c04fc4); color:#fff; box-shadow:0 4px 14px rgba(150,70,200,0.35); }
   .gv-result-footer { display:flex; align-items:center; gap:12px; text-align:left; padding-top:14px; border-top:1px solid var(--border); }
+  .gv-result-card-purple .gv-result-footer { border-top:none; padding-top:8px; }
+  .gv-result-card-purple { position:relative; overflow:hidden; }
+  .gv-result-glow { position:relative; width:104px; height:104px; margin:0 auto 18px; display:flex; align-items:center; justify-content:center; }
+  .gv-result-glow::before { content:''; position:absolute; inset:-40px; background:radial-gradient(circle,rgba(150,70,210,0.55) 0%,rgba(90,40,150,0.28) 45%,rgba(90,40,150,0) 75%); border-radius:50%; }
+  .gv-result-glow .gv-result-ring { position:absolute; inset:0; border-radius:50%; border:1.5px solid rgba(190,140,230,0.45); }
+  .gv-result-glow .gv-result-ring2 { position:absolute; inset:12px; border-radius:50%; border:1px solid rgba(190,140,230,0.3); }
+  .gv-result-icon-circle { position:relative; width:76px; height:76px; border-radius:50%; background:rgba(90,40,120,0.35); display:flex; align-items:center; justify-content:center; color:var(--gold2); z-index:1; }
+  .gv-result-icon-circle svg { width:36px; height:36px; }
+  .gv-result-star { position:absolute; color:rgba(210,170,240,0.85); }
+  .gv-result-star svg { width:100%; height:100%; }
+  .gv-result-star-1 { top:2px; left:6px; width:9px; height:9px; }
+  .gv-result-star-2 { top:22px; right:2px; width:14px; height:14px; }
+  .gv-result-star-3 { bottom:8px; left:0; width:10px; height:10px; }
+  .gv-result-star-4 { bottom:20px; right:12px; width:7px; height:7px; }
+  .gv-result-star-5 { top:0; right:30px; width:6px; height:6px; }
+  .gv-result-wave { display:block; width:calc(100% + 52px); margin:0 -26px 0; }
+  .gv-result-wave svg { width:100%; height:auto; display:block; }
   .gv-result-arrow { width:34px; height:34px; border-radius:50%; background:rgba(212,168,67,0.12); color:var(--gold); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
   .gv-result-arrow svg { width:16px; height:16px; }
   .gv-result-line1 { font-size:13px; font-weight:600; color:var(--text); }
@@ -566,16 +646,38 @@
   .pd-premium-sub { font-size:13px; color:var(--text3); margin-bottom:18px; }
   .pd-unlock-btn { background:var(--gold); color:var(--on-gold); border:none; border-radius:10px; padding:11px 24px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
   .pd-unlock-btn:disabled { opacity:0.5; cursor:not-allowed; }
+  /* TikTok-style comment bottom sheet */
+  #cs-backdrop { position:fixed; inset:0; z-index:400; background:rgba(0,0,0,0.5); opacity:0; pointer-events:none; transition:opacity 0.25s; }
+  #cs-backdrop.open { opacity:1; pointer-events:auto; }
+  #comment-sheet { position:fixed; left:0; right:0; bottom:0; z-index:401; height:72vh; height:72dvh; max-width:480px; margin:0 auto; background:var(--card); border-radius:16px 16px 0 0; display:flex; flex-direction:column; transform:translateY(100%); transition:transform 0.3s cubic-bezier(0.32,0.72,0,1); box-shadow:0 -4px 24px rgba(0,0,0,0.25); }
+  #comment-sheet.open { transform:translateY(0); }
+  .cs-drag-zone { flex-shrink:0; padding:10px 0 6px; display:flex; justify-content:center; cursor:grab; touch-action:none; }
+  .cs-handle { width:36px; height:4px; border-radius:2px; background:var(--border2); }
+  .cs-header { flex-shrink:0; display:flex; align-items:center; justify-content:center; padding:0 16px 12px; border-bottom:1px solid var(--border); }
+  .cs-title { font-size:15px; font-weight:700; color:var(--text); }
+  .cs-scroll { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
+  .cs-compose-bar { flex-shrink:0; border-top:1px solid var(--border); padding:10px 16px calc(10px + env(safe-area-inset-bottom)); background:var(--card); }
+  .cs-compose-bar .pd-comment-compose { margin-bottom:0; }
+  .cs-compose-bar .pd-comment-cost { margin:6px 0 0; }
+  .cs-compose-bar .pd-comments-restricted,
+  .cs-compose-bar .pd-comments-empty { padding:6px 0; }
   /* Comments */
-  .pd-comments-section { padding:20px 16px 40px; }
-  .pd-comments-header { font-size:13px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:14px; }
+  .pd-comments-section { padding:16px 16px 24px; }
   .pd-comment-compose { display:flex; gap:10px; align-items:flex-start; margin-bottom:20px; }
   .pd-comment-input { flex:1; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:14px; color:var(--text); font-family:inherit; resize:none; min-height:42px; max-height:120px; outline:none; line-height:1.4; }
   .pd-comment-input:focus { border-color:var(--border2); }
   .pd-comment-send { background:var(--gold); color:var(--on-gold); border:none; border-radius:8px; padding:8px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; flex-shrink:0; align-self:flex-end; display:inline-flex; align-items:center; justify-content:center; min-width:34px; height:34px; }
   .pd-comment-send:disabled { opacity:0.5; cursor:not-allowed; }
   .pd-comment-cost { font-size:11.5px; color:var(--text3); margin-bottom:14px; margin-top:-10px; }
-  .pd-comment { padding:12px 0; border-bottom:1px solid var(--border); }
+  .pd-comment-edit-input { display:block; width:100%; margin-bottom:8px; padding-left:12px; }
+  .pd-edit-actions { display:flex; gap:8px; justify-content:flex-end; }
+  .pd-edit-cancel, .pd-edit-save { border:none; border-radius:8px; padding:6px 14px; font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit; }
+  .pd-edit-cancel { background:var(--surface); color:var(--text2); }
+  .pd-edit-cancel:active { background:var(--overlay-soft2); }
+  .pd-edit-save { background:var(--gold); color:var(--on-gold); }
+  .pd-edit-save:disabled { opacity:0.5; cursor:not-allowed; }
+  .pd-comment { padding:12px 0; border-bottom:1px solid var(--border); transition:background 0.15s; }
+  .pd-comment.pd-longpress-active { background:var(--overlay-soft2); border-radius:10px; }
   .pd-comment:last-child { border-bottom:none; }
   .pd-comment-top { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
   .pd-comment-avatar { width:26px; height:26px; border-radius:50%; background:var(--surface); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:var(--text2); flex-shrink:0; overflow:hidden; }
@@ -591,6 +693,8 @@
   .pd-show-more { display:block; width:100%; padding:14px; text-align:center; color:var(--gold); font-size:13.5px; font-weight:600; background:none; border:none; cursor:pointer; font-family:inherit; transition:background 0.15s; -webkit-tap-highlight-color:transparent; }
   .pd-show-more:active { background:var(--overlay-soft2); }
   .pd-show-more:hover { color:var(--gold2); }
+  .pd-show-more-replies { display:block; margin-top:6px; padding:8px 0; text-align:left; color:var(--gold); font-size:13px; font-weight:600; background:none; border:none; cursor:pointer; font-family:inherit; -webkit-tap-highlight-color:transparent; }
+  .pd-show-more-replies:active { opacity:0.7; }
   .pd-verified-badge { color:var(--blue); flex-shrink:0; }
   .pd-comment-more-wrap { position:relative; margin-left:4px; flex-shrink:0; }
   .pd-comment-more-btn { display:flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:50%; color:var(--text3); background:none; border:none; cursor:pointer; padding:0; }
@@ -719,6 +823,39 @@
   .onboard-subtitle { font-size:13px; color:var(--text2); margin-bottom:22px; line-height:1.4; }
   .onboard-sheet .auth-field { text-align:left; margin-bottom:14px; }
   .onboard-lock-note { font-size:12px; color:var(--text3); margin:4px 0 18px; }
+
+  /* Onboarding pill stepper */
+  .onboard-sheet { position:relative; }
+  .onboard-pills { display:flex; gap:6px; justify-content:center; margin-bottom:20px; }
+  .onboard-pill { height:6px; width:16px; border-radius:3px; background:var(--border2); transition:width 0.25s, background 0.25s; }
+  .onboard-pill.active { width:28px; background:var(--gold); }
+  .onboard-pill.done { background:var(--gold); opacity:0.5; }
+  .onboard-close { display:none; position:absolute; top:16px; right:16px; width:32px; height:32px; border-radius:50%; background:var(--card); border:1px solid var(--border); color:var(--text2); align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .onboard-close svg { width:15px; height:15px; }
+  .onboard-close:hover { border-color:var(--gold); color:var(--text); }
+  .onboard-step { display:none; }
+  .onboard-step.active { display:block; }
+  .onboard-step-actions { display:flex; flex-direction:column; gap:10px; margin-top:4px; }
+  .onboard-skip-link { background:none; border:none; color:var(--text3); font-family:inherit; font-size:13px; cursor:pointer; padding:4px; -webkit-tap-highlight-color:transparent; }
+  .onboard-skip-link:hover { color:var(--text2); }
+
+  /* Onboarding grade-view step cards */
+  .ob-gv-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:20px 0 22px; text-align:left; }
+  .ob-gv-card { background:var(--card); border:1.5px solid var(--border); border-radius:14px; padding:13px 11px; cursor:pointer; transition:border-color 0.2s, background 0.2s; font-family:inherit; }
+  .ob-gv-card.active { border-color:var(--gold); background:rgba(212,168,67,0.07); }
+  .ob-gv-card-head { display:flex; align-items:center; gap:6px; margin-bottom:7px; }
+  .ob-gv-card-icon { width:17px; height:17px; color:var(--text2); flex-shrink:0; }
+  .ob-gv-card.active .ob-gv-card-icon { color:var(--gold); }
+  .ob-gv-card-title { font-size:13px; font-weight:700; color:var(--text); flex:1; }
+  .ob-gv-card-check { width:19px; height:19px; border-radius:50%; border:1.5px solid var(--border2); flex-shrink:0; display:flex; align-items:center; justify-content:center; color:transparent; transition:all 0.2s; }
+  .ob-gv-card-check svg { width:11px; height:11px; }
+  .ob-gv-card.active .ob-gv-card-check { border-color:var(--gold); background:var(--gold); color:var(--on-gold); }
+  .ob-gv-card-desc { font-size:11px; color:var(--text3); line-height:1.4; margin-bottom:10px; min-height:44px; }
+  .ob-gv-preview { border:1px solid var(--border2); border-radius:8px; padding:6px; background:var(--bg); min-height:52px; display:flex; flex-direction:column; justify-content:center; gap:3px; }
+
+  /* Onboarding thank-you step */
+  .onboard-thanks-icon { width:64px; height:64px; margin:0 auto 16px; border-radius:50%; background:rgba(212,168,67,0.12); border:1px solid var(--gold2); display:flex; align-items:center; justify-content:center; color:var(--gold); }
+  .onboard-thanks-icon svg { width:30px; height:30px; }
   .confirm-sheet { max-width:360px; }
   .confirm-warn-icon { width:56px; height:56px; margin:0 auto 14px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--gold); }
   .confirm-warn-icon svg { width:40px; height:40px; }
@@ -754,10 +891,55 @@
   .faq-a { padding:0 2px 18px 36px; font-size:13px; line-height:1.55; color:var(--text2); border-left:2px solid var(--border2); margin-left:8px; }
   .faq-footer-note { text-align:center; font-size:12px; color:var(--text3); margin-top:24px; padding:0 8px; line-height:1.5; }
 
+  /* Support Assistant screen */
+  #sup-screen { display:none; min-height:100vh; min-height:100dvh; flex-direction:column; background:var(--bg); }
+  #sup-screen header { justify-content:flex-start; gap:14px; }
+  #sup-screen .profile-content { flex:1; display:flex; flex-direction:column; padding-bottom:0; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .sup-header-title { font-family:'Playfair Display',serif; font-size:16px; color:var(--text); flex:1; letter-spacing:-0.1px; }
+
+  .sup-intro { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:32px 20px 20px; gap:16px; }
+  .sup-avatar { width:120px; height:120px; border-radius:50%; background:var(--card); border:1px solid var(--border2); display:flex; align-items:center; justify-content:center; color:var(--gold); box-shadow:0 0 0 5px rgba(212,168,67,0.08); }
+  .sup-avatar svg { width:78px; height:78px; }
+  .sup-greeting { font-family:'Playfair Display',serif; font-size:19px; line-height:1.4; color:var(--text); max-width:260px; letter-spacing:-0.2px; }
+  .sup-greeting-sub { font-size:13px; color:var(--text3); max-width:280px; line-height:1.5; margin-top:-8px; }
+
+  .sup-chips { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; max-width:340px; margin-top:6px; }
+  .sup-chip { background:var(--card); border:1px solid var(--border); color:var(--text); font-family:inherit; font-size:13px; font-weight:500; padding:9px 14px; border-radius:20px; cursor:pointer; transition:border-color 0.2s, background 0.2s; -webkit-tap-highlight-color:transparent; }
+  .sup-chip:active { transform:scale(0.96); transition:transform 0.08s; }
+  .sup-chip:hover { border-color:var(--gold); color:var(--gold2); }
+
+  .sup-thread { display:none; flex-direction:column; gap:14px; padding:16px 4px 8px; }
+  .sup-thread.open { display:flex; }
+  .sup-msg { display:flex; gap:8px; max-width:88%; }
+  .sup-msg.user { align-self:flex-end; flex-direction:row-reverse; }
+  .sup-msg-avatar { flex-shrink:0; width:26px; height:26px; border-radius:50%; background:var(--card); border:1px solid var(--border2); display:flex; align-items:center; justify-content:center; color:var(--gold); }
+  .sup-msg-avatar svg { width:13px; height:13px; }
+  .sup-bubble { padding:10px 13px; border-radius:14px; font-size:13.5px; line-height:1.5; }
+  .sup-msg.bot .sup-bubble { background:var(--card); border:1px solid var(--border); color:var(--text); border-bottom-left-radius:4px; }
+  .sup-msg.user .sup-bubble { background:var(--gold); color:var(--on-gold); border-bottom-right-radius:4px; font-weight:500; }
+  .sup-bubble-actions { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .sup-bubble-action { background:var(--surface); border:1px solid var(--gold); color:var(--gold2); font-family:inherit; font-size:12.5px; font-weight:600; padding:6px 11px; border-radius:14px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .sup-bubble-action:active { background:var(--gold); color:var(--on-gold); }
+  .sup-typing { display:flex; gap:3px; padding:2px 0; }
+  .sup-typing span { width:5px; height:5px; border-radius:50%; background:var(--text3); animation:sup-blink 1.1s infinite ease-in-out; }
+  .sup-typing span:nth-child(2) { animation-delay:0.15s; }
+  .sup-typing span:nth-child(3) { animation-delay:0.3s; }
+  @keyframes sup-blink { 0%,80%,100% { opacity:0.25; } 40% { opacity:1; } }
+
+  .sup-input-bar { flex-shrink:0; display:flex; align-items:center; gap:8px; padding:10px 14px calc(10px + env(safe-area-inset-bottom)); border-top:1px solid var(--border); background:var(--surface); }
+  .sup-input-bar input { flex:1; background:var(--card); border:1px solid var(--border); color:var(--text); border-radius:20px; padding:11px 16px; font-family:inherit; font-size:14px; outline:none; transition:border-color 0.2s; }
+  .sup-input-bar input:focus { border-color:var(--gold); }
+  .sup-send-btn { flex-shrink:0; width:38px; height:38px; border-radius:50%; background:var(--gold); border:none; color:var(--on-gold); display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .sup-send-btn:active { background:var(--gold2); transform:scale(0.94); transition:transform 0.08s; }
+  .sup-send-btn svg { width:16px; height:16px; }
+
   /* Appearance screen */
   #appearance-screen { display:none; min-height:100vh; min-height:100dvh; flex-direction:column; background:var(--bg); }
+  #gradeview-screen { display:none; min-height:100vh; min-height:100dvh; flex-direction:column; background:var(--bg); }
   .appearance-subtitle { font-size:13px; color:var(--text3); margin:-10px 0 22px; }
   .appearance-section-label { font-size:11px; font-weight:600; color:var(--text3); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:10px; }
+  .profile-section-label { font-size:11px; font-weight:600; color:var(--text3); text-transform:uppercase; letter-spacing:0.8px; margin:0 2px 8px; }
+  .profile-menu + .profile-section-label { margin-top:22px; }
   .theme-options { display:flex; flex-direction:column; gap:12px; margin-bottom:18px; }
   .theme-card { width:100%; display:flex; align-items:center; gap:14px; padding:12px 14px; background:var(--card); border:1.5px solid var(--border); border-radius:14px; cursor:pointer; transition:border-color 0.2s, background 0.2s; text-align:left; font-family:inherit; }
   .theme-card.active { border-color:var(--gold); background:rgba(212,168,67,0.07); }
@@ -781,6 +963,20 @@
   .theme-card.active .theme-card-radio-dot { transform:scale(1); }
   .appearance-note { display:flex; align-items:flex-start; gap:8px; font-size:12px; color:var(--text3); line-height:1.5; margin-top:4px; }
   .appearance-note svg { width:15px; height:15px; flex-shrink:0; margin-top:1px; }
+
+  /* Grade View previews (reuses .theme-card / .theme-card-preview pattern) */
+  .theme-card-preview.preview-gv { background:var(--card); padding:6px; justify-content:flex-start; }
+  .gv-table-header { height:4px; border-radius:2px; background:var(--border2); margin-bottom:3px; }
+  .gv-table-row { display:flex; align-items:center; gap:3px; margin-bottom:3px; }
+  .gv-table-row span { height:4px; border-radius:2px; }
+  .gv-table-row span:nth-child(1) { flex:2; background:var(--text3); opacity:.45; }
+  .gv-table-row span:nth-child(2) { flex:1; background:var(--gold); opacity:.6; }
+  .gv-slide-wrap { position:relative; flex:1; }
+  .gv-slide-card { position:absolute; inset:0; border-radius:5px; border:1px solid var(--border2); }
+  .gv-slide-card.back { background:var(--bg); transform:translate(4px,4px); opacity:.5; }
+  .gv-slide-card.front { background:var(--bg); display:flex; flex-direction:column; justify-content:center; gap:3px; padding:0 5px; }
+  .gv-slide-card.front .line { height:3.5px; border-radius:2px; background:var(--text3); opacity:.5; }
+  .gv-slide-card.front .line.gold { background:var(--gold); opacity:.75; width:45%; }
 
   /* ── News Feed ──────────────────────────────────────────── */
   .nf-list { padding: 12px 16px 90px; display: flex; flex-direction: column; gap: 14px; }
@@ -1150,14 +1346,6 @@
           <div class="semester-gpa-detail" id="sem-gpa-detail"></div>
         </div>
         <div style="display:flex; align-items:center; gap:8px;">
-          <div class="view-toggle-group" id="view-toggle-group">
-            <button class="view-toggle-btn" id="btn-view-table" title="Table view" onclick="setViewMode('table')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="10" x2="9" y2="20"/></svg>
-            </button>
-            <button class="view-toggle-btn" id="btn-view-slide" title="Slide view" onclick="setViewMode('slide')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="14" height="16" rx="2"/><rect x="2" y="8" width="14" height="16" rx="2" fill="var(--surface)"/></svg>
-            </button>
-          </div>
           <button class="btn-icon-upload" title="Upload courses" onclick="openCatalogPicker()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
               <path d="M12 4v12"/><path d="M7 11l5 5 5-5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>
@@ -1213,7 +1401,6 @@
       <div class="slide-view-wrap" id="slide-view-wrap" style="display:none;">
         <div class="slide-stack" id="slide-stack"></div>
         <div class="slide-dots" id="slide-dots"></div>
-        <div class="slide-swipe-hint">Swipe or use the dots to move between courses</div>
       </div>
       <div class="empty-state" id="empty-state-slide" style="display:none;">
         <div class="icon">📚</div>
@@ -1268,21 +1455,8 @@
       </button>
     </div>
 
+    <div class="profile-section-label">Preferences</div>
     <div class="profile-menu">
-      <button class="profile-item">
-        <span class="profile-item-icon icon-gold">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="9"/><path d="M12 3c2.5 2.5 4 5.5 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.5-4-9s1.5-6.5 4-9z"/><path d="M3 12h18"/></svg>
-        </span>
-        <span class="profile-item-label">Language</span>
-        <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
-      </button>
-      <button class="profile-item" onclick="showCreditHistory()">
-        <span class="profile-item-icon icon-gold">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
-        </span>
-        <span class="profile-item-label">Credit History</span>
-        <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
-      </button>
       <button class="profile-item" onclick="showAppearance()">
         <span class="profile-item-icon icon-gold">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 2a10 10 0 1 0 0 20c1 0 2-.6 2-1.8 0-.5-.2-1-.5-1.4-.3-.4-.5-.9-.5-1.4 0-1 1-1.9 2-1.9h2a4.1 4.1 0 0 0 4-4.5C21 5.9 17 2 12 2z"/><circle cx="6.7" cy="11.5" r="1.1"/><circle cx="9.3" cy="7" r="1.1"/><circle cx="14.7" cy="7" r="1.1"/><circle cx="17.3" cy="11.5" r="1.1"/></svg>
@@ -1290,21 +1464,22 @@
         <span class="profile-item-label">Appearance</span>
         <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
-    </div>
-
-    <div class="profile-menu">
-      <button class="profile-item">
-        <span class="profile-item-icon icon-mono">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 3l8 3v6c0 4.5-3 7.5-8 9-5-1.5-8-4.5-8-9V6z"/></svg>
+      <button class="profile-item" onclick="showGradeView()">
+        <span class="profile-item-icon icon-gold">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         </span>
-        <span class="profile-item-label">Application Security</span>
+        <span class="profile-item-label">Grade View</span>
         <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
-      <button class="profile-item">
+    </div>
+
+    <div class="profile-section-label">Account</div>
+    <div class="profile-menu">
+      <button class="profile-item" onclick="showCreditHistory()">
         <span class="profile-item-icon icon-mono">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
         </span>
-        <span class="profile-item-label">Manage Devices</span>
+        <span class="profile-item-label">Credit History</span>
         <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
       <button class="profile-item" onclick="showChangePassword()">
@@ -1314,11 +1489,22 @@
         <span class="profile-item-label">Change Password</span>
         <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
+    </div>
+
+    <div class="profile-section-label">Support</div>
+    <div class="profile-menu">
       <button class="profile-item" onclick="showFAQ()">
         <span class="profile-item-icon icon-mono">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.35-1 .8-1 1.7v.5"/><line x1="12" y1="17" x2="12" y2="17.1"/></svg>
         </span>
         <span class="profile-item-label">FAQ</span>
+        <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+      </button>
+      <button class="profile-item" onclick="showSupport()">
+        <span class="profile-item-icon icon-mono">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3v5Z"/><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3v5Z"/></svg>
+        </span>
+        <span class="profile-item-label">Customer Support</span>
         <span class="profile-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
     </div>
@@ -1373,6 +1559,12 @@
         <div class="pts-option-sub" id="pts-announcement-sub">Admin only — sent to everyone's notifications</div>
       </div>
     </div>
+    <div class="pts-option" id="pts-option-daily-tip" onclick="pickPostType('daily_tip')">
+      <div>
+        <div class="pts-option-label">Daily Tips</div>
+        <div class="pts-option-sub" id="pts-daily-tip-sub">Admin only — sent to everyone's notifications</div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1414,7 +1606,7 @@
     <textarea id="cp-sources" class="cp-textarea cp-textarea-sm" placeholder="https://…"></textarea>
     </div>
 
-    <div class="cp-toggle-row">
+    <div class="cp-toggle-row cp-news-only">
       <span>Restrict comments to author only</span>
       <label class="cp-switch">
         <input type="checkbox" id="cp-comments-restricted">
@@ -1470,6 +1662,18 @@
   <div class="pd-body" id="pd-body">
     <!-- Populated by openPost() -->
   </div>
+
+  <div id="cs-backdrop" onclick="closeCommentSheet()"></div>
+  <div id="comment-sheet">
+    <div class="cs-drag-zone" id="cs-drag-zone">
+      <div class="cs-handle"></div>
+    </div>
+    <div class="cs-header">
+      <span class="cs-title" id="cs-title">Comments</span>
+    </div>
+    <div class="cs-scroll" id="pd-comments-wrap"></div>
+    <div class="cs-compose-bar" id="cs-compose-wrap"></div>
+  </div>
 </div>
 
 <!-- ══ NOTIFICATIONS SCREEN ═════════════════════════════════ -->
@@ -1479,12 +1683,51 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
     </button>
     <span class="notif-title">Notifications</span>
+    <button class="notif-more-btn" onclick="openNotifOptionsSheet()">
+      <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+    </button>
   </header>
   <div class="notif-list" id="notif-list">
     <!-- Populated by renderNotifications() -->
   </div>
-  <div class="notif-footer">
-    <button class="notif-mark-all" id="notif-mark-all-btn" onclick="markAllNotificationsRead()">Mark all as read</button>
+</div>
+
+<!-- ══ NOTIFICATION OPTIONS SHEET ═══════════════════════════ -->
+<div id="notif-options-sheet" onclick="closeNotifOptionsSheet()">
+  <div class="no-panel" onclick="event.stopPropagation()">
+    <div class="no-handle"></div>
+    <div class="no-option" id="notif-opt-mark-all" onclick="sheetMarkAllRead()">
+      <div class="no-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/></svg></div>
+      <div class="no-label">Mark all as read</div>
+      <div class="no-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+    </div>
+    <div class="no-option" id="notif-opt-clear-all" onclick="sheetClearAllNotifications()">
+      <div class="no-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 3.5l-6.5 6"/><path d="M13 9.5L3 18.5Q7 21.5 11.5 20.5L13 9.5Z"/><path d="M11.7 11L5.7 17.7"/><path d="M12.2 12.7L7.2 19"/><path d="M12.6 14.6L9.3 20"/><path d="M5.3 3.2l.55 1.25L7.1 5l-1.25.55L5.3 6.8l-.55-1.25L3.5 5l1.25-.55z" fill="currentColor" stroke="none"/><path d="M20.3 10.3l.33.75L21.38 11.38l-.75.33L20.3 12.46l-.33-.75L19.22 11.38l.75-.33z" fill="currentColor" stroke="none"/></svg></div>
+      <div class="no-label">Clear all notifications</div>
+      <div class="no-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ REPORT COMMENT SHEET ═════════════════════════════════ -->
+<div id="report-sheet" onclick="closeReportSheet()">
+  <div class="report-panel" onclick="event.stopPropagation()">
+    <div class="no-handle"></div>
+    <div class="report-title">Reason</div>
+    <div class="report-pills" id="report-pills">
+      <button class="report-pill" onclick="onReportPillTap('harassment', this)">Harassment or bullying</button>
+      <button class="report-pill" onclick="onReportPillTap('hate_speech', this)">Hate speech / abusive</button>
+      <button class="report-pill" onclick="onReportPillTap('spam', this)">Spam</button>
+      <button class="report-pill" onclick="onReportPillTap('misinformation', this)">Misinformation</button>
+      <button class="report-pill" onclick="onReportPillTap('inappropriate', this)">Inappropriate content</button>
+      <button class="report-pill" onclick="onReportPillTap('impersonation', this)">Impersonation</button>
+      <button class="report-pill" onclick="onReportPillTap('other', this)">Other</button>
+    </div>
+    <div class="report-other-wrap" id="report-other-wrap">
+      <textarea class="report-other-input" id="report-other-input" placeholder="Tell us more…" maxlength="500"
+        oninput="document.getElementById('report-other-submit').disabled = !this.value.trim()"></textarea>
+      <button class="report-other-submit" id="report-other-submit" onclick="submitReport('other')" disabled>Submit report</button>
+    </div>
   </div>
 </div>
 
@@ -1670,6 +1913,43 @@
   </div>
 </div>
 
+<!-- ══ SUPPORT ASSISTANT SCREEN ═════════════════════════════ -->
+<div id="sup-screen">
+  <header>
+    <button class="profile-back" onclick="hideSupport()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    </button>
+    <div class="sup-header-title">Support Assistant</div>
+  </header>
+
+  <div class="profile-content">
+    <div class="sup-intro" id="sup-intro">
+      <div class="sup-avatar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2.5" x2="12" y2="5"/><circle cx="12" cy="2" r="0.9" fill="currentColor" stroke="none"/><rect x="5.5" y="5" width="13" height="10.5" rx="3"/><line x1="3" y1="9.5" x2="5.5" y2="9.5"/><line x1="18.5" y1="9.5" x2="21" y2="9.5"/><circle cx="9.3" cy="10.2" r="1" fill="currentColor" stroke="none"/><circle cx="14.7" cy="10.2" r="1" fill="currentColor" stroke="none"/><rect x="8" y="17" width="8" height="5" rx="2.3"/><circle cx="12" cy="19.4" r="0.8" fill="currentColor" stroke="none"/></svg>
+      </div>
+      <div class="sup-greeting">Hi, I'm GradeVault Support.<br>How can I help?</div>
+      <div class="sup-greeting-sub">Pick a topic below, or just type your question.</div>
+      <div class="sup-chips" id="sup-chips">
+        <button class="sup-chip" onclick="supAsk('credits')">Where did my credits go?</button>
+        <button class="sup-chip" onclick="supAsk('topup')">Top up credits</button>
+        <button class="sup-chip" onclick="supAsk('unlock')">Unlock a post</button>
+        <button class="sup-chip" onclick="supAsk('comment')">My comment was removed</button>
+        <button class="sup-chip" onclick="supAsk('account')">Account & security</button>
+        <button class="sup-chip" onclick="supAsk('bug')">Report a bug</button>
+      </div>
+    </div>
+
+    <div class="sup-thread" id="sup-thread"></div>
+  </div>
+
+  <div class="sup-input-bar">
+    <input type="text" id="sup-input" placeholder="Ask a question…" onkeydown="if(event.key==='Enter') supSubmitInput()">
+    <button class="sup-send-btn" onclick="supSubmitInput()" aria-label="Send">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
+
 <!-- ══ APPEARANCE SCREEN ════════════════════════════════════ -->
 <div id="appearance-screen">
   <header>
@@ -1714,6 +1994,51 @@
     <div class="appearance-note">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
       <span>You can change this setting any time in the app.</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ GRADE VIEW SCREEN ═══════════════════════════════════ -->
+<div id="gradeview-screen">
+  <header>
+    <button class="profile-back" onclick="hideGradeView()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    </button>
+  </header>
+  <div class="profile-content">
+    <h1 class="profile-page-title">Grade View</h1>
+    <div class="appearance-subtitle">Select the layout that works best for you.</div>
+
+    <div class="theme-options">
+      <button class="theme-card active" id="gv-card-table" onclick="setGradeView('table')">
+        <div class="theme-card-preview preview-gv">
+          <div class="gv-table-header"></div>
+          <div class="gv-table-row"><span></span><span></span></div>
+          <div class="gv-table-row"><span></span><span></span></div>
+          <div class="gv-table-row"><span></span><span></span></div>
+        </div>
+        <div class="theme-card-body">
+          <div class="theme-card-title">Table view</div>
+          <div class="theme-card-desc">See all your courses in a detailed table list.</div>
+        </div>
+        <div class="theme-card-radio"><div class="theme-card-radio-dot"></div></div>
+      </button>
+      <button class="theme-card" id="gv-card-slide" onclick="setGradeView('slide')">
+        <div class="theme-card-preview preview-gv">
+          <div class="gv-slide-wrap">
+            <div class="gv-slide-card back"></div>
+            <div class="gv-slide-card front">
+              <div class="line gold"></div>
+              <div class="line"></div>
+            </div>
+          </div>
+        </div>
+        <div class="theme-card-body">
+          <div class="theme-card-title">Slide view</div>
+          <div class="theme-card-desc">Swipe through your courses one by one.</div>
+        </div>
+        <div class="theme-card-radio"><div class="theme-card-radio-dot"></div></div>
+      </button>
     </div>
   </div>
 </div>
@@ -1799,19 +2124,40 @@
 
 <!-- ══ RESULT MODAL ═══════════════════════════════════════════ -->
 <div class="gv-modal-overlay" id="result-modal-overlay">
-  <div class="gv-modal-card">
+  <div class="gv-modal-card gv-result-card-purple">
     <button class="gv-modal-pen" onclick="editFromResult()" title="Edit entries">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
     </button>
-    <div class="gv-modal-icon-circle">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z"/><path d="M8.5 13 7 21l5-2.5L17 21l-1.5-8"/></svg>
+    <div class="gv-result-glow">
+      <span class="gv-result-star gv-result-star-1"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0 14 10 24 12 14 14 12 24 10 14 0 12 10 10Z"/></svg></span>
+      <span class="gv-result-star gv-result-star-2"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0 14 10 24 12 14 14 12 24 10 14 0 12 10 10Z"/></svg></span>
+      <span class="gv-result-star gv-result-star-3"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0 14 10 24 12 14 14 12 24 10 14 0 12 10 10Z"/></svg></span>
+      <span class="gv-result-star gv-result-star-4"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0 14 10 24 12 14 14 12 24 10 14 0 12 10 10Z"/></svg></span>
+      <span class="gv-result-star gv-result-star-5"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0 14 10 24 12 14 14 12 24 10 14 0 12 10 10Z"/></svg></span>
+      <div class="gv-result-ring"></div>
+      <div class="gv-result-ring2"></div>
+      <div class="gv-result-icon-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5.5"/><path d="M8.2 12.8 6.5 21 12 17.5 17.5 21l-1.7-8.2"/></svg>
+      </div>
     </div>
     <div class="gv-result-box">
       <div class="gv-result-label">Your GPA</div>
       <div class="gv-result-value" id="result-gpa-value">—</div>
-      <div class="gv-result-badge" id="result-gpa-badge">Good Effort! ★</div>
+      <div class="gv-result-badge gv-result-badge-grad" id="result-gpa-badge">Good Effort! ★</div>
     </div>
-    <div class="gv-result-footer">
+    <div class="gv-result-wave">
+      <svg viewBox="0 0 400 50" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="gv-wave-grad" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#3a1f52"/>
+            <stop offset="55%" stop-color="#5c2a5e"/>
+            <stop offset="100%" stop-color="#7a3560"/>
+          </linearGradient>
+        </defs>
+        <path d="M0 32 C 50 12, 100 40, 160 28 S 260 8, 320 24 S 380 34, 400 22 L400 50 L0 50 Z" fill="url(#gv-wave-grad)" opacity="0.55"/>
+      </svg>
+    </div>
+    <div class="gv-result-footer" style="border-top:1px solid var(--border); padding-top:14px;">
       <div class="gv-result-arrow">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
       </div>
@@ -1823,36 +2169,103 @@
   </div>
 </div>
 
-<!-- ══ ONBOARDING (mandatory, non-dismissible) ═══════════════ -->
+<!-- ══ ONBOARDING (step 1 mandatory; steps 2-3 dismissible) ═══ -->
 <div id="onboard-overlay" class="onboard-overlay">
   <div class="onboard-sheet">
-    <div class="onboard-icon">👋</div>
-    <div class="onboard-title">Welcome to GradeVault!</div>
-    <div class="onboard-subtitle">Let's set up your profile so we can personalize your experience.</div>
+    <button class="onboard-close" id="onboard-close" onclick="finishOnboardingWizard()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="onboard-pills">
+      <span class="onboard-pill active" data-step="1"></span>
+      <span class="onboard-pill" data-step="2"></span>
+      <span class="onboard-pill" data-step="3"></span>
+    </div>
 
-    <div class="auth-field">
-      <label>What should we call you?</label>
-      <input type="text" id="onboard-username" maxlength="32" placeholder="Enter your nickname"/>
-    </div>
-    <div class="auth-field">
-      <label>What's your current level?</label>
-      <select id="onboard-level">
-        <option value="">Select your level</option>
-        <option value="1">100 Level</option>
-        <option value="2">200 Level</option>
-        <option value="3">300 Level</option>
-        <option value="4">400 Level</option>
-        <option value="5">500 Level</option>
-      </select>
-    </div>
-    <div class="auth-field">
-      <label>When was your year of admission into FUTO?</label>
-      <select id="onboard-year"><option value="">Select year</option></select>
-    </div>
-    <div id="onboard-error" class="auth-error"></div>
-    <div class="onboard-lock-note">🔒 You can change these later in your profile settings.</div>
+    <div class="onboard-step active" data-step="1">
+      <div class="onboard-icon">👋</div>
+      <div class="onboard-title">Welcome to GradeVault!</div>
+      <div class="onboard-subtitle">Let's set up your profile so we can personalize your experience.</div>
 
-    <button class="btn-full" id="onboard-continue-btn" onclick="saveOnboarding()">Continue</button>
+      <div class="auth-field">
+        <label>What should we call you?</label>
+        <input type="text" id="onboard-username" maxlength="32" placeholder="Enter your nickname"/>
+      </div>
+      <div class="auth-field">
+        <label>What's your current level?</label>
+        <select id="onboard-level">
+          <option value="">Select your level</option>
+          <option value="1">100 Level</option>
+          <option value="2">200 Level</option>
+          <option value="3">300 Level</option>
+          <option value="4">400 Level</option>
+          <option value="5">500 Level</option>
+        </select>
+      </div>
+      <div class="auth-field">
+        <label>When was your year of admission into FUTO?</label>
+        <select id="onboard-year"><option value="">Select year</option></select>
+      </div>
+      <div id="onboard-error" class="auth-error"></div>
+      <div class="onboard-lock-note">🔒 You can change these later in your profile settings.</div>
+
+      <button class="btn-full" id="onboard-continue-btn" onclick="saveOnboarding()">Continue</button>
+    </div>
+
+    <div class="onboard-step" data-step="2">
+      <div class="onboard-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="8" y1="17" x2="8" y2="11"/><line x1="12" y1="17" x2="12" y2="8"/><line x1="16" y1="17" x2="16" y2="13"/></svg>
+      </div>
+      <div class="onboard-title">Choose your grades view</div>
+      <div class="onboard-subtitle">Pick the layout that works best for you. You can always change this later in settings.</div>
+
+      <div class="ob-gv-grid">
+        <button class="ob-gv-card active" id="ob-gv-table" onclick="selectOnboardGradeView('table')">
+          <div class="ob-gv-card-head">
+            <span class="ob-gv-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="10" x2="9" y2="20"/></svg></span>
+            <span class="ob-gv-card-title">Table view</span>
+            <span class="ob-gv-card-check"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6L9 17l-5-5"/></svg></span>
+          </div>
+          <div class="ob-gv-card-desc">Classic table layout to see all your courses in a list.</div>
+          <div class="ob-gv-preview">
+            <div class="gv-table-header"></div>
+            <div class="gv-table-row"><span></span><span></span></div>
+            <div class="gv-table-row"><span></span><span></span></div>
+            <div class="gv-table-row"><span></span><span></span></div>
+          </div>
+        </button>
+        <button class="ob-gv-card" id="ob-gv-slide" onclick="selectOnboardGradeView('slide')">
+          <div class="ob-gv-card-head">
+            <span class="ob-gv-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="7" y="7" width="13" height="13" rx="2"/><path d="M4 17V5a2 2 0 0 1 2-2h12"/></svg></span>
+            <span class="ob-gv-card-title">Slide view</span>
+            <span class="ob-gv-card-check"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6L9 17l-5-5"/></svg></span>
+          </div>
+          <div class="ob-gv-card-desc">Swipe through your courses one by one.</div>
+          <div class="ob-gv-preview">
+            <div class="gv-slide-wrap">
+              <div class="gv-slide-card back"></div>
+              <div class="gv-slide-card front">
+                <div class="line gold"></div>
+                <div class="line"></div>
+              </div>
+            </div>
+          </div>
+        </button>
+      </div>
+
+      <div class="onboard-step-actions">
+        <button class="btn-full" onclick="setOnboardStep(3)">Continue</button>
+        <button class="onboard-skip-link" onclick="setOnboardStep(3)">Skip for now</button>
+      </div>
+    </div>
+
+    <div class="onboard-step" data-step="3">
+      <div class="onboard-thanks-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 6v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6z"/><path d="m9 12 2 2 4-4"/></svg>
+      </div>
+      <div class="onboard-title">Thanks for choosing GradeVault</div>
+      <div class="onboard-subtitle">You've got this. Every course you log here is one step closer to the result you're working toward — small, consistent effort adds up. We built this to make tracking that progress easier, not harder.</div>
+      <button class="btn-full" onclick="finishOnboardingWizard()">Start exploring</button>
+    </div>
   </div>
 </div>
 
@@ -2737,7 +3150,8 @@ async function loadCreditHistory(reset = false) {
 }
 
 const CREDIT_REASON_LABELS = {
-  signup_bonus:   'Signup bonus',
+  signup_bonus:         'Signup bonus',
+  signup_ledger_marker: 'Account created',
   unlock_post:    'Unlocked post',
   comment_post:   'Posted comment',
   profile_save:   'Saved profile',
@@ -2762,6 +3176,7 @@ const CREDIT_ICON_MAP = {
   autosave_batch: { color: 'green', svg: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>' },
   semester_note:  { color: 'green', svg: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M15 2v7h7"/>' },
   signup_bonus:   { color: 'green', svg: '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8"/><path d="M16.5 8a2.5 2.5 0 0 0 0-5C13 3 12 8 12 8"/>' },
+  signup_ledger_marker: { color: 'gray', svg: '<circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/>' },
   admin_grant:    { color: 'green', svg: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>' },
   purchase:       { color: 'green', svg: '<path d="M12 19V5"/><path d="m5 12 7-7 7 7"/>' },
   admin_topup:    { color: 'green', svg: '<path d="M12 19V5"/><path d="m5 12 7-7 7 7"/>' },
@@ -2885,12 +3300,14 @@ let notifications = [];
 async function loadNotifications() {
   if (!currentUser) return;
   try {
-    const { data: rows, error } = await sb
+    let q = sb
       .from('notifications')
       .select('id, actor_id, type, post_id, comment_id, body_preview, is_read, created_at')
-      .eq('user_id', currentUser.id)
-      .order('created_at', { ascending: false })
-      .limit(50);
+      .eq('user_id', currentUser.id);
+    if (userData && userData.notifications_cleared_before) {
+      q = q.gt('created_at', userData.notifications_cleared_before);
+    }
+    const { data: rows, error } = await q.order('created_at', { ascending: false }).limit(50);
     if (error) throw error;
 
     const actorIds = [...new Set((rows || []).map(n => n.actor_id).filter(Boolean))];
@@ -2931,17 +3348,20 @@ function notifText(n) {
   const name = esc(notifActorName(n));
   if (n.type === 'reply') return `<b>${name}</b> replied to your comment`;
   if (n.type === 'announcement') return `<span class="notif-badge-ann">Announcement</span><b>${notifAnnouncementTitle(n)}</b>`;
+  if (n.type === 'daily_tip') return `<span class="notif-badge-ann">Daily Tip</span><b>${notifAnnouncementTitle(n)}</b>`;
   if (n.type === 'credit_topup') return `<span class="notif-badge-ann">Top-up</span>`;
   if (n.type === 'credit_bonus') return `<span class="notif-badge-ann">Bonus</span>`;
   if (n.type === 'credit_signup_bonus') return `<span class="notif-badge-ann">Signup Bonus</span>`;
+  if (n.type === 'moderation_warning') return `<span class="notif-badge-ann notif-badge-warn">Warning</span><b>${notifAnnouncementTitle(n)}</b>`;
   return `<b>${name}</b> sent you a notification`;
 }
 
-// Announcement notifications pack "Title|||Body" into body_preview.
+// Announcement/Daily Tip notifications pack "Title|||Body" into body_preview.
 function notifAnnouncementParts(n) {
   const raw = n.body_preview || '';
   const idx = raw.indexOf('|||');
-  return idx === -1 ? { title: 'Announcement', body: raw } : { title: raw.slice(0, idx), body: raw.slice(idx + 3) };
+  const fallback = n.type === 'daily_tip' ? 'Daily Tip' : n.type === 'moderation_warning' ? 'Warning' : 'Announcement';
+  return idx === -1 ? { title: fallback, body: raw } : { title: raw.slice(0, idx), body: raw.slice(idx + 3) };
 }
 function notifAnnouncementTitle(n) { return esc(notifAnnouncementParts(n).title); }
 
@@ -2951,14 +3371,20 @@ function renderNotifications() {
   const list = document.getElementById('notif-list');
   if (!list) return;
   if (!notifications.length) {
-    list.innerHTML = '<div class="notif-empty">No notifications yet.</div>';
+    list.innerHTML = `
+    <div class="notif-empty-state">
+      <div class="notif-empty-icon">🔔</div>
+      <div class="notif-empty-title">No notifications yet.</div>
+      <div class="notif-empty-sub">Your notifications will appear here once you receive them.</div>
+    </div>`;
     return;
   }
   list.innerHTML = notifications.map(n => {
-    if (n.type === 'announcement') {
+    if (n.type === 'announcement' || n.type === 'daily_tip' || n.type === 'moderation_warning') {
       const parts = notifAnnouncementParts(n);
+      const itemClass = n.type === 'moderation_warning' ? 'announcement warning' : 'announcement';
       return `
-    <div class="notif-item announcement ${n.is_read ? 'read' : 'unread'}" onclick="toggleAnnouncementNotif('${n.id}')">
+    <div class="notif-item ${itemClass} ${n.is_read ? 'read' : 'unread'}" onclick="toggleAnnouncementNotif('${n.id}')">
       <div class="notif-dot"></div>
       <div class="notif-body">
         <div class="notif-text">${notifText(n)}</div>
@@ -3038,6 +3464,43 @@ function closeNotifications() {
   document.getElementById('notif-screen').classList.remove('open');
 }
 
+function openNotifOptionsSheet() {
+  document.getElementById('notif-options-sheet').classList.add('open');
+}
+
+function closeNotifOptionsSheet() {
+  document.getElementById('notif-options-sheet').classList.remove('open');
+}
+
+function sheetMarkAllRead() {
+  closeNotifOptionsSheet();
+  markAllNotificationsRead();
+}
+
+let notifClearing = false;
+async function sheetClearAllNotifications() {
+  if (notifClearing || !currentUser || !notifications.length) { closeNotifOptionsSheet(); return; }
+  notifClearing = true;
+  const opt = document.getElementById('notif-opt-clear-all');
+  if (opt) opt.classList.add('disabled');
+  try {
+    const { error } = await sb.rpc('clear_all_notifications');
+    if (error) throw error;
+    const cutoff = new Date().toISOString();
+    if (userData) userData.notifications_cleared_before = cutoff;
+    notifications = [];
+    notifExpanded.clear();
+    renderNotifications();
+    renderBellBadge();
+    closeNotifOptionsSheet();
+  } catch (err) {
+    showToast('Could not clear notifications.', true);
+  } finally {
+    notifClearing = false;
+    if (opt) opt.classList.remove('disabled');
+  }
+}
+
 let notifPollHandle = null;
 function startNotifPolling() {
   if (notifPollHandle) return;
@@ -3089,8 +3552,16 @@ function launchApp() {
   switchYear(0, true);
   loadCredits();
   subscribeCreditHistory(currentUser.id);
-  // News Feed is live — loaded lazily in switchNewsTab() on first open,
-  // same pattern as bookmarks, not fetched eagerly here.
+  // News Feed itself still loads lazily on first switchNewsTab('news') tap —
+  // but we also warm it in the background here so images are already
+  // fetched by the time someone switches. Deferred (idle/delay) so it never
+  // competes with the critical-path loads above (credits, semester view).
+  const prefetchNewsFeed = () => { if (!newsLoaded) loadPosts(); };
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(prefetchNewsFeed, { timeout: 4000 });
+  } else {
+    setTimeout(prefetchNewsFeed, 2500);
+  }
   loadNotifications();
   startNotifPolling();
   maybeShowOnboarding();
@@ -3115,6 +3586,7 @@ function maybeShowOnboarding() {
   document.getElementById('onboard-level').value = userData.level ? String(userData.level) : '';
   document.getElementById('onboard-year').value = userData.admissionYear ? String(userData.admissionYear) : '';
   document.getElementById('onboard-error').textContent = '';
+  setOnboardStep(1);
   document.getElementById('onboard-overlay').classList.add('open');
   // Intentionally no pushBackHandler: hardware back falls through to
   // app-exit behavior instead of dismissing this mandatory screen.
@@ -3142,8 +3614,8 @@ async function saveOnboarding() {
     await saveToSupabase();
     document.getElementById('header-name').textContent = userData.username;
     setAvatarEl(document.getElementById('header-av'), userData.avatarUrl, userData.username.charAt(0).toUpperCase());
-    document.getElementById('onboard-overlay').classList.remove('open');
     showToast('Profile set up');
+    setOnboardStep(2);
   } catch (err) {
     errEl.textContent = isNetworkError(err)
       ? "Network unavailable. Couldn't save — try again."
@@ -3152,6 +3624,30 @@ async function saveOnboarding() {
     btn.disabled = false;
     btn.textContent = 'Continue';
   }
+}
+
+// ── Onboarding pill stepper (steps 2-3: grade-view choice, thank-you) ──
+function setOnboardStep(n) {
+  document.querySelectorAll('.onboard-step').forEach(el => {
+    el.classList.toggle('active', parseInt(el.dataset.step, 10) === n);
+  });
+  document.querySelectorAll('.onboard-pill').forEach(el => {
+    const s = parseInt(el.dataset.step, 10);
+    el.classList.toggle('active', s === n);
+    el.classList.toggle('done', s < n);
+  });
+  document.getElementById('onboard-close').style.display = n === 1 ? 'none' : 'flex';
+}
+
+// Visual-only selection — no persistence yet, matches the standalone
+// Grade View settings screen until a storage column exists for this pref.
+function selectOnboardGradeView(view) {
+  document.getElementById('ob-gv-table').classList.toggle('active', view === 'table');
+  document.getElementById('ob-gv-slide').classList.toggle('active', view === 'slide');
+}
+
+function finishOnboardingWizard() {
+  document.getElementById('onboard-overlay').classList.remove('open');
 }
 
 // ── News Feed tab switching ──────────────────────────────────
@@ -3360,8 +3856,178 @@ function closePost() {
   app.style.display = 'flex';
   switchNewsTab('news');
   closePostMenu();
+  closeCommentSheet();
   pdPostId = null;
 }
+
+function openCommentSheet() {
+  document.getElementById('cs-backdrop').classList.add('open');
+  document.getElementById('comment-sheet').classList.add('open');
+}
+
+function closeCommentSheet() {
+  document.getElementById('cs-backdrop').classList.remove('open');
+  document.getElementById('comment-sheet').classList.remove('open');
+}
+
+// Note: deliberately NOT hand-tracking visualViewport to shift the sheet
+// above the keyboard. Modern Chromium (Brave + the Capacitor WebView) already
+// resizes the visual viewport for the IME and dvh (used for #comment-sheet's
+// height, below) tracks that automatically. Stacking a manual JS offset on
+// top of that double-compensates and pushes the sheet too high, leaving a
+// gap above the keyboard — which is exactly the bug being fixed here.
+
+// Long-press on a comment (not on its buttons/textarea) opens the report
+// sheet. Delegated on the container since renderComments() replaces its
+// innerHTML on every render — per-element listeners would be lost.
+(function initCommentLongPress() {
+  const wrap = document.getElementById('pd-comments-wrap');
+  if (!wrap) return;
+  const HOLD_MS = 500;
+  let timer = null;
+  let activeEl = null;
+  let startX = 0, startY = 0;
+  const MOVE_CANCEL_PX = 10;
+
+  function clearPress() {
+    if (timer) { clearTimeout(timer); timer = null; }
+    if (activeEl) { activeEl.classList.remove('pd-longpress-active'); activeEl = null; }
+  }
+
+  function begin(target, x, y) {
+    if (target.closest('button, textarea, a, .pd-comment-actions, .pd-comment-more-wrap')) return;
+    const commentEl = target.closest('.pd-comment');
+    if (!commentEl) return;
+    const commentId = commentEl.id.replace('comment-', '');
+    if (!currentUser || commentAuthorMap[commentId] === currentUser.id) return; // no self-report
+    startX = x; startY = y;
+    activeEl = commentEl;
+    commentEl.classList.add('pd-longpress-active');
+    timer = setTimeout(() => {
+      if (navigator.vibrate) navigator.vibrate(12);
+      clearPress();
+      openReportSheet(commentId);
+    }, HOLD_MS);
+  }
+
+  wrap.addEventListener('touchstart', (e) => {
+    const t = e.touches[0];
+    begin(e.target, t.clientX, t.clientY);
+  }, { passive: true });
+
+  wrap.addEventListener('touchmove', (e) => {
+    if (!timer) return;
+    const t = e.touches[0];
+    if (Math.abs(t.clientX - startX) > MOVE_CANCEL_PX || Math.abs(t.clientY - startY) > MOVE_CANCEL_PX) clearPress();
+  }, { passive: true });
+
+  wrap.addEventListener('touchend', clearPress);
+  wrap.addEventListener('touchcancel', clearPress);
+  wrap.addEventListener('scroll', clearPress, { passive: true });
+
+  // Desktop/mouse fallback for testing in a browser.
+  wrap.addEventListener('mousedown', (e) => begin(e.target, e.clientX, e.clientY));
+  wrap.addEventListener('mouseup', clearPress);
+  wrap.addEventListener('mouseleave', clearPress);
+})();
+
+// ── Report comment ───────────────────────────────────────────
+let reportTargetCommentId = null;
+
+function openReportSheet(commentId) {
+  reportTargetCommentId = commentId;
+  document.getElementById('report-other-wrap').classList.remove('open');
+  document.getElementById('report-other-input').value = '';
+  document.getElementById('report-other-submit').disabled = true;
+  document.querySelectorAll('.report-pill').forEach(p => { p.classList.remove('selected'); p.disabled = false; });
+  document.getElementById('report-sheet').classList.add('open');
+}
+
+function closeReportSheet() {
+  document.getElementById('report-sheet').classList.remove('open');
+  reportTargetCommentId = null;
+}
+
+function onReportPillTap(reason, el) {
+  if (reason === 'other') {
+    document.querySelectorAll('.report-pill').forEach(p => p.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('report-other-wrap').classList.add('open');
+    document.getElementById('report-other-input').focus();
+    return;
+  }
+  submitReport(reason);
+}
+
+async function submitReport(reason) {
+  if (!currentUser || !reportTargetCommentId) return;
+  const otherInput = document.getElementById('report-other-input');
+  const otherText = reason === 'other' ? otherInput.value.trim() : null;
+  if (reason === 'other' && !otherText) return;
+
+  document.querySelectorAll('.report-pill').forEach(p => p.disabled = true);
+  const otherSubmitBtn = document.getElementById('report-other-submit');
+  if (otherSubmitBtn) otherSubmitBtn.disabled = true;
+
+  try {
+    const { error } = await sb.rpc('report_comment', {
+      p_comment_id: reportTargetCommentId,
+      p_reason: reason,
+      p_other_text: otherText
+    });
+    if (error) throw error;
+    closeReportSheet();
+    showToast('Report submitted. Thanks for helping keep GradeVault safe.');
+  } catch (err) {
+    showToast(
+      (err.message || '').includes('own comment')
+        ? "You can't report your own comment."
+        : 'Could not submit report.',
+      true
+    );
+    document.querySelectorAll('.report-pill').forEach(p => p.disabled = false);
+    if (otherSubmitBtn) otherSubmitBtn.disabled = !otherText;
+  }
+}
+
+// Drag-to-dismiss on the handle, TikTok-style: sheet follows the finger,
+// snaps closed past a distance/velocity threshold, else springs back.
+(function initCommentSheetDrag() {
+  const zone = document.getElementById('cs-drag-zone');
+  const sheet = document.getElementById('comment-sheet');
+  if (!zone || !sheet) return;
+  let startY = 0, lastY = 0, lastT = 0, velocity = 0, dragging = false;
+
+  zone.addEventListener('touchstart', (e) => {
+    dragging = true;
+    startY = lastY = e.touches[0].clientY;
+    lastT = Date.now();
+    velocity = 0;
+    sheet.style.transition = 'none';
+  }, { passive: true });
+
+  zone.addEventListener('touchmove', (e) => {
+    if (!dragging) return;
+    const y = e.touches[0].clientY;
+    const dy = Math.max(0, y - startY);
+    const now = Date.now();
+    const dt = Math.max(1, now - lastT);
+    velocity = (y - lastY) / dt;
+    lastY = y; lastT = now;
+    sheet.style.transform = `translateY(${dy}px)`;
+  }, { passive: true });
+
+  zone.addEventListener('touchend', () => {
+    if (!dragging) return;
+    dragging = false;
+    sheet.style.transition = '';
+    const dy = Math.max(0, lastY - startY);
+    sheet.style.transform = '';
+    if (dy > 120 || velocity > 0.6) {
+      closeCommentSheet();
+    }
+  });
+})();
 
 function renderPostDetail(p) {
   const body = document.getElementById('pd-body');
@@ -3418,8 +4084,11 @@ function renderPostDetail(p) {
         <svg viewBox="0 0 24 24" fill="${p.myReaction === 'dislike' ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.75"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>
         <span id="pd-dislike-count">${p.dislikeCount || 0}</span>
       </button>
-    </div>
-    <div id="pd-comments-wrap"></div>`;
+      <button class="pd-react-btn" id="pd-comment-btn" onclick="openCommentSheet()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        <span id="pd-comment-count"></span>
+      </button>
+    </div>`;
 }
 
 async function pdReact(type) {
@@ -3594,7 +4263,7 @@ async function loadComments(postId) {
   try {
     const { data: rows, error } = await sb
   .from('comments')
-  .select('id, body, created_at, author_id, parent_id, upvotes, downvotes, is_deleted')
+  .select('id, body, created_at, edited_at, author_id, parent_id, upvotes, downvotes, is_deleted')
   .eq('post_id', postId)
   .order('created_at', { ascending: true });
 if (error) throw error;
@@ -3642,11 +4311,32 @@ const enriched = (rows || []).map(c => ({
 }));
 
 const canComment = !restricted ? !!currentUser : (isAuthor || isAdmin);
+ commentRenderState[postId] = { rows: enriched, restricted, canComment };
  renderComments(postId, enriched, restricted, canComment);
   } catch (err) {
     wrap.innerHTML = '<div class="pd-comments-section"><div class="pd-comments-empty">Could not load comments.</div></div>';
   }
 }
+
+// Per-post cache so "Show more" never re-fetches (all comments for a post
+// are already pulled in one query) and per-post reveal count so re-rendering
+// doesn't reset how many comments are visible.
+let commentRenderState = {};
+let commentVisibleCount = {};
+const COMMENT_PAGE_SIZE = 5;
+
+// Reply threads longer than this collapse behind a "Show N more replies"
+// button. Per-comment expanded state, session-only (resets on reload) —
+// same pattern as commentVisibleCount, no persistence needed for this.
+const REPLY_COLLAPSE_THRESHOLD = 3;
+let threadExpanded = new Set();
+
+// Raw (unescaped) comment bodies, keyed by id — populated on each render so
+// startEditComment() can prefill the textarea without re-fetching.
+let commentRawBody = {};
+// Author id per comment, keyed by id — used by the long-press report
+// handler to skip triggering on the viewer's own comments.
+let commentAuthorMap = {};
 
 function renderComments(postId, rows, restricted, canComment) {
   const wrap = document.getElementById('pd-comments-wrap');
@@ -3663,7 +4353,8 @@ function renderComments(postId, rows, restricted, canComment) {
   });
 
   const INITIAL_SHOW = 5;
-  let visibleCount = INITIAL_SHOW;
+  if (!commentVisibleCount[postId]) commentVisibleCount[postId] = INITIAL_SHOW;
+  let visibleCount = commentVisibleCount[postId];
 
   function commentHtml(c, isReply) {
     const isDeleted = !!c.is_deleted;
@@ -3687,8 +4378,24 @@ function renderComments(postId, rows, restricted, canComment) {
     const replySvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="16" height="16"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>`;
     const moreSvg = `<svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>`;
     const trashSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="15" height="15"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`;
+    const editSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="15" height="15"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`;
 
-    const childrenHtml = (replyMap[c.id] || []).map(r => commentHtml(r, true)).join('');
+    const allChildren = replyMap[c.id] || [];
+    const isExpanded = threadExpanded.has(c.id);
+    const visibleChildren = (allChildren.length > REPLY_COLLAPSE_THRESHOLD && !isExpanded)
+      ? allChildren.slice(0, REPLY_COLLAPSE_THRESHOLD)
+      : allChildren;
+    const hiddenReplyCount = allChildren.length - visibleChildren.length;
+    const childrenHtml = visibleChildren.map(r => commentHtml(r, true)).join('');
+    const showMoreRepliesHtml = hiddenReplyCount > 0
+      ? `<button class="pd-show-more-replies" onclick="expandReplyThread('${c.id}', '${postId}')">Show ${hiddenReplyCount} more repl${hiddenReplyCount === 1 ? 'y' : 'ies'} ↓</button>`
+      : '';
+
+    // Client-side hint only — the real 5-minute gate is enforced server-side
+    // in edit_comment(). This just decides whether to show the option at all.
+    const withinEditWindow = !isDeleted && (Date.now() - new Date(c.created_at).getTime()) < 5 * 60 * 1000;
+    commentRawBody[c.id] = c.body;
+    commentAuthorMap[c.id] = c.author_id;
 
     const moreMenuHtml = (!isDeleted && isOwn)
       ? `<div class="pd-comment-more-wrap">
@@ -3696,6 +4403,12 @@ function renderComments(postId, rows, restricted, canComment) {
              ${moreSvg}
            </button>
            <div class="pd-comment-menu" id="comment-menu-${c.id}">
+             ${withinEditWindow
+               ? `<button class="pd-menu-item" onclick="startEditComment('${c.id}', '${postId}')">
+                    ${editSvg}
+                    <span>Edit</span>
+                  </button>`
+               : ''}
              <button class="pd-menu-item pd-menu-delete" onclick="deleteComment('${c.id}', '${postId}')">
                ${trashSvg}
                <span>Delete</span>
@@ -3706,11 +4419,11 @@ function renderComments(postId, rows, restricted, canComment) {
 
     const bodyHtml = isDeleted
       ? `<div class="pd-comment-body pd-comment-deleted">This comment has been deleted.</div>`
-      : `<div class="pd-comment-body">${esc(c.body)}</div>`;
+      : `<div class="pd-comment-body" id="comment-body-${c.id}">${esc(c.body)}</div>`;
 
     const actionsHtml = isDeleted
       ? ''
-      : `<div class="pd-comment-actions">
+      : `<div class="pd-comment-actions" id="comment-actions-${c.id}">
           <button class="pd-react-btn ${c.userVote === 1 ? 'active' : ''}"
             onclick="voteComment('${c.id}', 1, '${postId}')">
             ${upSvg} <span id="up-${c.id}">${c.upvotes || 0}</span>
@@ -3732,13 +4445,13 @@ function renderComments(postId, rows, restricted, canComment) {
           ${avatarHtml}
           <span class="pd-comment-author">${esc(name)}</span>
           ${badgeHtml}
-          <span class="pd-comment-time">${timeAgo(c.created_at)}</span>
+          <span class="pd-comment-time">${timeAgo(c.created_at)}${c.edited_at ? ' · edited' : ''}</span>
           ${moreMenuHtml}
         </div>
         ${bodyHtml}
         ${actionsHtml}
         <div id="reply-box-${c.id}" style="display:none;"></div>
-        ${childrenHtml ? `<div class="pd-replies">${childrenHtml}</div>` : ''}
+        ${childrenHtml || showMoreRepliesHtml ? `<div class="pd-replies">${childrenHtml}${showMoreRepliesHtml}</div>` : ''}
       </div>`;
   }
 
@@ -3768,11 +4481,18 @@ function renderComments(postId, rows, restricted, canComment) {
     : '';
 
   wrap.innerHTML = `<div class="pd-comments-section">
-    <div class="pd-comments-header">Comments (${canView ? rows.length : '—'})</div>
-    ${composeHtml}
     <div id="pd-comments-list">${commentsHtml}</div>
     ${showMoreHtml}
   </div>`;
+
+  const composeWrap = document.getElementById('cs-compose-wrap');
+  if (composeWrap) composeWrap.innerHTML = composeHtml;
+
+  const countLabel = canView ? String(rows.length) : '';
+  const csTitle = document.getElementById('cs-title');
+  if (csTitle) csTitle.textContent = canView ? `${rows.length} Comment${rows.length === 1 ? '' : 's'}` : 'Comments';
+  const btnCount = document.getElementById('pd-comment-count');
+  if (btnCount) btnCount.textContent = countLabel;
 }
 
 async function submitComment(postId, parentId) {
@@ -3863,7 +4583,27 @@ function showReplyBox(commentId, postId) {
 }
 
 function showMoreComments(postId) {
-  loadComments(postId);
+  const state = commentRenderState[postId];
+  if (!state) { loadComments(postId); return; } // fallback if cache is somehow empty
+
+  commentVisibleCount[postId] = (commentVisibleCount[postId] || 5) + COMMENT_PAGE_SIZE;
+
+  // Re-render locally from already-fetched rows — content only grows, so
+  // this can't clamp scrollTop back down the way a shrink-then-reset would.
+  const scroller = document.getElementById('pd-comments-wrap');
+  const prevScrollTop = scroller ? scroller.scrollTop : 0;
+  renderComments(postId, state.rows, state.restricted, state.canComment);
+  if (scroller) scroller.scrollTop = prevScrollTop;
+}
+
+function expandReplyThread(commentId, postId) {
+  threadExpanded.add(commentId);
+  const state = commentRenderState[postId];
+  if (!state) return;
+  const scroller = document.getElementById('pd-comments-wrap');
+  const prevScrollTop = scroller ? scroller.scrollTop : 0;
+  renderComments(postId, state.rows, state.restricted, state.canComment);
+  if (scroller) scroller.scrollTop = prevScrollTop;
 }
 
 // ── Comment 3-dot menu / delete ──────────────────────────────
@@ -3891,6 +4631,62 @@ async function deleteComment(commentId, postId) {
     await loadComments(postId);
   } catch (err) {
     showToast('Could not delete comment: ' + (err.message || 'unknown error'), true);
+  }
+}
+
+function startEditComment(commentId, postId) {
+  closeAllCommentMenus();
+  const bodyEl = document.getElementById(`comment-body-${commentId}`);
+  if (!bodyEl) return;
+  const actionsEl = document.getElementById(`comment-actions-${commentId}`);
+  const raw = commentRawBody[commentId] || '';
+
+  bodyEl.innerHTML = `
+    <textarea class="pd-comment-input pd-comment-edit-input" id="edit-input-${commentId}" rows="1"
+      oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(raw)}</textarea>
+    <div class="pd-edit-actions">
+      <button class="pd-edit-cancel" onclick="cancelEditComment('${postId}')">Cancel</button>
+      <button class="pd-edit-save" id="edit-save-${commentId}" onclick="saveEditComment('${commentId}', '${postId}')">Save</button>
+    </div>`;
+  if (actionsEl) actionsEl.style.display = 'none';
+
+  const ta = document.getElementById(`edit-input-${commentId}`);
+  if (ta) {
+    ta.style.height = 'auto';
+    ta.style.height = ta.scrollHeight + 'px';
+    ta.focus();
+    ta.setSelectionRange(ta.value.length, ta.value.length);
+  }
+}
+
+function cancelEditComment(postId) {
+  const state = commentRenderState[postId];
+  if (state) {
+    renderComments(postId, state.rows, state.restricted, state.canComment);
+  } else {
+    loadComments(postId);
+  }
+}
+
+async function saveEditComment(commentId, postId) {
+  const ta = document.getElementById(`edit-input-${commentId}`);
+  const body = (ta && ta.value.trim()) || '';
+  if (!body) { showToast('Comment cannot be empty.', true); return; }
+
+  const saveBtn = document.getElementById(`edit-save-${commentId}`);
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving…'; }
+
+  try {
+    const { error } = await sb.rpc('edit_comment', { p_comment_id: commentId, p_body: body });
+    if (error) throw error;
+    showToast('Comment edited.');
+    await loadComments(postId);
+  } catch (err) {
+    const msg = err.message || '';
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; }
+    showToast(msg.includes('Edit window has expired')
+      ? 'Edit window has expired (5 min).'
+      : 'Could not edit comment: ' + (msg || 'unknown error'), true);
   }
 }
 
@@ -3990,6 +4786,11 @@ function openPostTypeSheet() {
   document.getElementById('pts-announcement-sub').textContent = isAdmin
     ? "Sent to everyone's notifications"
     : 'Admin only';
+  const tipOpt = document.getElementById('pts-option-daily-tip');
+  tipOpt.classList.toggle('disabled', !isAdmin);
+  document.getElementById('pts-daily-tip-sub').textContent = isAdmin
+    ? "Sent to everyone's notifications"
+    : 'Admin only';
   document.getElementById('post-type-sheet').classList.add('open');
 }
 
@@ -3998,8 +4799,8 @@ function closePostTypeSheet() {
 }
 
 function pickPostType(type) {
-  if (type === 'announcement' && (!userData || userData.role !== 'admin')) {
-    showToast('Announcements are for admins only.', true);
+  if ((type === 'announcement' || type === 'daily_tip') && (!userData || userData.role !== 'admin')) {
+    showToast((type === 'announcement' ? 'Announcements' : 'Daily Tips') + ' are for admins only.', true);
     return;
   }
   closePostTypeSheet();
@@ -4007,17 +4808,19 @@ function pickPostType(type) {
 }
 
 function showCompose(type) {
-  cpPostType = type === 'announcement' ? 'announcement' : 'news';
+  cpPostType = (type === 'announcement' || type === 'daily_tip') ? type : 'news';
   if (!userData || userData.role === 'student') {
     showToast('Posting is for contributors only.', true);
     return;
   }
-  if (cpPostType === 'announcement' && userData.role !== 'admin') {
-    showToast('Announcements are for admins only.', true);
+  if ((cpPostType === 'announcement' || cpPostType === 'daily_tip') && userData.role !== 'admin') {
+    showToast((cpPostType === 'announcement' ? 'Announcements' : 'Daily Tips') + ' are for admins only.', true);
     return;
   }
-  document.getElementById('cp-header-label').textContent = cpPostType === 'announcement' ? 'New Announcement' : 'New Post';
-  document.getElementById('compose-screen').classList.toggle('cp-mode-announcement', cpPostType === 'announcement');
+  document.getElementById('cp-header-label').textContent =
+    cpPostType === 'announcement' ? 'New Announcement' :
+    cpPostType === 'daily_tip' ? 'New Daily Tip' : 'New Post';
+  document.getElementById('compose-screen').classList.toggle('cp-mode-simple', cpPostType === 'announcement' || cpPostType === 'daily_tip');
   document.getElementById('cp-title').value = '';
   document.getElementById('cp-body').value = '';
   document.getElementById('cp-sources').value = '';
@@ -4134,24 +4937,24 @@ async function submitPost() {
   btn.disabled = true;
   btn.textContent = 'Publishing…';
 
-  const isAnnouncement = cpPostType === 'announcement';
+  const isSimpleBroadcast = cpPostType === 'announcement' || cpPostType === 'daily_tip';
 
   try {
     const { data: inserted, error } = await sb.from('posts').insert({
       author_id: currentUser.id,
       title,
       body,
-      image_url: isAnnouncement ? null : imageUrl,
-      tags: isAnnouncement ? [] : [...cpSelectedTags],
-      source_links: isAnnouncement ? [] : sourceLinks,
+      image_url: isSimpleBroadcast ? null : imageUrl,
+      tags: isSimpleBroadcast ? [] : [...cpSelectedTags],
+      source_links: isSimpleBroadcast ? [] : sourceLinks,
       comments_restricted: commentsRestricted,
-      is_premium: isAnnouncement ? false : isPremium,
-      credit_cost: isAnnouncement ? 0 : creditCost,
+      is_premium: isSimpleBroadcast ? false : isPremium,
+      credit_cost: isSimpleBroadcast ? 0 : creditCost,
       post_type: cpPostType
     }).select('id').single();
     if (error) throw error;
 
-    if (isAnnouncement && inserted) {
+    if (isSimpleBroadcast && inserted) {
       // This RPC fans out to every user's notifications in one shot — it
       // gets the same pre-flight scrutiny as a money-path action, not just
       // the page-load-time cache check that gated opening the composer.
@@ -4176,7 +4979,8 @@ async function submitPost() {
         return;
       }
 
-      const { error: broadcastErr } = await sb.rpc('broadcast_announcement', {
+      const broadcastFn = cpPostType === 'announcement' ? 'broadcast_announcement' : 'broadcast_daily_tip';
+      const { error: broadcastErr } = await sb.rpc(broadcastFn, {
         p_post_id: inserted.id,
         p_title: title,
         p_body: body
@@ -4184,7 +4988,7 @@ async function submitPost() {
       if (broadcastErr) {
         // Post row exists but nobody was notified — this is NOT the same
         // outcome as a full publish. Never fold this into the success toast.
-        console.error('Announcement broadcast failed', broadcastErr);
+        console.error('Broadcast failed', broadcastErr);
         showToast('Post created, but the broadcast failed — no one was notified.', true);
         newsLoaded = false;
         hideCompose();
@@ -4193,14 +4997,14 @@ async function submitPost() {
       }
     }
 
-    showToast(isAnnouncement ? 'Announcement published.' : 'Post published.');
+    showToast(cpPostType === 'announcement' ? 'Announcement published.' : cpPostType === 'daily_tip' ? 'Daily Tip published.' : 'Post published.');
     newsLoaded = false; // force a refresh so the new post appears
     hideCompose();
     await loadPosts();
   } catch (err) {
     console.error('Publish failed', err);
     showToast(err.message && err.message.includes('row-level security')
-      ? (isAnnouncement ? 'Announcements are for admins only.' : 'Posting is for contributors only.')
+      ? (cpPostType === 'announcement' ? 'Announcements are for admins only.' : cpPostType === 'daily_tip' ? 'Daily Tips are for admins only.' : 'Posting is for contributors only.')
       : 'Failed to publish: ' + (err.message || 'unknown error'), true);
   } finally {
     btn.disabled = false;
@@ -4462,6 +5266,143 @@ function hideFAQ() {
   }
 }
 
+// ── Support Assistant screen ──────────────────────────────────
+// This is a rule-based router, not a real AI: canned answers for the
+// handful of topics we can actually resolve in-app, with a WhatsApp
+// handoff (same human support line used elsewhere) for anything else.
+// Keeping it honest here matters — a fake "AI understood you" bubble
+// on a support screen is worse than a plain FAQ.
+const SUP_TOPICS = {
+  credits: {
+    label: 'Where did my credits go?',
+    reply: 'Credits are spent on specific actions: saving profile changes (5), adding a course (2), saving a semester note (1), importing courses (10), and every 10th course autosave (10). Nothing else should touch your balance.',
+    actions: [{ label: 'See full credit history', fn: () => { hideSupport(); hideProfile(); showCreditHistory(); } }]
+  },
+  topup: {
+    label: 'Top up credits',
+    reply: 'I can open the top-up screen for you \u2014 pick an amount and confirm on WhatsApp with your account already attached.',
+    actions: [{ label: 'Open top-up', fn: () => { hideSupport(); openTopupModal(); } }]
+  },
+  unlock: {
+    label: 'Unlock a post',
+    reply: 'Some posts are credit-locked. Unlocking one is a one-time spend tied to your account \u2014 once unlocked, it stays unlocked for you, it won\u2019t re-charge you if you revisit it.',
+    actions: [{ label: 'Chat on WhatsApp', fn: () => supWhatsAppHandoff('I have a question about unlocking a post.') }]
+  },
+  comment: {
+    label: 'My comment was removed',
+    reply: 'Comments are removed after a report is reviewed and confirmed against our Community Guidelines. If you think this was a mistake, our support team can take a second look at the specific comment.',
+    actions: [{ label: 'Ask for a review', fn: () => supWhatsAppHandoff('I\u2019d like a second look at a comment that was removed.') }]
+  },
+  account: {
+    label: 'Account & security',
+    reply: 'For password resets, device management, or anything security-related, those live under Profile \u2192 Account. If something looks wrong with your account specifically, support can look into it directly.',
+    actions: [{ label: 'Chat on WhatsApp', fn: () => supWhatsAppHandoff('I have an account/security question.') }]
+  },
+  bug: {
+    label: 'Report a bug',
+    reply: 'Sorry about that. The more detail you can share \u2014 what you tapped, what you expected, what happened instead \u2014 the faster this gets fixed. WhatsApp works well for screenshots too.',
+    actions: [{ label: 'Chat on WhatsApp', fn: () => supWhatsAppHandoff('I\u2019d like to report a bug: ') }]
+  }
+};
+
+function supWhatsAppHandoff(prefix) {
+  const shortId = icUserShortId();
+  const email = (currentUser && currentUser.email) || 'not signed in';
+  const text = `Hi GradeVault support, ${prefix} My user ID is ${shortId} (${email}).`;
+  window.open(`https://wa.me/${IC_WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
+}
+
+function supAvatarHTML() {
+  return '<span class="sup-msg-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3 7.5-8 9-5-1.5-8-4.5-8-9V6z"/></svg></span>';
+}
+
+function supOpenThread() {
+  document.getElementById('sup-intro').style.display = 'none';
+  document.getElementById('sup-thread').classList.add('open');
+}
+
+function supAppendUserMsg(text) {
+  const thread = document.getElementById('sup-thread');
+  const div = document.createElement('div');
+  div.className = 'sup-msg user';
+  div.innerHTML = `<div class="sup-bubble"></div>`;
+  div.querySelector('.sup-bubble').textContent = text;
+  thread.appendChild(div);
+  thread.scrollTop = thread.scrollHeight;
+}
+
+function supAppendBotMsg(text, actions) {
+  const thread = document.getElementById('sup-thread');
+  const typing = document.createElement('div');
+  typing.className = 'sup-msg bot';
+  typing.innerHTML = `${supAvatarHTML()}<div class="sup-bubble"><div class="sup-typing"><span></span><span></span><span></span></div></div>`;
+  thread.appendChild(typing);
+  thread.scrollTop = thread.scrollHeight;
+
+  setTimeout(() => {
+    const div = document.createElement('div');
+    div.className = 'sup-msg bot';
+    const bubble = document.createElement('div');
+    bubble.className = 'sup-bubble';
+    const p = document.createElement('div');
+    p.textContent = text;
+    bubble.appendChild(p);
+    if (actions && actions.length) {
+      const wrap = document.createElement('div');
+      wrap.className = 'sup-bubble-actions';
+      actions.forEach(a => {
+        const btn = document.createElement('button');
+        btn.className = 'sup-bubble-action';
+        btn.textContent = a.label;
+        btn.onclick = a.fn;
+        wrap.appendChild(btn);
+      });
+      bubble.appendChild(wrap);
+    }
+    div.innerHTML = supAvatarHTML();
+    div.appendChild(bubble);
+    typing.replaceWith(div);
+    thread.scrollTop = thread.scrollHeight;
+  }, 500);
+}
+
+function supAsk(topicKey) {
+  const topic = SUP_TOPICS[topicKey];
+  if (!topic) return;
+  supOpenThread();
+  supAppendUserMsg(topic.label);
+  supAppendBotMsg(topic.reply, topic.actions);
+}
+
+function supSubmitInput() {
+  const input = document.getElementById('sup-input');
+  const text = input.value.trim();
+  if (!text) return;
+  supOpenThread();
+  supAppendUserMsg(text);
+  input.value = '';
+  supAppendBotMsg(
+    'I can\u2019t fully answer free-form questions yet, but I\u2019ve got the topic \u2014 let\u2019s continue on WhatsApp with your account attached.',
+    [{ label: 'Continue on WhatsApp', fn: () => supWhatsAppHandoff(text) }]
+  );
+}
+
+function showSupport() {
+  document.getElementById('sup-intro').style.display = 'flex';
+  document.getElementById('sup-thread').classList.remove('open');
+  document.getElementById('sup-thread').innerHTML = '';
+  document.getElementById('sup-input').value = '';
+  document.getElementById('profile-screen').style.display = 'none';
+  document.getElementById('sup-screen').style.display = 'flex';
+  pushBackHandler(hideSupport);
+}
+
+function hideSupport() {
+  popBackHandler(hideSupport);
+  document.getElementById('sup-screen').style.display = 'none';
+  document.getElementById('profile-screen').style.display = 'flex';
+}
+
 // ── Credit History ─────────────────────────────────────────
 function showCreditHistory() {
   document.getElementById('profile-screen').style.display = 'none';
@@ -4501,6 +5442,34 @@ function applyTheme(theme) {
 function setTheme(theme) {
   try { localStorage.setItem('gv_theme', theme); } catch {}
   applyTheme(theme);
+}
+
+function setGradeView(view) {
+  const tableCard = document.getElementById('gv-card-table');
+  const slideCard = document.getElementById('gv-card-slide');
+  if (tableCard && slideCard) {
+    tableCard.classList.toggle('active', view === 'table');
+    slideCard.classList.toggle('active', view === 'slide');
+  }
+  setViewMode(view);
+}
+
+function showGradeView() {
+  const tableCard = document.getElementById('gv-card-table');
+  const slideCard = document.getElementById('gv-card-slide');
+  if (tableCard && slideCard) {
+    tableCard.classList.toggle('active', viewMode === 'table');
+    slideCard.classList.toggle('active', viewMode === 'slide');
+  }
+  document.getElementById('profile-screen').style.display = 'none';
+  document.getElementById('gradeview-screen').style.display = 'flex';
+  pushBackHandler(hideGradeView);
+}
+
+function hideGradeView() {
+  popBackHandler(hideGradeView);
+  document.getElementById('gradeview-screen').style.display = 'none';
+  document.getElementById('profile-screen').style.display = 'flex';
 }
 
 function showAppearance() {
@@ -4969,13 +5938,6 @@ function setViewMode(mode) {
   renderCourses();
 }
 
-function updateViewToggleUI() {
-  const tBtn = document.getElementById('btn-view-table');
-  const sBtn = document.getElementById('btn-view-slide');
-  if (tBtn) tBtn.classList.toggle('active', viewMode === 'table');
-  if (sBtn) sBtn.classList.toggle('active', viewMode === 'slide');
-}
-
 function applyViewModeVisibility() {
   const courses = userData.semesters[currentSem] || [];
   const tableWrap = document.getElementById('course-table-wrap');
@@ -4988,7 +5950,6 @@ function applyViewModeVisibility() {
   tableEmpty.style.display = (isTable && !hasCourses) ? 'block' : 'none';
   slideWrap.style.display = (!isTable && hasCourses) ? 'block' : 'none';
   slideEmpty.style.display = (!isTable && !hasCourses) ? 'block' : 'none';
-  updateViewToggleUI();
 }
 
 function renderCourses() {
@@ -5091,6 +6052,27 @@ function gradeStep(grade, delta) {
   return order[idx];
 }
 
+function slideDeleteIcon() {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="3 6 5 6 21 6"></polyline>
+    <path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"></path>
+    <path d="M6 6v14a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V6"></path>
+    <line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line>
+  </svg>`;
+}
+function chevLeftIcon() { return `<svg viewBox="0 0 24 24"><polyline points="15 4 7 12 15 20"></polyline></svg>`; }
+function chevRightIcon() { return `<svg viewBox="0 0 24 24"><polyline points="9 4 17 12 9 20"></polyline></svg>`; }
+
+function scUnitsPercent(units) {
+  const u = Math.min(6, Math.max(1, parseFloat(units) || 1));
+  return ((u - 1) / 5) * 100;
+}
+function scGradePercent(grade) {
+  const GRADES = ['A', 'B', 'C', 'D', 'E', 'F'];
+  const idx = GRADES.indexOf(grade);
+  return idx === -1 ? 0 : (idx / (GRADES.length - 1)) * 100;
+}
+
 function renderSlideView() {
   const courses = userData.semesters[currentSem] || [];
   const stack = document.getElementById('slide-stack');
@@ -5102,6 +6084,8 @@ function renderSlideView() {
   const c = courses[i];
   const isLast = i === courses.length - 1;
   const canDelete = !courseLocked && courses.length > 0;
+  const unitsPct = scUnitsPercent(c.units);
+  const gradePct = scGradePercent(c.grade);
 
   const ghostCount = Math.min(2, courses.length - 1 - i);
   let ghosts = '';
@@ -5111,59 +6095,59 @@ function renderSlideView() {
 
   stack.innerHTML = `
     ${ghosts}
-    <div class="slide-card top">
-      <button class="slide-del-btn" onclick="deleteCourse(${i})" ${canDelete ? '' : 'disabled'} title="Delete this course">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M5 7h14"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
-          <path d="M7 7l1 13a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2l1-13"/>
-          <line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
-        </svg>
-      </button>
-      <div class="slide-field">
-        <label>Course Title:</label>
-        <input class="slide-input" id="slide-input-title" value="${esc(c.title)}" placeholder="e.g. MATHEMATICS"
-          ${courseLocked ? 'disabled' : ''}
-          oninput="updateField(${i},'title',this.value); this.classList.remove('invalid')"/>
+    <div class="slide-card top" data-idx="${i}">
+      <div class="slide-head">
+        <div class="slide-field" style="margin-bottom:0; flex:1;">
+          <label>Course Title:</label>
+          <input class="slide-input" id="slide-input-title" value="${esc(c.title)}" placeholder="e.g. MATHEMATICS"
+            ${courseLocked ? 'disabled' : ''}
+            oninput="updateField(${i},'title',this.value); this.classList.remove('invalid')"/>
+        </div>
+        <button class="slide-del-btn" onclick="deleteCourse(${i})" ${canDelete ? '' : 'disabled'} title="Delete this course">
+          ${slideDeleteIcon()}
+        </button>
       </div>
-      <div class="slide-field">
+
+      <div class="slide-field code">
         <label>Code:</label>
         <input class="slide-input" id="slide-input-code" value="${esc(c.code)}" placeholder="e.g. MTH 101"
           ${courseLocked ? 'disabled' : ''}
           oninput="updateField(${i},'code',this.value); this.classList.remove('invalid')"/>
       </div>
+
       <div class="slide-row-2">
         <div class="slide-field">
           <label>Units:</label>
           <div class="slide-stepper">
-            <input class="slide-stepper-input" id="slide-input-units" type="number" min="1" max="6"
-              value="${c.units || ''}" placeholder="2" ${courseLocked ? 'disabled' : ''}
-              oninput="updateField(${i},'units',this.value); this.classList.remove('invalid')"/>
-            <div class="slide-stepper-arrows">
-              <button type="button" onclick="adjustSlideUnits(${i},1)" ${courseLocked ? 'disabled' : ''}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>
-              </button>
-              <button type="button" onclick="adjustSlideUnits(${i},-1)" ${courseLocked ? 'disabled' : ''}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
+            <button type="button" class="slide-stepper-arrows" onclick="adjustSlideUnits(${i},-1)" ${courseLocked ? 'disabled' : ''}>${chevLeftIcon()}</button>
+            <div class="stepper-core">
+              <div class="stepper-value" id="slide-input-units">${c.units || '—'}</div>
+              <div class="stepper-track">
+                <div class="stepper-fill" style="width:${unitsPct}%"></div>
+                <div class="stepper-dot" style="left:${unitsPct}%"></div>
+              </div>
             </div>
+            <button type="button" class="slide-stepper-arrows" onclick="adjustSlideUnits(${i},1)" ${courseLocked ? 'disabled' : ''}>${chevRightIcon()}</button>
           </div>
         </div>
         <div class="slide-field">
           <label>Grade:</label>
           <div class="slide-stepper">
-            <input class="slide-stepper-input" id="slide-input-grade" value="${c.grade || ''}" readonly
-              placeholder="—" ${courseLocked ? 'disabled' : ''}/>
-            <div class="slide-stepper-arrows">
-              <button type="button" onclick="adjustSlideGrade(${i},1)" ${courseLocked ? 'disabled' : ''}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>
-              </button>
-              <button type="button" onclick="adjustSlideGrade(${i},-1)" ${courseLocked ? 'disabled' : ''}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
+            <button type="button" class="slide-stepper-arrows" onclick="adjustSlideGrade(${i},-1)" ${courseLocked ? 'disabled' : ''}>${chevLeftIcon()}</button>
+            <div class="stepper-core">
+              <div class="stepper-value" id="slide-input-grade">${c.grade || '—'}</div>
+              <div class="stepper-track">
+                <div class="stepper-fill" style="width:${gradePct}%"></div>
+                <div class="stepper-dot" style="left:${gradePct}%"></div>
+              </div>
             </div>
+            <button type="button" class="slide-stepper-arrows" onclick="adjustSlideGrade(${i},1)" ${courseLocked ? 'disabled' : ''}>${chevRightIcon()}</button>
           </div>
         </div>
       </div>
+
+      <div class="slide-spacer"></div>
+
       <div class="slide-next-row">
         <button class="slide-next-btn" ${courseLocked ? 'disabled' : ''} onclick="${isLast ? 'attemptDone()' : `goToSlide(${i + 1})`}">
           ${isLast ? 'Done' : 'Next'}
@@ -5216,6 +6200,79 @@ function markSlideInvalid(i) {
   });
 }
 
+// ── Slide view — drag to swipe ───────────────────────────────
+const SLIDE_DRAG_INTERACTIVE = 'input, button';
+let slideDrag = null; // { el, startX, startY, dx, dy, locked: 'h'|'v'|null }
+
+function slideDragTopEl() {
+  return document.querySelector('#slide-stack .slide-card.top');
+}
+
+function onSlideDragStart(e) {
+  if (courseLocked) return;
+  if (e.target.closest(SLIDE_DRAG_INTERACTIVE)) return;
+  const el = slideDragTopEl();
+  if (!el) return;
+  const point = e.touches ? e.touches[0] : e;
+  slideDrag = { el, startX: point.clientX, startY: point.clientY, dx: 0, dy: 0, locked: null };
+}
+
+function onSlideDragMove(e) {
+  if (!slideDrag) return;
+  const point = e.touches ? e.touches[0] : e;
+  slideDrag.dx = point.clientX - slideDrag.startX;
+  slideDrag.dy = point.clientY - slideDrag.startY;
+
+  if (!slideDrag.locked) {
+    if (Math.abs(slideDrag.dx) < 6 && Math.abs(slideDrag.dy) < 6) return;
+    slideDrag.locked = Math.abs(slideDrag.dx) > Math.abs(slideDrag.dy) ? 'h' : 'v';
+    if (slideDrag.locked === 'h') slideDrag.el.classList.add('dragging');
+    else { slideDrag = null; return; } // vertical intent — let the page scroll
+  }
+  if (slideDrag.locked !== 'h') return;
+
+  if (e.cancelable) e.preventDefault(); // own the gesture once horizontal is confirmed
+  const rot = slideDrag.dx * 0.06;
+  slideDrag.el.style.transform = `translate(${slideDrag.dx}px, ${slideDrag.dy * 0.4}px) rotate(${rot}deg)`;
+  slideDrag.el.style.opacity = 1 - Math.min(Math.abs(slideDrag.dx) / 700, 0.4);
+}
+
+function onSlideDragEnd() {
+  if (!slideDrag) return;
+  const { el, dx, locked } = slideDrag;
+  if (locked !== 'h') { slideDrag = null; return; }
+
+  const courses = userData.semesters[currentSem] || [];
+  const i = currentSlideIdx;
+  const threshold = 90;
+  el.classList.remove('dragging');
+
+  if (dx <= -threshold && i < courses.length - 1) {
+    el.style.transform = `translate(-900px, ${dx * 0.2}px) rotate(-30deg)`;
+    el.style.opacity = 0;
+    setTimeout(() => goToSlide(i + 1), 180);
+  } else if (dx >= threshold && i > 0) {
+    el.style.transform = `translate(900px, ${dx * 0.2}px) rotate(30deg)`;
+    el.style.opacity = 0;
+    setTimeout(() => goToSlide(i - 1), 180);
+  } else {
+    el.style.transform = '';
+    el.style.opacity = '';
+  }
+  slideDrag = null;
+}
+
+(function setupSlideDrag() {
+  const stack = document.getElementById('slide-stack');
+  if (!stack) return;
+  stack.addEventListener('mousedown', onSlideDragStart);
+  window.addEventListener('mousemove', onSlideDragMove);
+  window.addEventListener('mouseup', onSlideDragEnd);
+  stack.addEventListener('touchstart', onSlideDragStart, { passive: true });
+  window.addEventListener('touchmove', onSlideDragMove, { passive: false });
+  window.addEventListener('touchend', onSlideDragEnd);
+})();
+
 function attemptDone() {
   const courses = userData.semesters[currentSem] || [];
   const firstIncomplete = courses.findIndex(c => !isCourseComplete(c));
@@ -5227,49 +6284,6 @@ function attemptDone() {
   }
   openReviewModal();
 }
-
-// ── Slide swipe navigation ────────────────────────────────────
-// Left/right swipe moves between existing course slides. It never creates a
-// new slide or triggers Done — only the explicit button does that — so a
-// swipe can't accidentally skip the completeness check.
-(function initSlideSwipe() {
-  const wrap = document.getElementById('slide-view-wrap');
-  if (!wrap) return;
-  const SWIPE_THRESHOLD = 45; // px
-  let startX = 0, startY = 0, tracking = false;
-
-  function onStart(x, y, target) {
-    // Don't hijack interaction with inputs, steppers, delete button, or dots.
-    if (target.closest('input, button, select, textarea')) { tracking = false; return; }
-    startX = x; startY = y; tracking = true;
-  }
-  function onEnd(x, y) {
-    if (!tracking) return;
-    tracking = false;
-    const dx = x - startX, dy = y - startY;
-    if (Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dx) < Math.abs(dy)) return;
-    const courses = userData.semesters[currentSem] || [];
-    if (!courses.length) return;
-    if (dx < 0 && currentSlideIdx < courses.length - 1) {
-      goToSlide(currentSlideIdx + 1);
-    } else if (dx > 0 && currentSlideIdx > 0) {
-      goToSlide(currentSlideIdx - 1);
-    }
-  }
-
-  wrap.addEventListener('touchstart', e => {
-    const t = e.touches[0];
-    onStart(t.clientX, t.clientY, e.target);
-  }, { passive: true });
-  wrap.addEventListener('touchend', e => {
-    const t = e.changedTouches[0];
-    onEnd(t.clientX, t.clientY);
-  }, { passive: true });
-
-  // Mouse fallback for desktop/browser testing.
-  wrap.addEventListener('mousedown', e => onStart(e.clientX, e.clientY, e.target));
-  wrap.addEventListener('mouseup', e => onEnd(e.clientX, e.clientY));
-})();
 
 // ── Review / Calculating / Result modals ─────────────────────
 function openReviewModal() {
@@ -5355,6 +6369,7 @@ function deleteCourse(i) {
   renderCourses();
   updateStats();
   scheduleSave();
+  showToast('Course deleted');
 }
 
 function updateField(i, field, val) {
