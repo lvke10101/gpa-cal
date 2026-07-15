@@ -22,6 +22,28 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!--
+              App Links: lets a tapped https://<gradevault-al3.pages.dev>/?post=<id> link
+              (see SHARE_ORIGIN in www/index.html) open this app directly
+              instead of a browser. Requires, off-device:
+                1. gradevault-al3.pages.dev below actually resolves and serves something
+                   at "/" (even a static fallback page) — a scheme with no
+                   real DNS host verifies as nothing.
+                2. https://<gradevault-al3.pages.dev>/.well-known/assetlinks.json hosted
+                   at that same domain (see assetlinks.json.template),
+                   listing this app's package name + release-key SHA256
+                   fingerprint.
+              Without both, autoVerify silently fails and Android falls
+              back to opening a browser instead of the app — it will not
+              error, it will just not link.
+            -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="gradevault-al3.pages.dev" />
+            </intent-filter>
+
         </activity>
 
         <provider

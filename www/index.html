@@ -480,9 +480,9 @@
   .slide-card.top { z-index:2; touch-action:pan-y; }
 
   .slide-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:18px; gap:12px; }
-  .slide-del-btn { width:38px; height:38px; flex-shrink:0; border-radius:50%; border:1.5px solid var(--sc-gold); background:none; color:var(--sc-gold); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.15s; -webkit-tap-highlight-color:transparent; }
-  .slide-del-btn svg { width:18px; height:18px; stroke-width:2.4; }
-  .slide-del-btn:hover, .slide-del-btn:active { transform:scale(0.94); background:rgba(226,104,90,0.14); border-color:var(--sc-red); color:var(--sc-red); }
+  .slide-del-btn { width:56px; height:56px; flex-shrink:0; border-radius:18px; border:none; background:var(--sc-gold); color:var(--sc-bg3); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.15s; -webkit-tap-highlight-color:transparent; }
+  .slide-del-btn svg { width:24px; height:24px; stroke-width:2.2; }
+  .slide-del-btn:hover, .slide-del-btn:active { transform:scale(0.92); background:var(--sc-red); color:var(--sc-txt-hi); }
   .slide-del-btn:disabled { opacity:0.35; cursor:not-allowed; pointer-events:none; }
 
   .slide-field { margin-bottom:18px; }
@@ -2280,6 +2280,14 @@ const SUPABASE_ANON_KEY = 'sb_publishable_Bhf0PoThMTttvf0sJNfglw_Zdrt5NhC';
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// Real hosted origin for shareable post links. https://localhost (the
+// WebView's own default origin, i.e. location.origin) only resolves inside
+// this app's WebView — it is not reachable from any other device or from
+// a browser. Replace the placeholder host below with the actual domain
+// you host a fallback page at, and keep android:host in AndroidManifest.xml
+// (App Links intent-filter) and assetlinks.json.template in sync with it.
+const SHARE_ORIGIN = 'https://gradevault-al3.pages.dev';
+
 // ── Constants ───────────────────────────────────────────────
 const GRADE_POINTS = { A:5, B:4, C:3, D:2, E:1, F:0 };
 const CREDIT_COSTS = { upload: 10, addCourse: 2, saveNote: 1, editProfile: 5, autosaveBatch: 10 };
@@ -2358,6 +2366,8 @@ const app         = document.getElementById('app');
 // instead of falling through to app-exit/previous-tab behavior. Empty
 // stack falls back to exiting the app.
 const backScreenStack = [];
+let appLaunched = false;
+let pendingDeepLinkPostId = null;
 
 function pushBackHandler(hideFn) {
   if (backScreenStack[backScreenStack.length - 1] !== hideFn) backScreenStack.push(hideFn);
@@ -2378,6 +2388,30 @@ function initBackButton() {
       hideFn();
     } else {
       AppPlugin.exitApp();
+    }
+  });
+}
+
+// ── App Links (shared post deep links) ────────────────────────
+// Fires when the app is opened via a verified https://<gradevault-al3.pages.dev>/?post=<id>
+// link (see AndroidManifest.xml intent-filter + assetlinks.json.template).
+// Does NOT touch this WebView's own location — Android hands the tapped
+// URL to the native layer, not to the page, so it can arrive well before
+// launchApp() has run (cold start) or any time after (warm resume). Stash
+// it either way; launchApp() is the single place that actually opens it,
+// since that's the first point currentUser/userData are guaranteed ready.
+function initDeepLinks() {
+  if (!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform())) return;
+  const AppPlugin = window.Capacitor.Plugins && window.Capacitor.Plugins.App;
+  if (!AppPlugin) return;
+  AppPlugin.addListener('appUrlOpen', (data) => {
+    let postId = null;
+    try { postId = new URL(data.url).searchParams.get('post'); } catch (_) {}
+    if (!postId) return;
+    if (appLaunched) {
+      openPostById(postId);
+    } else {
+      pendingDeepLinkPostId = postId;
     }
   });
 }
@@ -3566,6 +3600,23 @@ function launchApp() {
   startNotifPolling();
   maybeShowOnboarding();
   requestPushPermission();
+
+  // Deep link: a shared post URL is https://<gradevault-al3.pages.dev>/?post=<id>.
+  // Two delivery paths land here: (a) location.search already has ?post=
+  // (only true if this WebView's own URL was set that way — doesn't happen
+  // via a real App Link tap, kept for local/web testing), and (b) a native
+  // App Link tap, delivered via the appUrlOpen listener below, which stashes
+  // the id in pendingDeepLinkPostId because launchApp (and therefore
+  // currentUser/userData) isn't guaranteed ready yet when that event fires
+  // on a cold start.
+  appLaunched = true;
+  const deepLinkPostId = new URLSearchParams(location.search).get('post') || pendingDeepLinkPostId;
+  pendingDeepLinkPostId = null;
+  if (deepLinkPostId) {
+    openPostById(deepLinkPostId);
+    const cleanUrl = location.pathname + location.hash;
+    history.replaceState(null, '', cleanUrl);
+  }
 }
 
 // ── Onboarding (mandatory first-run: nickname, level, admission year) ──
@@ -3858,6 +3909,69 @@ function closePost() {
   closePostMenu();
   closeCommentSheet();
   pdPostId = null;
+}
+
+// Opens a post by id even if it isn't in postsCache — postsCache only holds
+// the 50 most recent post_type='news' rows (see loadPosts), so a shared
+// link to an older post, or an announcement/daily_tip permalink, would
+// silently no-op through openPost() alone. This fetches it directly and
+// splices it into postsCache with the same shape loadPosts() builds, so
+// everything downstream (renderPostDetail, pdShare, bookmarking) still
+// finds it via the one cache they all already expect.
+async function openPostById(postId) {
+  if (!postId) return;
+  const cached = postsCache.find(p => p.id === postId);
+  if (cached) { openPost(postId); return; }
+
+  try {
+    const { data: p, error } = await sb.from('posts').select('*').eq('id', postId).single();
+    if (error || !p) throw error || new Error('not found');
+
+    if (!avatarsCache) {
+      const { data: avData } = await sb.from('avatars').select('id,url').order('created_at');
+      avatarsCache = avData || [];
+    }
+
+    const [{ data: authorRow }, { data: reactions }, { data: myUnlock }, { data: myBookmark }, { data: commentRows }] = await Promise.all([
+      sb.from('gpa_data').select('id, username, full_name, avatar_id, verified').eq('id', p.author_id).maybeSingle(),
+      sb.from('reactions').select('type, user_id').eq('post_id', postId),
+      currentUser
+        ? sb.from('post_unlocks').select('post_id').eq('user_id', currentUser.id).eq('post_id', postId).maybeSingle()
+        : Promise.resolve({ data: null }),
+      currentUser
+        ? sb.from('bookmarks').select('post_id').eq('user_id', currentUser.id).eq('post_id', postId).maybeSingle()
+        : Promise.resolve({ data: null }),
+      sb.from('comments').select('id').eq('post_id', postId)
+    ]);
+
+    let avatarUrl = null;
+    if (authorRow && authorRow.avatar_id && avatarsCache) {
+      const match = avatarsCache.find(av => av.id === authorRow.avatar_id);
+      if (match) avatarUrl = match.url;
+    }
+
+    let likeCount = 0, dislikeCount = 0, myReaction = null;
+    (reactions || []).forEach(r => {
+      if (r.type === 'like') likeCount++; else if (r.type === 'dislike') dislikeCount++;
+      if (currentUser && r.user_id === currentUser.id) myReaction = r.type;
+    });
+
+    const post = {
+      ...p,
+      author: authorRow ? { ...authorRow, avatarUrl } : null,
+      likeCount, dislikeCount,
+      commentCount: (commentRows || []).length,
+      myReaction,
+      unlocked: !!myUnlock,
+      bookmarked: !!myBookmark
+    };
+
+    postsCache = [post, ...postsCache.filter(x => x.id !== postId)];
+    openPost(postId);
+  } catch (err) {
+    console.error('openPostById failed', err);
+    showToast("Couldn't open that post — it may have been removed.", true);
+  }
 }
 
 function openCommentSheet() {
@@ -4182,7 +4296,7 @@ function pdToggleBookmark() {
 async function pdShare() {
   const post = postsCache.find(p => p.id === pdPostId);
   if (!post) return;
-  const shareUrl = `${location.origin}${location.pathname}`;
+  const shareUrl = `${SHARE_ORIGIN}/?post=${post.id}`;
   const snippet = post.body ? post.body.slice(0, 120).trimEnd() + (post.body.length > 120 ? '…' : '') : '';
   if (navigator.share) {
     try {
@@ -6538,6 +6652,7 @@ initScrollFade();
 applyTheme(getStoredTheme());
 showAuthTab('login');
 initBackButton();
+initDeepLinks();
 initPushListeners();
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && currentUser) stampActivity();
