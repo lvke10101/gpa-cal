@@ -7,6 +7,9 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -39,10 +42,6 @@ jobs:
         working-directory: android/app
         run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release.keystore
 
-      - name: Decode google-services.json
-        working-directory: android/app
-        run: echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 -d > google-services.json
-
       - name: Build signed release APK
         working-directory: android
         env:
@@ -57,3 +56,16 @@ jobs:
         with:
           name: GradeVault-release-apk
           path: android/app/build/outputs/apk/release/app-release.apk
+
+      # Gives the app itself (and anything else) a permanent, unauthenticated
+      # URL to link to: https://github.com/lvke10101/gpa-cal/releases/latest/download/app-release.apk
+      # The build artifact above is kept too, for CI debugging — it requires
+      # a GitHub session and expires, so it's not usable as a public link.
+      - name: Publish to rolling 'latest' release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Latest build
+          body: Automated build from the latest push to main.
+          files: android/app/build/outputs/apk/release/app-release.apk
+
