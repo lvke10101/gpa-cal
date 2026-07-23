@@ -1206,10 +1206,6 @@
         <button type="button" class="pw-toggle-btn" aria-label="Show password" onclick="togglePasswordVisibility('auth-confirm-password', this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
     </div>
-    <div class="auth-field" id="remember-field" style="display:flex; align-items:center; gap:8px;">
-      <input type="checkbox" id="auth-remember" checked style="width:auto; margin:0;"/>
-      <label for="auth-remember" style="margin:0; cursor:pointer; font-weight:normal;">Keep me logged in</label>
-    </div>
     <div class="auth-field" id="dept-field" style="display:none;">
       <label>Department</label>
       <div class="dept-combo" id="dept-combo">
@@ -1218,9 +1214,13 @@
         <div class="dept-panel" id="dept-panel"></div>
       </div>
     </div>
-    <div class="auth-field" id="terms-field" style="display:none; align-items:flex-start; gap:8px;">
+    <div class="auth-field" id="terms-field" style="display:flex; align-items:flex-start; gap:8px;">
       <input type="checkbox" id="auth-terms" style="width:auto; margin:3px 0 0 0;"/>
-      <label for="auth-terms" style="margin:0; cursor:pointer; font-weight:normal; font-size:13px; line-height:1.4;">I agree to the <span id="auth-terms-link" style="color:var(--gold); font-weight:600; cursor:pointer; text-decoration:underline;">Terms and Conditions</span></label>
+      <label for="auth-terms" style="margin:0; cursor:pointer; font-weight:normal; font-size:13px; line-height:1.4;">I agree to the <span id="auth-terms-link" style="color:var(--gold); font-weight:600; cursor:pointer; text-decoration:underline;">Terms and Conditions</span> and <span id="auth-privacy-link" style="color:var(--gold); font-weight:600; cursor:pointer; text-decoration:underline;">Privacy Policy</span></label>
+    </div>
+    <div class="auth-field" id="remember-field" style="display:flex; align-items:center; gap:8px;">
+      <input type="checkbox" id="auth-remember" checked style="width:auto; margin:0;"/>
+      <label for="auth-remember" style="margin:0; cursor:pointer; font-weight:normal;">Keep me logged in</label>
     </div>
 
     <button class="btn-full" id="auth-submit">Login</button>
@@ -2831,12 +2831,16 @@ const authSwitchLink = document.getElementById('auth-switch-link');
 const termsField     = document.getElementById('terms-field');
 const authTerms      = document.getElementById('auth-terms');
 const authTermsLink  = document.getElementById('auth-terms-link');
+const authPrivacyLink = document.getElementById('auth-privacy-link');
 
 const TERMS_URL = 'https://gradevault-al3.pages.dev/terms'; // TODO: replace with hosted terms.html URL
+const PRIVACY_URL = 'https://gradevault-al3.pages.dev/privacy'; // TODO: replace with hosted privacy.html URL
+// Bump this any time terms.html or privacy.html content changes materially.
+// Written to gpa_data on every login and registration since the checkbox
+// is checked every time regardless of what was previously recorded.
+const POLICY_VERSION = '2026-07-23';
 
-async function openTermsPage(e) {
-  if (e) { e.preventDefault(); e.stopPropagation(); }
-  const url = TERMS_URL;
+async function openLegalPage(url) {
   try {
     if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
       if (window.Capacitor.Plugins && window.Capacitor.Plugins.Browser) {
@@ -2849,7 +2853,16 @@ async function openTermsPage(e) {
   }
   window.open(url, '_blank');
 }
+async function openTermsPage(e) {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  await openLegalPage(TERMS_URL);
+}
+async function openPrivacyPage(e) {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  await openLegalPage(PRIVACY_URL);
+}
 authTermsLink.addEventListener('click', openTermsPage);
+authPrivacyLink.addEventListener('click', openPrivacyPage);
 const deptCombo = document.getElementById('dept-combo');
 const deptPanel = document.getElementById('dept-panel');
 
@@ -3012,10 +3025,10 @@ function showAuthTab(mode) {
   authSubmit.textContent = mode === 'login' ? 'Login' : 'Create Account';
   authPassword.autocomplete = mode === 'login' ? 'current-password' : 'new-password';
   deptField.style.display = mode === 'register' ? 'block' : 'none';
-  termsField.style.display = mode === 'register' ? 'flex' : 'none';
   confirmPasswordField.style.display = mode === 'register' ? 'block' : 'none';
   rememberField.style.display = mode === 'login' ? 'flex' : 'none';
   document.getElementById('auth-forgot-link').style.display = mode === 'login' ? 'block' : 'none';
+  authTerms.checked = false;
   authError.style.display = 'none';
   authSwitch.firstChild.textContent = mode === 'login' ? "Don't have an account? " : 'Already have an account? ';
   authSwitchLink.textContent = mode === 'login' ? 'Register' : 'Login';
@@ -3266,8 +3279,8 @@ async function submitAuth() {
     setAuthError('Please select your department.');
     return;
   }
-  if (authMode === 'register' && !authTerms.checked) {
-    setAuthError('You must accept the Terms and Conditions to register.');
+  if (!authTerms.checked) {
+    setAuthError('You must accept the Terms and Conditions and Privacy Policy to continue.');
     return;
   }
 
@@ -3277,11 +3290,32 @@ async function submitAuth() {
 
   try {
     let user;
+    const acceptedAt = new Date().toISOString();
 
     if (authMode === 'login') {
       const { data, error } = await sb.auth.signInWithPassword({ email, password });
       if (error) throw error;
       user = data.user;
+
+      // Checkbox is required on every login regardless of prior state, but
+      // the consent record itself is only written once — skip the write if
+      // this user already has one.
+      const { data: existingConsent, error: fetchErr } = await sb
+        .from('gpa_data')
+        .select('terms_accepted_at')
+        .eq('id', user.id)
+        .maybeSingle();
+      if (fetchErr) throw fetchErr;
+
+      if (!existingConsent || !existingConsent.terms_accepted_at) {
+        const { error: consentErr } = await sb.from('gpa_data').upsert({
+          id: user.id,
+          terms_accepted_at: acceptedAt,
+          privacy_accepted_at: acceptedAt,
+          policy_version: POLICY_VERSION
+        }, { onConflict: 'id' });
+        if (consentErr) throw consentErr;
+      }
     } else {
       const { data, error } = await sb.auth.signUp({
         email,
@@ -3299,12 +3333,16 @@ async function submitAuth() {
         throw new Error('Account created but email confirmation is required. Disable it in your Supabase dashboard under Authentication → Configuration.');
       }
 
-      // Create the profile row
+      // Create the profile row, stamped with a real consent event —
+      // the checkbox above was required and checked before this point.
       const { error: profileErr } = await sb.from('gpa_data').upsert({
         id: data.user.id,
         department,
         semesters: {},
-        courses: {}
+        courses: {},
+        terms_accepted_at: acceptedAt,
+        privacy_accepted_at: acceptedAt,
+        policy_version: POLICY_VERSION
       }, { onConflict: 'id' });
       if (profileErr) throw profileErr;
 
