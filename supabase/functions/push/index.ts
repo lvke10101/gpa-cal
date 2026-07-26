@@ -95,7 +95,7 @@ Deno.serve(async (req) => {
               android: {
                 priority: 'high',
                 notification: {
-                  channel_id: 'default',
+                  channel_id: 'gradevault_default_v2',
                   ...(image ? { image } : {}),
                 },
               },
