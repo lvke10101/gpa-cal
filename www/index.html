@@ -2785,8 +2785,14 @@ async function requestPushPermission() {
   if (!PushPlugin) return;
 
   try {
+    // Channel ID bumped from 'default' — Android locks in a channel's
+    // importance the first time it's created on a device and never lets
+    // a later createChannel() call raise it, even with the same settings
+    // object. Devices that got 'default' created before importance:4 was
+    // added here would be stuck at whatever it started as. New ID = every
+    // device (old and new installs) gets importance:4 for real.
     await PushPlugin.createChannel({
-      id: 'default',
+      id: 'gradevault_default_v2',
       name: 'GradeVault',
       description: 'Credits, replies, and announcements',
       importance: 4,
