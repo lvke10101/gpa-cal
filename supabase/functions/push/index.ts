@@ -21,12 +21,18 @@ const FCM_CLIENT_EMAIL = Deno.env.get('FCM_CLIENT_EMAIL')!
 const FCM_PRIVATE_KEY = Deno.env.get('FCM_PRIVATE_KEY')!.replace(/\\n/g, '\n')
 const WEBHOOK_SECRET = Deno.env.get('PUSH_WEBHOOK_SECRET')!
 
-function buildTitleAndBody(row: NotificationRow): { title: string; body: string } {
+function buildTitleAndBody(row: NotificationRow): { title: string; body: string; image?: string } {
   const preview = row.body_preview || '';
   switch (row.type) {
     case 'announcement': {
       const [title, body] = preview.split('|||');
       return { title: title || 'Announcement', body: body || '' };
+    }
+    // Packs "title|||image_url" (no body text) — same delimiter convention
+    // as announcement, just a different second slot. See broadcast_news().
+    case 'new_post': {
+      const [title, imageUrl] = preview.split('|||');
+      return { title: title || 'GradeVault News', body: '', image: imageUrl || undefined };
     }
     case 'reply':
       return { title: 'New reply', body: preview };
@@ -72,7 +78,7 @@ Deno.serve(async (req) => {
     const tokenRows: { id: string; fcm_token: string }[] = await tokensRes.json()
     if (!tokenRows.length) return Response.json({ skipped: 'no tokens' })
 
-    const { title, body } = buildTitleAndBody(row)
+    const { title, body, image } = buildTitleAndBody(row)
     const accessToken = await getAccessToken()
     const staleTokenIds: string[] = []
 
@@ -86,7 +92,23 @@ Deno.serve(async (req) => {
             message: {
               token: fcm_token,
               notification: { title, body },
-              android: { notification: { channel_id: 'default' } },
+              android: {
+                notification: {
+                  channel_id: 'default',
+                  ...(image ? { image } : {}),
+                },
+              },
+              // iOS won't show a remote image from `notification.image` alone —
+              // it needs mutable-content:1 plus fcm_options.image so a
+              // Notification Service Extension can download and attach it.
+              // Harmless to omit if no extension exists yet: the notification
+              // still delivers, just without the image on iOS.
+              ...(image ? {
+                apns: {
+                  payload: { aps: { 'mutable-content': 1 } },
+                  fcm_options: { image },
+                },
+              } : {}),
             },
           }),
         }
