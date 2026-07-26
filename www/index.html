@@ -404,6 +404,7 @@
   .notif-badge-ann { display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:0.03em; text-transform:uppercase; color:var(--gold); border:1px solid var(--gold); border-radius:4px; padding:1px 5px; margin-right:6px; vertical-align:middle; }
   .notif-badge-warn { color:#e5484d; border-color:#e5484d; }
   .notif-item.warning { border-left:2px solid #e5484d; }
+  .notif-news-thumb { width:52px; height:52px; border-radius:10px; object-fit:cover; flex-shrink:0; background:var(--card); }
   .notif-ann-box { overflow:hidden; height:0; transition:height 0.25s ease; }
   .notif-ann-box-inner { padding-top:10px; font-size:13.5px; line-height:1.5; color:var(--text2); white-space:pre-wrap; }
   .notif-ann-title { font-weight:600; color:var(--text); margin-bottom:4px; }
@@ -728,8 +729,8 @@
   .pd-source-link { display:block; font-size:13px; color:var(--gold); word-break:break-all; margin-bottom:4px; text-decoration:none; }
   .pd-source-link:last-child { margin-bottom:0; }
   .pd-source-pills { display:flex; flex-wrap:wrap; gap:8px; }
-  .source-pill { display:inline-flex; align-items:center; gap:7px; padding:6px 12px 6px 6px; background:var(--bg2, #fff); border:1px solid var(--border); border-radius:999px; text-decoration:none; color:var(--text); font-size:13px; font-weight:600; -webkit-tap-highlight-color:transparent; }
-  .source-pill:active { background:var(--card); }
+  .source-pill { display:inline-flex; align-items:center; gap:7px; padding:6px 12px 6px 6px; background:var(--overlay-soft2); border:1px solid var(--border2); border-radius:999px; text-decoration:none; color:var(--text); font-size:13px; font-weight:600; -webkit-tap-highlight-color:transparent; }
+  .source-pill:active { background:var(--border2); }
   .source-pill-icon { width:22px; height:22px; border-radius:50%; object-fit:cover; flex-shrink:0; display:block; }
   .source-pill-icon-fallback { display:inline-flex; align-items:center; justify-content:center; background:var(--gold); color:#fff; font-size:11px; font-weight:700; }
   .source-pill-name { white-space:nowrap; }
@@ -1057,8 +1058,9 @@
   .sup-header-title { font-family:'Playfair Display',serif; font-size:16px; color:var(--text); flex:1; letter-spacing:-0.1px; }
 
   .sup-intro { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:32px 20px 20px; gap:16px; }
-  .sup-avatar { width:120px; height:120px; border-radius:50%; background:var(--card); border:1px solid var(--border2); display:flex; align-items:center; justify-content:center; color:var(--gold); box-shadow:0 0 0 5px rgba(212,168,67,0.08); }
-  .sup-avatar svg { width:78px; height:78px; }
+  .sup-avatar { width:150px; height:150px; border-radius:50%; background:var(--card); border:1px solid var(--border2); display:flex; align-items:center; justify-content:center; color:var(--gold); box-shadow:0 0 0 5px rgba(212,168,67,0.08); overflow:hidden; }
+  .sup-avatar svg { width:96px; height:96px; }
+  .sup-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
   .sup-greeting { font-family:'Playfair Display',serif; font-size:19px; line-height:1.4; color:var(--text); max-width:260px; letter-spacing:-0.2px; }
   .sup-greeting-sub { font-size:13px; color:var(--text3); max-width:280px; line-height:1.5; margin-top:-8px; }
 
@@ -2170,7 +2172,7 @@
 
   <div class="profile-content">
     <div class="sup-intro" id="sup-intro">
-      <div class="sup-avatar">
+            <div class="sup-avatar">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2.5" x2="12" y2="5"/><circle cx="12" cy="2" r="0.9" fill="currentColor" stroke="none"/><rect x="5.5" y="5" width="13" height="10.5" rx="3"/><line x1="3" y1="9.5" x2="5.5" y2="9.5"/><line x1="18.5" y1="9.5" x2="21" y2="9.5"/><circle cx="9.3" cy="10.2" r="1" fill="currentColor" stroke="none"/><circle cx="14.7" cy="10.2" r="1" fill="currentColor" stroke="none"/><rect x="8" y="17" width="8" height="5" rx="2.3"/><circle cx="12" cy="19.4" r="0.8" fill="currentColor" stroke="none"/></svg>
       </div>
       <div class="sup-greeting">Hi, I'm GradeVault Support.<br>How can I help?</div>
@@ -3936,6 +3938,7 @@ function notifText(n) {
   if (n.type === 'reply') return `<b>${name}</b> replied to your comment`;
   if (n.type === 'announcement') return `<span class="notif-badge-ann">Announcement</span><b>${notifAnnouncementTitle(n)}</b>`;
   if (n.type === 'daily_tip') return `<span class="notif-badge-ann">Daily Tip</span><b>${notifAnnouncementTitle(n)}</b>`;
+  if (n.type === 'new_post') return `<span class="notif-badge-ann">News</span><b>${notifAnnouncementTitle(n)}</b>`;
   if (n.type === 'credit_topup') return `<span class="notif-badge-ann">Top-up</span>`;
   if (n.type === 'credit_bonus') return `<span class="notif-badge-ann">Bonus</span>`;
   if (n.type === 'credit_signup_bonus') return `<span class="notif-badge-ann">Signup Bonus</span>`;
@@ -3943,11 +3946,12 @@ function notifText(n) {
   return `<b>${name}</b> sent you a notification`;
 }
 
-// Announcement/Daily Tip notifications pack "Title|||Body" into body_preview.
+// Announcement/Daily Tip/News notifications pack "Title|||Body" (or, for
+// new_post, "Title|||ImageURL") into body_preview.
 function notifAnnouncementParts(n) {
   const raw = n.body_preview || '';
   const idx = raw.indexOf('|||');
-  const fallback = n.type === 'daily_tip' ? 'Daily Tip' : n.type === 'moderation_warning' ? 'Warning' : 'Announcement';
+  const fallback = n.type === 'daily_tip' ? 'Daily Tip' : n.type === 'moderation_warning' ? 'Warning' : n.type === 'new_post' ? 'News' : 'Announcement';
   return idx === -1 ? { title: fallback, body: raw } : { title: raw.slice(0, idx), body: raw.slice(idx + 3) };
 }
 function notifAnnouncementTitle(n) { return esc(notifAnnouncementParts(n).title); }
@@ -3982,6 +3986,18 @@ function renderNotifications() {
             <div>${esc(parts.body)}</div>
           </div>
         </div>
+      </div>
+    </div>`;
+    }
+    if (n.type === 'new_post') {
+      const parts = notifAnnouncementParts(n); // body slot holds image_url for this type
+      return `
+    <div class="notif-item ${n.is_read ? 'read' : 'unread'}" onclick="handleNotifTap('${n.id}', ${n.post_id ? `'${n.post_id}'` : 'null'})">
+      <div class="notif-dot"></div>
+      ${parts.body ? `<img class="notif-news-thumb" src="${esc(parts.body)}" alt="" loading="lazy">` : ''}
+      <div class="notif-body">
+        <div class="notif-text">${notifText(n)}</div>
+        <div class="notif-time">${timeAgo(n.created_at)}</div>
       </div>
     </div>`;
     }
@@ -5847,6 +5863,7 @@ async function submitPost() {
   btn.textContent = 'Publishing…';
 
   const isSimpleBroadcast = cpPostType === 'announcement' || cpPostType === 'daily_tip';
+  const shouldBroadcast = isSimpleBroadcast || cpPostType === 'news';
 
   try {
     const { data: inserted, error } = await sb.from('posts').insert({
@@ -5863,7 +5880,7 @@ async function submitPost() {
     }).select('id').single();
     if (error) throw error;
 
-    if (isSimpleBroadcast && inserted) {
+    if (shouldBroadcast && inserted) {
       // This RPC fans out to every user's notifications in one shot — it
       // gets the same pre-flight scrutiny as a money-path action, not just
       // the page-load-time cache check that gated opening the composer.
@@ -5875,25 +5892,25 @@ async function submitPost() {
         await loadPosts();
         return;
       }
+      const allowedRoles = cpPostType === 'news' ? ['contributor', 'admin'] : ['admin'];
       const { data: freshProfile, error: roleErr } = await sb
         .from('gpa_data')
         .select('role')
         .eq('id', sessionCheck.user.id)
         .single();
-      if (roleErr || freshProfile?.role !== 'admin') {
-        showToast('Post created, but admin status could not be confirmed — broadcast was not sent.', true);
+      if (roleErr || !allowedRoles.includes(freshProfile?.role)) {
+        showToast('Post created, but permission could not be confirmed — broadcast was not sent.', true);
         newsLoaded = false;
         hideCompose();
         await loadPosts();
         return;
       }
 
-      const broadcastFn = cpPostType === 'announcement' ? 'broadcast_announcement' : 'broadcast_daily_tip';
-      const { error: broadcastErr } = await sb.rpc(broadcastFn, {
-        p_post_id: inserted.id,
-        p_title: title,
-        p_body: body
-      });
+      const broadcastFn = cpPostType === 'announcement' ? 'broadcast_announcement' : cpPostType === 'daily_tip' ? 'broadcast_daily_tip' : 'broadcast_news';
+      const broadcastParams = cpPostType === 'news'
+        ? { p_post_id: inserted.id, p_title: title, p_image_url: imageUrl }
+        : { p_post_id: inserted.id, p_title: title, p_body: body };
+      const { error: broadcastErr } = await sb.rpc(broadcastFn, broadcastParams);
       if (broadcastErr) {
         // Post row exists but nobody was notified — this is NOT the same
         // outcome as a full publish. Never fold this into the success toast.
@@ -5906,7 +5923,7 @@ async function submitPost() {
       }
     }
 
-    showToast(cpPostType === 'announcement' ? 'Announcement published.' : cpPostType === 'daily_tip' ? 'Daily Tip published.' : 'Post published.');
+    showToast(cpPostType === 'announcement' ? 'Announcement published.' : cpPostType === 'daily_tip' ? 'Daily Tip published.' : cpPostType === 'news' ? 'Post published — everyone notified.' : 'Post published.');
     newsLoaded = false; // force a refresh so the new post appears
     hideCompose();
     await loadPosts();
