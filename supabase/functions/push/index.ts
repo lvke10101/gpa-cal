@@ -93,6 +93,7 @@ Deno.serve(async (req) => {
               token: fcm_token,
               notification: { title, body },
               android: {
+                priority: 'high',
                 notification: {
                   channel_id: 'default',
                   ...(image ? { image } : {}),
