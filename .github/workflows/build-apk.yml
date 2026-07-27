@@ -42,6 +42,10 @@ jobs:
         working-directory: android/app
         run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release.keystore
 
+      - name: Decode google-services.json
+        working-directory: android/app
+        run: echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 -d > google-services.json
+
       - name: Build signed release APK
         working-directory: android
         env:
@@ -68,4 +72,3 @@ jobs:
           name: Latest build
           body: Automated build from the latest push to main.
           files: android/app/build/outputs/apk/release/app-release.apk
-
