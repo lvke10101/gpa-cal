@@ -2805,15 +2805,24 @@ async function requestPushPermission() {
   // Don't prompt mid-onboarding — let that modal finish first; retried on
   // the next launchApp() call once level/admissionYear are set.
   if (userData && !(userData.level && userData.admissionYear)) return;
-  if (loadPushAskedPref()) return;
 
   try {
     const status = await PushPlugin.checkPermissions();
-    if (status.receive === 'prompt') {
+    if (status.receive === 'prompt' && !loadPushAskedPref()) {
       await PushPlugin.requestPermissions();
+      savePushAskedPref();
     }
-    savePushAskedPref();
 
+    // Re-register on every call, not gated by gv_push_asked — that flag
+    // only means "don't show the OS prompt again," it does NOT mean
+    // "this device's token is already correctly associated with whoever
+    // is logged in right now." Without this, switching accounts on the
+    // same device/install left device_tokens pointing only at the FIRST
+    // account ever logged in on that install; later accounts never got
+    // a row, so push silently had nothing to send to (in-app notifications
+    // still worked fine since those don't need a device token at all).
+    // register() is safe to call repeatedly — it re-fires 'registration'
+    // with the current token, which re-upserts it against currentUser.
     const finalStatus = await PushPlugin.checkPermissions();
     if (finalStatus.receive === 'granted') {
       await PushPlugin.register();
